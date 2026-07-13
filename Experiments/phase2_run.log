@@ -1,0 +1,14 @@
+phase2_noise_single: 252 trials
+  progress: 60/252
+  progress: 120/252
+  progress: 180/252
+  progress: 240/252
+  progress: 252/252
+0.9801587301587301 single-source overall success rate
+phase2_noise_combined: 243 trials
+  progress: 60/243
+  progress: 120/243
+  progress: 180/243
+  progress: 240/243
+  progress: 243/243
+0.9176954732510288 combined-noise overall success rate

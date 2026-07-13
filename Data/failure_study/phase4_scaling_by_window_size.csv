@@ -1,0 +1,13 @@
+trial_id,phase,param_swept,runtime_seconds,peak_memory_bytes,error,spec_total_precision,spec_window_size,spec_overlap,spec_candidate_count,spec_max_paths,spec_shots,spec_noise_1q,spec_noise_2q,spec_noise_ro,spec_simulator_method,spec_seed,spec_N,spec_a,spec_sweep_value,result_order,result_factors,result_success,result_best_phase,result_num_candidates
+3517db81bb7145b8be465e8f813253e1,phase4_scaling_by_window_size,window_size,5.098858700017445,3893489,,16,2,0,2,32,2048,0.0,0.0,0.0,automatic,879005611,21,8,2,2,"[3, 7]",True,0,2
+7d7b1f4fbb964c4f9f62f9eb9c6787bb,phase4_scaling_by_window_size,window_size,5.156475200026762,3895066,,16,2,0,2,32,2048,0.0,0.0,0.0,automatic,1358951129,21,8,2,2,"[3, 7]",True,1/2,2
+77ed2c2dd798465491f99b0db3607981,phase4_scaling_by_window_size,window_size,6.021609899995383,3902826,,16,2,0,2,32,2048,0.0,0.0,0.0,automatic,498398980,21,8,2,2,"[3, 7]",True,1/2,2
+cc62e8de84164611a96c5c5d0ccb25de,phase4_scaling_by_window_size,window_size,2.9515572999953292,866084,,16,4,1,2,32,2048,0.0,0.0,0.0,automatic,1176055902,21,8,4,2,"[3, 7]",True,1/2,2
+097f78a54a254dc4b3e5454bebb196fe,phase4_scaling_by_window_size,window_size,3.0171782999532297,866185,,16,4,1,2,32,2048,0.0,0.0,0.0,automatic,696110384,21,8,4,2,"[3, 7]",True,0,2
+2a4b9f63737c4fa4b4d0402734320ede,phase4_scaling_by_window_size,window_size,2.938274999964051,870019,,16,4,1,2,32,2048,0.0,0.0,0.0,automatic,315503753,21,8,4,2,"[3, 7]",True,0,2
+7eca8cec4c7445118dc2afcd34dfc417,phase4_scaling_by_window_size,window_size,2.197055900003761,914707,,16,8,3,2,32,2048,0.0,0.0,0.0,automatic,321041513,21,8,8,2,"[3, 7]",True,1/2,2
+91ff6dd2043944f89be47a9e11e39751,phase4_scaling_by_window_size,window_size,2.1850256000179797,915415,,16,8,3,2,32,2048,0.0,0.0,0.0,automatic,1988579643,21,8,8,2,"[3, 7]",True,1/2,2
+1bfba3a909b048efab3040e1fd4936fd,phase4_scaling_by_window_size,window_size,2.271906799986027,920282,,16,8,3,2,32,2048,0.0,0.0,0.0,automatic,1607973012,21,8,8,2,"[3, 7]",True,1/2,2
+2d02443680044364b3bd8bdefa7dd140,phase4_scaling_by_window_size,window_size,1.7272681000176817,885481,,16,16,7,2,32,2048,0.0,0.0,0.0,automatic,2005423155,21,8,16,2,"[3, 7]",True,0,2
+926b7b7d4a0b4f51b470c80467671445,phase4_scaling_by_window_size,window_size,1.8301610000198707,887619,,16,16,7,2,32,2048,0.0,0.0,0.0,automatic,1624816524,21,8,16,2,"[3, 7]",True,1/2,2
+ed1d9efb921d4c1fb64eed5011876ee3,phase4_scaling_by_window_size,window_size,1.772855499992147,887596,,16,16,7,2,32,2048,0.0,0.0,0.0,automatic,1144871006,21,8,16,2,"[3, 7]",True,0,2

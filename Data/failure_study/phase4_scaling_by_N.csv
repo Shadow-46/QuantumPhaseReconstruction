@@ -1,0 +1,13 @@
+trial_id,phase,param_swept,runtime_seconds,peak_memory_bytes,error,spec_total_precision,spec_window_size,spec_overlap,spec_candidate_count,spec_max_paths,spec_shots,spec_noise_1q,spec_noise_2q,spec_noise_ro,spec_simulator_method,spec_seed,spec_N,spec_a,spec_sweep_value,spec_pair_work_qubits,spec_true_order,result_order,result_factors,result_success,result_best_phase,result_num_candidates
+16ff6fdc541148bc9f74326fb45e4663,phase4_scaling_by_N,N,2.9798654000042006,3595771,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1099882170,15,4,15,4,2,2,"[3, 5]",True,0,2
+d5315defe1f648d6ae6754af36fc4367,phase4_scaling_by_N,N,3.307653299998492,3600112,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,619936652,15,4,15,4,2,2,"[3, 5]",True,1/2,2
+f3a4916658a04ee6b4fd11493794df22,phase4_scaling_by_N,N,3.2929340000264347,3593931,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,239330021,15,4,15,4,2,2,"[3, 5]",True,1/2,2
+6dbc7718ae0f4040a377cfa596e59672,phase4_scaling_by_N,N,1.3984832999994978,456481,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1642883381,15,13,15,4,4,4,"[3, 5]",True,0,2
+387069364bf143558efcddd23e4855f3,phase4_scaling_by_N,N,1.3911597999976948,454267,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1162937863,15,13,15,4,4,4,"[3, 5]",True,0,2
+57b1445b5a584db996d6dbef45b2cf3c,phase4_scaling_by_N,N,1.3638258000137284,451723,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,782331232,15,13,15,4,4,4,"[3, 5]",True,3/4,2
+645360fd54544e12bd746bc917aa564e,phase4_scaling_by_N,N,1.7454104000353254,644569,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,537444610,21,8,21,5,2,2,"[3, 7]",True,1/2,2
+9948b0471a36442c82e10eafcabbc890,phase4_scaling_by_N,N,1.8369575999677181,640273,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1824376109,21,8,21,5,2,2,"[3, 7]",True,0,2
+62d7d52eb93e4aa4934210f6de63ad70,phase4_scaling_by_N,N,1.8823447999893688,642397,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,57499092,21,8,21,5,2,2,"[3, 7]",True,0,2
+a9256ec0a5e245e1ab75e231520ce9e3,phase4_scaling_by_N,N,9.629679000005126,831380,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1702871444,21,19,21,5,6,6,"[3, 7]",True,1/2,2
+cb766541ad784d8d9a25e7e5a6b4c856,phase4_scaling_by_N,N,9.439163800037932,831480,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,842319295,21,19,21,5,6,6,"[3, 7]",True,1/2,2
+6053f758aff7422eb7848b9572a11a68,phase4_scaling_by_N,N,9.620849600003567,826575,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1322264813,21,19,21,5,6,6,"[3, 7]",True,1/2,2

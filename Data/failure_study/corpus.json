@@ -1,0 +1,412 @@
+[
+  {
+    "N": 15,
+    "a": 4,
+    "order": 2,
+    "factors": [
+      3,
+      5
+    ],
+    "work_qubits": 4
+  },
+  {
+    "N": 15,
+    "a": 13,
+    "order": 4,
+    "factors": [
+      3,
+      5
+    ],
+    "work_qubits": 4
+  },
+  {
+    "N": 21,
+    "a": 8,
+    "order": 2,
+    "factors": [
+      3,
+      7
+    ],
+    "work_qubits": 5
+  },
+  {
+    "N": 21,
+    "a": 19,
+    "order": 6,
+    "factors": [
+      3,
+      7
+    ],
+    "work_qubits": 5
+  },
+  {
+    "N": 33,
+    "a": 10,
+    "order": 2,
+    "factors": [
+      3,
+      11
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 35,
+    "a": 6,
+    "order": 2,
+    "factors": [
+      5,
+      7
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 35,
+    "a": 33,
+    "order": 12,
+    "factors": [
+      5,
+      7
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 51,
+    "a": 16,
+    "order": 2,
+    "factors": [
+      3,
+      17
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 51,
+    "a": 46,
+    "order": 16,
+    "factors": [
+      3,
+      17
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 55,
+    "a": 21,
+    "order": 2,
+    "factors": [
+      5,
+      11
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 55,
+    "a": 53,
+    "order": 20,
+    "factors": [
+      5,
+      11
+    ],
+    "work_qubits": 6
+  },
+  {
+    "N": 65,
+    "a": 14,
+    "order": 2,
+    "factors": [
+      5,
+      13
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 77,
+    "a": 34,
+    "order": 2,
+    "factors": [
+      7,
+      11
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 77,
+    "a": 75,
+    "order": 30,
+    "factors": [
+      7,
+      11
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 85,
+    "a": 16,
+    "order": 2,
+    "factors": [
+      5,
+      17
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 85,
+    "a": 82,
+    "order": 16,
+    "factors": [
+      5,
+      17
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 91,
+    "a": 27,
+    "order": 2,
+    "factors": [
+      7,
+      13
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 91,
+    "a": 89,
+    "order": 12,
+    "factors": [
+      7,
+      13
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 95,
+    "a": 39,
+    "order": 2,
+    "factors": [
+      5,
+      19
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 95,
+    "a": 93,
+    "order": 36,
+    "factors": [
+      5,
+      19
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 119,
+    "a": 50,
+    "order": 2,
+    "factors": [
+      7,
+      17
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 119,
+    "a": 116,
+    "order": 48,
+    "factors": [
+      7,
+      17
+    ],
+    "work_qubits": 7
+  },
+  {
+    "N": 143,
+    "a": 12,
+    "order": 2,
+    "factors": [
+      11,
+      13
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 143,
+    "a": 141,
+    "order": 60,
+    "factors": [
+      11,
+      13
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 187,
+    "a": 67,
+    "order": 2,
+    "factors": [
+      11,
+      17
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 187,
+    "a": 184,
+    "order": 80,
+    "factors": [
+      11,
+      17
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 221,
+    "a": 103,
+    "order": 2,
+    "factors": [
+      13,
+      17
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 221,
+    "a": 218,
+    "order": 48,
+    "factors": [
+      13,
+      17
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 247,
+    "a": 77,
+    "order": 2,
+    "factors": [
+      13,
+      19
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 247,
+    "a": 245,
+    "order": 36,
+    "factors": [
+      13,
+      19
+    ],
+    "work_qubits": 8
+  },
+  {
+    "N": 299,
+    "a": 116,
+    "order": 2,
+    "factors": [
+      13,
+      23
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 299,
+    "a": 297,
+    "order": 132,
+    "factors": [
+      13,
+      23
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 323,
+    "a": 18,
+    "order": 2,
+    "factors": [
+      17,
+      19
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 323,
+    "a": 320,
+    "order": 144,
+    "factors": [
+      17,
+      19
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 377,
+    "a": 144,
+    "order": 2,
+    "factors": [
+      13,
+      29
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 437,
+    "a": 208,
+    "order": 2,
+    "factors": [
+      19,
+      23
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 437,
+    "a": 435,
+    "order": 198,
+    "factors": [
+      19,
+      23
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 493,
+    "a": 86,
+    "order": 2,
+    "factors": [
+      17,
+      29
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 493,
+    "a": 490,
+    "order": 112,
+    "factors": [
+      17,
+      29
+    ],
+    "work_qubits": 9
+  },
+  {
+    "N": 589,
+    "a": 94,
+    "order": 2,
+    "factors": [
+      19,
+      31
+    ],
+    "work_qubits": 10
+  },
+  {
+    "N": 589,
+    "a": 587,
+    "order": 90,
+    "factors": [
+      19,
+      31
+    ],
+    "work_qubits": 10
+  }
+]

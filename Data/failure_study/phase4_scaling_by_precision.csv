@@ -1,0 +1,25 @@
+trial_id,phase,param_swept,runtime_seconds,peak_memory_bytes,error,spec_total_precision,spec_window_size,spec_overlap,spec_candidate_count,spec_max_paths,spec_shots,spec_noise_1q,spec_noise_2q,spec_noise_ro,spec_simulator_method,spec_seed,spec_N,spec_a,spec_sweep_value,result_order,result_factors,result_success,result_best_phase,result_num_candidates
+4e65a2fd1641442fb2141b2819941946,phase4_scaling_by_precision,total_precision,1.362025399983395,3580110,,4,4,2,2,32,2048,0.0,0.0,0.0,automatic,28487104,21,8,4,2,"[3, 7]",True,0,2
+8c193a40f23a41d5b2742fd3b0e65b65,phase4_scaling_by_precision,total_precision,1.3780873999930918,3581478,,4,4,2,2,32,2048,0.0,0.0,0.0,automatic,1795364121,21,8,4,2,"[3, 7]",True,1/2,2
+48b993a2bc6147acb3c5afced52e4132,phase4_scaling_by_precision,total_precision,1.845222800038755,3579411,,4,4,2,2,32,2048,0.0,0.0,0.0,automatic,1315418603,21,8,4,2,"[3, 7]",True,0,2
+1255e0d208024cdab995f21ed8b23e89,phase4_scaling_by_precision,total_precision,1.8680864000343718,662821,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,468017500,21,8,8,2,"[3, 7]",True,1/2,2
+0d917b916e1a44dcbcc99d51dc61a4f3,phase4_scaling_by_precision,total_precision,1.9065079999854788,663358,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,87410869,21,8,8,2,"[3, 7]",True,1/2,2
+cfe9095b788148789697c41f67d3273d,phase4_scaling_by_precision,total_precision,1.945608199981507,664809,,8,4,2,2,32,2048,0.0,0.0,0.0,automatic,1854287886,21,8,8,2,"[3, 7]",True,0,2
+a97120257a204511b181961af1bf123f,phase4_scaling_by_precision,total_precision,2.6647100999834947,871225,,12,4,2,2,32,2048,0.0,0.0,0.0,automatic,907547896,21,8,12,2,"[3, 7]",True,1/2,2
+31d45924fe15477a92f374368a700ea3,phase4_scaling_by_precision,total_precision,2.60876209998969,870533,,12,4,2,2,32,2048,0.0,0.0,0.0,automatic,526941265,21,8,12,2,"[3, 7]",True,0,2
+ff5840db465941a283c0bbeabf403cba,phase4_scaling_by_precision,total_precision,2.6056167999631725,871730,,12,4,2,2,32,2048,0.0,0.0,0.0,automatic,146334634,21,8,12,2,"[3, 7]",True,1/2,2
+a1c7a10ab81845eaa84f22228e448617,phase4_scaling_by_precision,total_precision,3.4585607000044547,1103087,,16,4,2,2,32,2048,0.0,0.0,0.0,automatic,52533507,21,8,16,2,"[3, 7]",True,1/2,2
+70210c2bf8a44b32b6641a77857b64e5,phase4_scaling_by_precision,total_precision,3.5052815999952145,1105971,,16,4,2,2,32,2048,0.0,0.0,0.0,automatic,1819410524,21,8,16,2,"[3, 7]",True,1/2,2
+2cfe1cdc9dee42b9801c0dad9737eb8c,phase4_scaling_by_precision,total_precision,3.4807017000275664,1099212,,16,4,2,2,32,2048,0.0,0.0,0.0,automatic,1339465006,21,8,16,2,"[3, 7]",True,0,2
+96c011ac9f8b4f0ca4c46a22f66cbb8b,phase4_scaling_by_precision,total_precision,4.563433000002988,1331553,,20,4,2,2,32,2048,0.0,0.0,0.0,automatic,492063903,21,8,20,2,"[3, 7]",True,1/2,2
+64836433f39140568b48fa68ca75ef77,phase4_scaling_by_precision,total_precision,4.648079500009771,1334942,,20,4,2,2,32,2048,0.0,0.0,0.0,automatic,111457272,21,8,20,2,"[3, 7]",True,1/2,2
+bc040e823c5b411eb058831b70980ab9,phase4_scaling_by_precision,total_precision,4.572404800041113,1329911,,20,4,2,2,32,2048,0.0,0.0,0.0,automatic,1778995402,21,8,20,2,"[3, 7]",True,0,2
+824d3edf443440d2a9964fecd19ebbc6,phase4_scaling_by_precision,total_precision,5.08770849998109,1567367,,24,4,2,2,32,2048,0.0,0.0,0.0,automatic,931594299,21,8,24,2,"[3, 7]",True,1/2,2
+e7d91bc8fe7942aaa0480fb17d5b79b4,phase4_scaling_by_precision,total_precision,5.0099576999782585,1568979,,24,4,2,2,32,2048,0.0,0.0,0.0,automatic,550987668,21,8,24,2,"[3, 7]",True,0,2
+13f60b6a960940b4ba3bb55d09d3000c,phase4_scaling_by_precision,total_precision,4.985448699968401,1563376,,24,4,2,2,32,2048,0.0,0.0,0.0,automatic,71042150,21,8,24,2,"[3, 7]",True,0,2
+06cf34c4706940558b4b235cb84bf331,phase4_scaling_by_precision,total_precision,5.829694699961692,1800988,,28,4,2,2,32,2048,0.0,0.0,0.0,automatic,76579910,21,8,28,2,"[3, 7]",True,1/2,2
+9773421b390f4e798bd37ec48548e27f,phase4_scaling_by_precision,total_precision,5.872418400016613,1801656,,28,4,2,2,32,2048,0.0,0.0,0.0,automatic,1843456927,21,8,28,2,"[3, 7]",True,0,2
+3793eec2047e4b8ea4ab1d8358da8c3f,phase4_scaling_by_precision,total_precision,5.868667799979448,1800038,,28,4,2,2,32,2048,0.0,0.0,0.0,automatic,1363511409,21,8,28,2,"[3, 7]",True,0,2
+0a41285231184054b0a893f676fae39c,phase4_scaling_by_precision,total_precision,6.861907300015446,1644055,,32,4,2,2,32,2048,0.0,0.0,0.0,automatic,135503675,21,8,32,2,"[3, 7]",True,1/2,2
+9154c61cb2a6410c817ab5d7a88634d6,phase4_scaling_by_precision,total_precision,6.979060799989384,1642767,,32,4,2,2,32,2048,0.0,0.0,0.0,automatic,516110306,21,8,32,2,"[3, 7]",True,1/2,2
+75d367d73c544ca58b6d4c4997c06d5b,phase4_scaling_by_precision,total_precision,6.9165247999480926,1645764,,32,4,2,2,32,2048,0.0,0.0,0.0,automatic,1803041805,21,8,32,2,"[3, 7]",True,0,2

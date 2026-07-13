@@ -1,0 +1,6 @@
+N,work_qubits,total_qubits,transpile_seconds,timed_out
+15,4,8,0.1357649000128731,False
+21,5,9,0.38257890002569184,False
+33,6,10,2.092687399999704,False
+65,7,11,42.22964320000028,False
+143,8,13,45.0,True

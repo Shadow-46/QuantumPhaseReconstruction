@@ -1,0 +1,38 @@
+{
+  "trial_id": "be872de840784bbfaecb570dbe69cec7",
+  "phase": "phase2_noise_combined",
+  "param_swept": "combined",
+  "spec": {
+    "total_precision": 8,
+    "window_size": 4,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 32,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.2,
+    "noise_ro": 0.05,
+    "simulator_method": "automatic",
+    "seed": 780895813,
+    "N": 21,
+    "a": 8,
+    "level_1q": "none",
+    "level_2q": "high",
+    "level_ro": "med",
+    "pair_work_qubits": 5,
+    "true_order": 2
+  },
+  "runtime_seconds": 1.5699929000111297,
+  "peak_memory_bytes": 604213,
+  "error": null,
+  "result": {
+    "order": 2,
+    "factors": [
+      3,
+      7
+    ],
+    "success": true,
+    "best_phase": "1/2",
+    "num_candidates": 4
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "trial_id": "4f756357263844feb2828526078e9c3b",
+  "phase": "phase1b_combined_stress",
+  "param_swept": "combined",
+  "spec": {
+    "total_precision": 16,
+    "window_size": 4,
+    "overlap": 0,
+    "candidate_count": 1,
+    "max_paths": 1,
+    "shots": 4,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 1541618828,
+    "N": 21,
+    "a": 19
+  },
+  "runtime_seconds": 12.287167899950873,
+  "peak_memory_bytes": 4154092,
+  "error": null,
+  "result": {
+    "order": 42,
+    "factors": [
+      3,
+      7
+    ],
+    "success": true,
+    "best_phase": "3003/65536",
+    "num_candidates": 1
+  }
+}

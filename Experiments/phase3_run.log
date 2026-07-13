@@ -1,0 +1,27 @@
+running adversarial corruption battery...
+condition
+bit_flip_post_hoc                  1.00000
+clean                              1.00000
+incorrect_high_weight_candidate    1.00000
+missing_true_candidate             0.78125
+overlap_corruption                 0.43750
+Name: success, dtype: float64
+running exhaustive carry truth table...
+outcome
+false_accept    93
+true_accept     33
+true_reject     33
+false_reject     9
+Name: count, dtype: int64
+running measurement-ambiguity boundary sweep...
+                     ambiguous_by_0.9_threshold  winner_disagreement_across_repeats
+delta_from_boundary                                                                
+0.000                                       1.0                                 1.0
+0.001                                       1.0                                 1.0
+0.002                                       1.0                                 1.0
+0.005                                       1.0                                 1.0
+0.010                                       0.8                                 0.0
+0.020                                       0.0                                 0.0
+0.050                                       0.0                                 0.0
+0.100                                       0.0                                 0.0
+0.250                                       0.0                                 0.0

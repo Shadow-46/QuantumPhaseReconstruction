@@ -1,0 +1,36 @@
+{
+  "trial_id": "d16ad6a77019452dbad3a95c3ab034cf",
+  "phase": "phase1_ofat",
+  "param_swept": "max_paths",
+  "spec": {
+    "total_precision": 8,
+    "window_size": 4,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 1,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 49248738,
+    "N": 21,
+    "a": 8,
+    "sweep_value": 1,
+    "pair_work_qubits": 5,
+    "true_order": 2
+  },
+  "runtime_seconds": 2.8066302000079304,
+  "peak_memory_bytes": 630805,
+  "error": null,
+  "result": {
+    "order": 2,
+    "factors": [
+      3,
+      7
+    ],
+    "success": true,
+    "best_phase": "1/2",
+    "num_candidates": 1
+  }
+}

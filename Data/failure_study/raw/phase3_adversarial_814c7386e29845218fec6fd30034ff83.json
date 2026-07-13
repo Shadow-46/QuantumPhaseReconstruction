@@ -1,0 +1,15 @@
+{
+  "trial_id": "814c7386e29845218fec6fd30034ff83",
+  "phase": "phase3_adversarial",
+  "condition": "overlap_corruption",
+  "N": 21,
+  "a": 8,
+  "seed": 978764974,
+  "work_qubits": 5,
+  "runtime_seconds": 1.6343716999981552,
+  "peak_memory_bytes": 623460,
+  "num_stitched": 0,
+  "success": false,
+  "order": null,
+  "factors": null
+}

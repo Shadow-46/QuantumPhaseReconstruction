@@ -1,0 +1,34 @@
+{
+  "trial_id": "9154c61cb2a6410c817ab5d7a88634d6",
+  "phase": "phase4_scaling_by_precision",
+  "param_swept": "total_precision",
+  "spec": {
+    "total_precision": 32,
+    "window_size": 4,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 32,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 516110306,
+    "N": 21,
+    "a": 8,
+    "sweep_value": 32
+  },
+  "runtime_seconds": 6.979060799989384,
+  "peak_memory_bytes": 1642767,
+  "error": null,
+  "result": {
+    "order": 2,
+    "factors": [
+      3,
+      7
+    ],
+    "success": true,
+    "best_phase": "1/2",
+    "num_candidates": 2
+  }
+}

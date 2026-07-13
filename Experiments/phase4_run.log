@@ -1,0 +1,34 @@
+wrote structural (parameter-only) qubit-count accounting for the full corpus
+{'N': 15, 'work_qubits': 4, 'total_qubits': 8, 'transpile_seconds': 0.1357649000128731, 'timed_out': False}
+{'N': 21, 'work_qubits': 5, 'total_qubits': 9, 'transpile_seconds': 0.38257890002569184, 'timed_out': False}
+{'N': 33, 'work_qubits': 6, 'total_qubits': 10, 'transpile_seconds': 2.092687399999704, 'timed_out': False}
+{'N': 65, 'work_qubits': 7, 'total_qubits': 11, 'transpile_seconds': 42.22964320000028, 'timed_out': False}
+{'N': 143, 'work_qubits': 8, 'total_qubits': 13, 'transpile_seconds': 45, 'timed_out': True}
+transpile_cliff: hit the 45s timeout at work_qubits=8; stopping the probe here
+wrote transpile-cliff probe
+phase4_scaling_by_N: 12 trials
+  progress: 12/12
+spec_N
+15    2.288987
+21    5.692401
+Name: runtime_seconds, dtype: float64
+phase4_scaling_by_precision: 24 trials
+  progress: 24/24
+spec_total_precision
+4     1.528445
+8     1.906734
+12    2.626363
+16    3.481515
+20    4.594639
+24    5.027705
+28    5.856927
+32    6.919164
+Name: runtime_seconds, dtype: float64
+phase4_scaling_by_window_size: 12 trials
+  progress: 12/12
+spec_window_size
+2     5.425648
+4     2.969004
+8     2.217996
+16    1.776762
+Name: runtime_seconds, dtype: float64

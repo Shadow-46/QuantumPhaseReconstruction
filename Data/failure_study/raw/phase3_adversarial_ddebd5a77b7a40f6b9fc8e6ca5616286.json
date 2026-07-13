@@ -1,0 +1,18 @@
+{
+  "trial_id": "ddebd5a77b7a40f6b9fc8e6ca5616286",
+  "phase": "phase3_adversarial",
+  "condition": "incorrect_high_weight_candidate",
+  "N": 21,
+  "a": 19,
+  "seed": 1470415837,
+  "work_qubits": 5,
+  "runtime_seconds": 13.502120700024534,
+  "peak_memory_bytes": 820611,
+  "num_stitched": 2,
+  "success": true,
+  "order": 6,
+  "factors": [
+    3,
+    7
+  ]
+}

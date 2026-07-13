@@ -1,0 +1,33 @@
+{
+  "trial_id": "8e46d04028474148badfec0126c304aa",
+  "phase": "smoke_batch",
+  "param_swept": "seed",
+  "spec": {
+    "total_precision": 8,
+    "window_size": 4,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 32,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 3,
+    "N": 15,
+    "a": 13
+  },
+  "runtime_seconds": 0.9708694000146352,
+  "peak_memory_bytes": 452380,
+  "error": null,
+  "result": {
+    "order": 4,
+    "factors": [
+      3,
+      5
+    ],
+    "success": true,
+    "best_phase": "3/4",
+    "num_candidates": 2
+  }
+}
