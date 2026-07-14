@@ -1,0 +1,43 @@
+{
+  "trial_id": "eb5c96708b104622988a95e3f00cc81f",
+  "phase": "phase1_ofat",
+  "spec": {
+    "total_precision": 8,
+    "window_size": 6,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 32,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 654130030,
+    "N": 15,
+    "a": 4,
+    "sweep_value": 6,
+    "pair_work_qubits": 4,
+    "true_order": 2
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 6,
+      "total_precision": 8
+    },
+    {
+      "start": 4,
+      "width": 4,
+      "total_precision": 8
+    }
+  ],
+  "window_counts": [
+    {
+      "000000": 1028,
+      "100000": 1020
+    },
+    {
+      "0000": 2048
+    }
+  ]
+}

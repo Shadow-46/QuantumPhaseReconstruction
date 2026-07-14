@@ -1,0 +1,104 @@
+{
+  "trial_id": "86707df0102a4c36a275f159de403a2c",
+  "phase": "phase1b_combined_stress",
+  "spec": {
+    "total_precision": 32,
+    "window_size": 4,
+    "overlap": 0,
+    "candidate_count": 2,
+    "max_paths": 2,
+    "shots": 4,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 1311426399,
+    "N": 21,
+    "a": 19
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 4,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 8,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 12,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 16,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 20,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 24,
+      "width": 4,
+      "total_precision": 32
+    },
+    {
+      "start": 28,
+      "width": 4,
+      "total_precision": 32
+    }
+  ],
+  "window_counts": [
+    {
+      "0101": 1,
+      "1101": 1,
+      "1010": 1,
+      "1011": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    },
+    {
+      "0110": 1,
+      "1011": 2,
+      "0101": 1
+    }
+  ]
+}

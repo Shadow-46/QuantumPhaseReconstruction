@@ -1,0 +1,68 @@
+{
+  "trial_id": "538933d47935494dbf59e45f18ce24fc",
+  "phase": "phase1b_combined_stress",
+  "spec": {
+    "total_precision": 16,
+    "window_size": 4,
+    "overlap": 0,
+    "candidate_count": 1,
+    "max_paths": 2,
+    "shots": 16,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 761338546,
+    "N": 21,
+    "a": 19
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 4,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 8,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 12,
+      "width": 4,
+      "total_precision": 16
+    }
+  ],
+  "window_counts": [
+    {
+      "1000": 4,
+      "0000": 4,
+      "0011": 6,
+      "1101": 1,
+      "0100": 1
+    },
+    {
+      "1011": 5,
+      "0000": 8,
+      "0101": 2,
+      "0100": 1
+    },
+    {
+      "1011": 5,
+      "0000": 8,
+      "0101": 2,
+      "0100": 1
+    },
+    {
+      "1011": 5,
+      "0000": 8,
+      "0101": 2,
+      "0100": 1
+    }
+  ]
+}

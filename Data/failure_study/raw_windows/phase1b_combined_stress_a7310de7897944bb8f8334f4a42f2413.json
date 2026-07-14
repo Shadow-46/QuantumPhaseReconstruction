@@ -1,0 +1,152 @@
+{
+  "trial_id": "a7310de7897944bb8f8334f4a42f2413",
+  "phase": "phase1b_combined_stress",
+  "spec": {
+    "total_precision": 16,
+    "window_size": 4,
+    "overlap": 3,
+    "candidate_count": 2,
+    "max_paths": 1,
+    "shots": 4,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 1343212313,
+    "N": 21,
+    "a": 19
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 1,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 2,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 3,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 4,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 5,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 6,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 7,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 8,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 9,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 10,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 11,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 12,
+      "width": 4,
+      "total_precision": 16
+    }
+  ],
+  "window_counts": [
+    {
+      "1000": 3,
+      "1010": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    },
+    {
+      "1011": 2,
+      "0101": 1,
+      "0000": 1
+    },
+    {
+      "1011": 2,
+      "0000": 1,
+      "0111": 1
+    }
+  ]
+}

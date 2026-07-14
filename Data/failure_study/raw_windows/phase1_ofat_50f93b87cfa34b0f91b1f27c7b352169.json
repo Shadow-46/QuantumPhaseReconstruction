@@ -1,0 +1,75 @@
+{
+  "trial_id": "50f93b87cfa34b0f91b1f27c7b352169",
+  "phase": "phase1_ofat",
+  "spec": {
+    "total_precision": 8,
+    "window_size": 3,
+    "overlap": 2,
+    "candidate_count": 2,
+    "max_paths": 32,
+    "shots": 2048,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 819815599,
+    "N": 15,
+    "a": 4,
+    "sweep_value": 3,
+    "pair_work_qubits": 4,
+    "true_order": 2
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 3,
+      "total_precision": 8
+    },
+    {
+      "start": 1,
+      "width": 3,
+      "total_precision": 8
+    },
+    {
+      "start": 2,
+      "width": 3,
+      "total_precision": 8
+    },
+    {
+      "start": 3,
+      "width": 3,
+      "total_precision": 8
+    },
+    {
+      "start": 4,
+      "width": 3,
+      "total_precision": 8
+    },
+    {
+      "start": 5,
+      "width": 3,
+      "total_precision": 8
+    }
+  ],
+  "window_counts": [
+    {
+      "000": 1028,
+      "100": 1020
+    },
+    {
+      "000": 2048
+    },
+    {
+      "000": 2048
+    },
+    {
+      "000": 2048
+    },
+    {
+      "000": 2048
+    },
+    {
+      "000": 2048
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "trial_id": "f4fd242869f641f586f0d32d0a5a3690",
+  "phase": "phase1b_combined_stress",
+  "spec": {
+    "total_precision": 16,
+    "window_size": 4,
+    "overlap": 3,
+    "candidate_count": 2,
+    "max_paths": 1,
+    "shots": 8,
+    "noise_1q": 0.0,
+    "noise_2q": 0.0,
+    "noise_ro": 0.0,
+    "simulator_method": "automatic",
+    "seed": 2061573744,
+    "N": 21,
+    "a": 19
+  },
+  "windows": [
+    {
+      "start": 0,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 1,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 2,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 3,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 4,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 5,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 6,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 7,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 8,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 9,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 10,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 11,
+      "width": 4,
+      "total_precision": 16
+    },
+    {
+      "start": 12,
+      "width": 4,
+      "total_precision": 16
+    }
+  ],
+  "window_counts": [
+    {
+      "1110": 1,
+      "0000": 5,
+      "0100": 1,
+      "0110": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    },
+    {
+      "0000": 4,
+      "1010": 1,
+      "1011": 1,
+      "0110": 2
+    },
+    {
+      "0101": 4,
+      "0000": 3,
+      "1011": 1
+    }
+  ]
+}
