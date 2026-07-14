@@ -1,0 +1,4 @@
+attributing 25 failed trials out of 930 total
+failure_category
+noise_sensitivity    25
+Name: count, dtype: int64

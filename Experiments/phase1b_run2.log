@@ -1,0 +1,8 @@
+phase1b_combined_stress: 144 target, 102 already done, 42 remaining
+  progress: 42/42
+result_success
+True     30
+False    12
+Name: count, dtype: int64
+wrote 144 total rows to phase1b_combined_stress.csv
+overall success rate: 0.5208333333333334

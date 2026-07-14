@@ -1,0 +1,17 @@
+attributing 94 failed trials out of 1074 total
+  attributed 10/94
+  attributed 20/94
+  attributed 30/94
+  attributed 40/94
+  attributed 50/94
+  attributed 60/94
+  attributed 70/94
+  attributed 80/94
+  attributed 90/94
+  attributed 94/94
+failure_category
+quantum_estimation_shot_limited    48
+noise_sensitivity                  25
+unknown                            20
+unknown_attribution_timeout         1
+Name: count, dtype: int64
