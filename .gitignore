@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+Paper/*.aux
+Paper/*.log
+Paper/*.out
+Paper/*.bbl
+Paper/*.blg
+Paper/*.spl
+Paper/*.pdf
+
+# Reference papers (third-party, not authored content)
+/2507.22460v3.pdf
+/Shors Algorithm paper 1 .pdf

@@ -1,0 +1,8 @@
+qiskit==2.5
+qiskit-aer==0.15
+numpy==2.0
+scipy==1.14
+matplotlib==3.9
+networkx==3.3
+pandas==2.2
+scikit-learn==1.4
