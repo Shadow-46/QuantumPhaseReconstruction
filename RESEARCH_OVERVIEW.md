@@ -57,7 +57,7 @@ Before trying to improve anything, the published algorithm was implemented **fro
 |---|---|
 | `Circuits/` | The actual quantum circuits: modular multiplication, inverse QFT, standard QPE, and the windowed measurement circuits. |
 | `Reconstruction/` | Everything classical: turning raw measurement counts into ranked candidates, checking overlap consistency between windows ("carry checking"), stitching windows into a full phase estimate, and recovering the final order via continued fractions. |
-| `Algorithms/` | Three variants: a textbook brute-force reference (`standard_shor.py`), the genuine paper reproduction (`paper_algorithm.py`), and a small parameter-selection extension point (`adaptive_algorithm.py`). |
+| `Algorithms/` | Three variants: a textbook brute-force reference (`standard_shor.py`), the genuine paper reproduction (`paper_algorithm.py`), a small window-geometry policy (`window_policy.py`), and the confidence-guided adaptive method itself (`adaptive_reconstruction.py`). |
 | `Simulation/` | Runs everything on Qiskit's Aer simulator, with optional realistic noise models (depolarizing error, readout error, etc). |
 | `Evaluation/` | Sweeps, metrics, plots, and summary tables for quick experiments. |
 

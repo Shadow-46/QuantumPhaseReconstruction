@@ -153,7 +153,7 @@ ambiguous local measurements:
 - `paper_algorithm.py` — the actual windowed-QPE + carry-aware stitching +
   candidate reconstruction pipeline; the genuine reproduction of the source
   papers, sampling real Aer circuits with no shortcuts.
-- `adaptive_algorithm.py` — a thin, deterministic policy layer that derives
+- `window_policy.py` (formerly `adaptive_algorithm.py`) — a thin, deterministic policy layer that derives
   `WindowConfig` (window width, overlap) from requested precision via a
   fixed formula; it does **not** touch the reconstruction pipeline itself
   and is explicitly scoped as a parameter-selection extension point, not

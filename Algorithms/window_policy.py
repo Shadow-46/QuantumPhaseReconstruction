@@ -1,10 +1,11 @@
 """
 Purpose
-    Provide a clean adaptive extension point for reconstruction-stage research.
+    Provide a window-geometry selection policy for the fixed-budget pipeline.
 Theory
-    The baseline paper reproduction is fixed. Adaptive experiments are isolated
-    here so future changes can vary only window geometry and candidate budgets
-    before delegating to the unchanged reconstruction pipeline.
+    Chooses window width and overlap from a requested precision, then
+    delegates to the unchanged reconstruction pipeline. This is parameter
+    selection only -- it is NOT the confidence-guided adaptive method, which
+    lives in Algorithms/adaptive_reconstruction.py.
 Inputs
     ShorConfig plus optional minimum and maximum window controls.
 Outputs
@@ -58,4 +59,4 @@ def self_test() -> None:
 
 if __name__ == "__main__":
     self_test()
-    print("adaptive_algorithm self-test passed")
+    print("window_policy self-test passed")

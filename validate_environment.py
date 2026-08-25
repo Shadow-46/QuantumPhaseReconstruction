@@ -60,7 +60,7 @@ SELF_TEST_MODULES = (
     "Reconstruction.continued_fraction",
     "Algorithms.standard_shor",
     "Algorithms.paper_algorithm",
-    "Algorithms.adaptive_algorithm",
+    "Algorithms.window_policy",
     "Evaluation.metrics",
     "Evaluation.experiments",
     "Evaluation.plots",
