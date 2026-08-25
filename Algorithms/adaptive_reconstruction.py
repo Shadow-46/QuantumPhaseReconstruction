@@ -36,7 +36,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from Algorithms.paper_algorithm import sample_window_counts
+from Algorithms.paper_algorithm import reconstruct_from_window_counts, sample_window_counts
 from Circuits.modular_multiplication import ModularMultiplicationOperator
 from Circuits.windowed_qpe import run_windowed_qpe_block
 from Reconstruction.candidate_generation import (
@@ -196,3 +196,42 @@ def reconstruct_adaptive(
         "s_w": [sum(c.values()) for c in window_counts],
     }
     return result[0], result[1], diagnostics
+
+
+def self_test() -> None:
+    """Check Invariant 1 empirically: with all three modules disabled this
+    entry point reproduces the published fixed-budget pipeline exactly, on
+    the same counts. Also checks that module C never narrows the beam.
+
+    Invariant 1 is a claim about code structure, so a test cannot establish
+    it -- but it can falsify it, which is the point of running it here."""
+    shor = ShorConfig(N=15, a=2, phase_qubits=8, shots=256, random_seed=7)
+    window = WindowConfig(
+        total_precision=8, window_size=4, overlap=2, candidate_count=2, max_paths=8
+    )
+    base = sample_window_counts(shor, window)
+    counts, _specs = base
+
+    published = reconstruct_from_window_counts(
+        shor.N, shor.a, window.total_precision, window.window_size,
+        window.overlap, window.candidate_count, window.max_paths, counts,
+    )
+    stitched, recovered = reconstruct_adaptive(shor, window, precomputed=base)
+    assert tuple(stitched) == published.reconstructed_phases, (
+        "disabled-module path diverges from the published pipeline"
+    )
+    assert (recovered.factors if recovered is not None else None) == published.factors
+
+    # Module C never narrows the beam (Proposition 6).
+    _s, _r, diag_base = reconstruct_adaptive(
+        shor, window, precomputed=base, return_diagnostics=True
+    )
+    _s, _r, diag_beam = reconstruct_adaptive(
+        shor, window, precomputed=base, use_beam_rule=True, return_diagnostics=True
+    )
+    assert diag_beam["max_paths"] >= diag_base["max_paths"]
+
+
+if __name__ == "__main__":
+    self_test()
+    print("adaptive_reconstruction self-test passed")
