@@ -1,0 +1,525 @@
+%% =====================================================================
+%%  SUPPLEMENTARY INFORMATION
+%%  Confidence-Guided Adaptive Reconstruction for Windowed QPE
+%%  Companion to A_method.tex. Standalone document.
+%%  Build:  pdflatex supplementary / bibtex supplementary / pdflatex x2
+%% =====================================================================
+\documentclass[preprint,11pt]{elsarticle}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\PLACE}[1]{\textcolor{blue}{\textbf{[PLACEHOLDER: #1]}}}
+
+% evidentiary labels, identical to the main article
+\newcommand{\PROVEN}{\textsc{(proven)}}
+\newcommand{\HEUR}{\textsc{(heuristic)}}
+\newcommand{\EMPIR}{\textsc{(empirical)}}
+\newcommand{\INVAR}{\textsc{(implementation invariant)}}
+
+\newcommand{\Cw}{C_w}
+\newcommand{\dcov}{\delta_{\mathrm{cov}}}
+\newcommand{\Smax}{S_{\max}}
+\newcommand{\beammax}{\texttt{beam\_max}}
+
+% S-prefixed numbering so nothing collides with the main article
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\journal{MethodsX}
+
+\begin{document}
+
+\begin{frontmatter}
+\title{Supplementary Information for\\
+\emph{Confidence-Guided Adaptive Reconstruction for Windowed Quantum
+Phase Estimation}}
+\author[inst1]{Sanjay Lakshmanan R}
+\ead{rajasanjay21@gmail.com}
+\address[inst1]{Department of Computer Science and Engineering,
+Amrita Vishwa Vidyapeetham, Chennai, India}
+
+\begin{abstract}
+This document contains the complete mathematical derivations, the
+bin-level calibration data, and the artifact map supporting the main
+article. Nothing here is required to understand the method or to judge
+the central claims; everything here is required to verify them
+independently. No number in this document differs from the corresponding
+number in the main article, and every value is a direct summary of a
+released result file (Sec.~\ref{si:artifacts}). The failure-study
+documentation and the extended statistical tables supporting the
+end-to-end evaluation accompany the companion study~\cite{companion}
+instead.
+
+Section numbers of the form ``Sec.~S$n$'' refer to this document.
+References to the main article are given by section name.
+\end{abstract}
+\end{frontmatter}
+
+\tableofcontents
+\vspace{1em}
+% =====================================================================
+\section{Complete mathematical derivations and proofs}
+\label{si:proofs}
+
+Each result is restated before its proof. The evidentiary label is the
+one used in the main article: \PROVEN{} for a mathematical argument
+independent of any implementation, \INVAR{} for a property of the
+specific program described, \HEUR{} for a plausibility argument with no
+proof. Numbering of propositions follows the main article's
+\emph{Theoretical properties} subsection.
+
+\subsection{Notation}
+
+\begin{table}[h]
+\centering\small
+\caption{Notation used throughout the main article and this document. Every symbol is also defined where it first appears in the main text.}
+\label{tab:notation}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$w$, $W$ & window index; total number of windows \\
+$S_w$ & shots collected for window $w$ \\
+$b^{(1)}_w, b^{(2)}_w$ & top-1, top-2 observed bit patterns in window $w$ \\
+$n_1, n_2$ & raw counts of $b^{(1)}_w, b^{(2)}_w$ \\
+$p_w(b)$, $\hat p_w(b)$ & true and empirical probability of pattern $b$ \\
+$K_w$ & number of \emph{distinct} observed patterns, $K_w\le\min(2^{\ell_w},S_w)$ \\
+$\ell_w$ & window width in bits \\
+$\alpha_0$ & Beta/Dirichlet smoothing constant, fixed at $0.5$ \\
+$\Cw$ & posterior comparison statistic (main article, Sec.~1.4) \\
+$k$, $m_w$ & candidate count: fixed (baseline) and adaptive (module B) \\
+$P$, $P'$ & beam width: fixed (baseline) and adaptive (module C) \\
+$\dcov$, $\varepsilon$ & coverage slack and shot-stopping targets \\
+$\Smax$, $\beammax$ & hard engineering caps \\
+$o$ & overlap width between adjacent windows \\
+$R_w$ & resampling rounds executed by module D on window $w$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Smoothing bound (Proposition 1)}
+\PROVEN{}\quad\textit{$|\tilde p_w(b)-\hat p_w(b)|\le\alpha_0/(\alpha_0 2^{\ell_w}+S_w)$
+for the Jeffreys-smoothed estimate
+$\tilde p_w(b)=(\alpha_0+\mathrm{counts}_w(b))/(2^{\ell_w}\alpha_0+S_w)$.}
+
+\begin{proof}
+Writing the difference over a common denominator,
+\[
+\tilde p_w(b)-\hat p_w(b)=\frac{\alpha_0 S_w-\alpha_0 2^{\ell_w}\mathrm{counts}_w(b)}{S_w(\alpha_0 2^{\ell_w}+S_w)} .
+\]
+Bounding $0\le\mathrm{counts}_w(b)\le S_w$ gives numerator magnitude at
+most $\alpha_0 S_w$; dividing by the denominator yields the claim. At
+$S_w=4$, $\ell_w\le6$ this is $0.5/(0.5\cdot64+4)\approx0.015$, which is
+why the implementation ranks by the raw empirical $\hat p_w$ rather than
+the smoothed estimate: at every $(\ell_w,S_w)$ pair in the evaluated
+corpus the perturbation is too small to reorder the ranking.
+\end{proof}
+
+\subsection{Symmetry and boundary value (Proposition 2)}
+\PROVEN{}\quad\textit{$\Cw(n_1,n_2,S_w)+\Cw(n_2,n_1,S_w)=1$, and hence
+$\Cw(n,n,S_w)=1/2$.}
+
+\begin{proof}
+$\Cw(n_2,n_1,S_w)=\Pr[X_2>X_1]$ under the same joint law, with only the
+labels exchanged. $X_1,X_2$ are independent and continuous, so
+$\Pr[X_1=X_2]=0$ and hence $\Pr[X_1>X_2]+\Pr[X_2>X_1]=1$. Setting
+$n_1=n_2=n$ gives $2\Cw(n,n,S_w)=1$.
+\end{proof}
+
+\noindent
+Both identities are asserted by the implementation's own self-test, which
+checks $\Cw(10,10,20)=1/2$ and $\Cw(6,4,10)+\Cw(4,6,10)=1$ to within
+$10^{-6}$. The proof is why those tests are expected to hold exactly
+rather than approximately, up to quadrature tolerance.
+
+\subsection{Monotonicity (Proposition 3)}
+\PROVEN{}\quad\textit{$\Cw$ is non-decreasing in $n_1$ for fixed
+$n_2,S_w$, and non-increasing in $n_2$ for fixed $n_1,S_w$.}
+
+\begin{proof}
+The Beta family has monotone likelihood ratio in its first shape
+parameter \cite[Ch.~3]{lehmannromano2005}, so $\mathrm{Beta}(a,b)$ is
+stochastically non-decreasing in $a$ for fixed $b$ and non-increasing in
+$b$ for fixed $a$. Incrementing $n_1$ raises $a_1=\alpha_0+n_1$ by one
+\emph{and} lowers $b_1=\alpha_0+S_w-n_1$ by one, so both effects push
+$X_1$ upward in the stochastic order:
+$X_1^{(n_1+1)}\succeq_{\mathrm{st}}X_1^{(n_1)}$. Stochastic dominance is
+preserved under $\Pr[\,\cdot>X_2]$ for $X_2$ held fixed. The statement
+for $n_2$ follows via Proposition 2.
+\end{proof}
+
+\noindent
+This is the property that licenses using $\Cw$ as a ranking signal: it
+guarantees the ordering it induces over windows moves in the right
+direction with the evidence, irrespective of the calibration defect
+measured in the main article.
+
+\subsection{Asymptotic consistency (Proposition 4)}
+\HEUR{}\quad\textit{Fix $p_1>p_2>0$ and let $n_1,n_2,S_w\to\infty$ with
+$n_1/S_w\to p_1$ and $n_2/S_w\to p_2$. Then $\Cw\to1$ in probability.}
+
+\begin{proof}[Proof sketch]
+By the Bernstein--von Mises property of the Beta posterior
+\cite[Ch.~10]{vandervaart1998},
+$X_i\mid n_i,S_w\approx\mathcal{N}(n_i/S_w,\ \hat p_i(1-\hat p_i)/S_w)$
+for large $S_w$, uniformly on compacta away from $\{0,1\}$; the
+$\alpha_0$ term is $O(1/S_w)$ and vanishes. Then $X_1-X_2$ is
+asymptotically $\mathcal{N}(p_1-p_2,\ O(1/S_w))$, whose variance tends to
+zero while its mean is fixed at $p_1-p_2>0$. By Slutsky's theorem,
+$\Pr[X_1-X_2>0]\to1$.
+\end{proof}
+
+\noindent
+This is labelled a sketch rather than a proof, and the label is not
+modesty: the normal approximation invoked is itself asymptotic, and no
+finite-sample rate (a Berry--Esseen-type bound, for instance) is derived.
+Nothing downstream in the method requires one. The implementation's
+self-test checks the qualitative consequence at
+$n_1{:}n_2{:}S_w=600{:}400{:}1000$, where $\Cw>0.999$.
+
+\subsection{Module B returns the minimal covering prefix (Proposition 5)}
+\PROVEN{}\quad\textit{The coverage rule returns the shortest
+descending-probability prefix whose cumulative empirical mass reaches
+$1-\dcov$.}
+
+\begin{proof}
+Candidates are appended in descending-probability order, and the
+termination condition is checked against the cumulative mass \emph{before}
+the next append. Since $\hat p_w\ge0$ and the list is sorted descending,
+the partial sums are non-decreasing in $m$, so the first $m$ at which the
+target is met is the unique minimal such $m$. Existence holds because
+$\sum_i\hat p_w(b_{(i)})=1\ge1-\dcov$ for any $\dcov>0$. The rule
+therefore returns exactly $\{b_{(1)},\dots,b_{(m_w)}\}$ with $m_w$ the
+minimal index. Non-emptiness is a separate claim and also holds: the
+break condition cannot fire on the first iteration, because the candidate
+list is empty at that point, so at least one candidate is always
+appended.
+\end{proof}
+
+\noindent
+\textbf{What this does not establish.} The result is a purely
+combinatorial fact about prefix sums of a sorted list, true regardless of
+how well $\hat p_w$ approximates $p_w$. It says nothing about whether the
+\emph{true} top-1 pattern lies in the returned prefix. A statement of
+that form would require a finite-sample concentration inequality relating
+$\hat p_w$ to $p_w$ --- a multiplicative Chernoff or
+Dvoretzky--Kiefer--Wolfowitz-type bound --- yielding something like
+$\Pr[\text{true top-1}\notin\text{selected set}]\le g(\dcov,S_w)$. No
+such bound is derived here or implemented anywhere in the released code.
+$\dcov$ controls coverage of the \emph{sample}, not a calibrated error
+rate on the population; the two coincide only in the $S_w\to\infty$
+limit. Reading $\dcov$ as an error target, which its name invites, is
+therefore incorrect.
+
+\subsection{The carry-aware compatibility check is an exact classifier (Lemma 1)}
+\INVAR{}\quad\textit{For overlap width $o>0$, the check accepts iff
+$\mathrm{tail}=\mathrm{head}$ or
+$(\mathrm{int}(\mathrm{tail},2)-c)\bmod 2^{o}=\mathrm{int}(\mathrm{head},2)$,
+where $c$ is the carry bit just past the shared overlap.}
+
+\begin{proof}
+The check computes the overlapping bit strings $\mathrm{tail}$ and
+$\mathrm{head}$, returns true immediately on exact equality, and
+otherwise returns the truth value of exactly the stated modular equation
+with $c$ the carry bit just past the shared overlap. There is no other
+branch. The ground-truth oracle used by the corrected audit --- ``no
+borrow, or exactly one legitimate single-bit borrow'' --- is defined by
+the same predicate on the same triple. The two are therefore the same
+Boolean function of $(\mathrm{tail},\mathrm{head},c)$ by construction,
+not merely in agreement on tested inputs, and the classifier cannot
+disagree with the oracle on any input at any overlap width.
+\end{proof}
+
+\noindent
+Because the equality is algebraic rather than observed, the conclusion
+generalises beyond the 168 audited combinations to every
+$(\mathrm{tail},\mathrm{head},c)$ triple at any overlap width --- which an
+exhaustive audit over a finite input space could not by itself establish.
+The label is \INVAR{} rather than \PROVEN{} because the object
+constrained is the shipped predicate, not a mathematical abstraction. The
+lemma says nothing about whether the \emph{true} bit patterns ever reach
+the check; that depends on candidate generation and shot sufficiency.
+
+\subsection{Module C never narrows the beam (Proposition 6)}
+\PROVEN{}\quad\textit{Whenever $\beammax\ge P$, we have $P'\ge P$.}
+
+\begin{proof}
+$\mathrm{expanded}\ge0$, so $P(1+\mathrm{expanded})\ge P$. Under the
+hypothesis $\beammax\ge P$,
+$\min(\beammax,P(1+\mathrm{expanded}))\ge\min(\beammax,P)=P$.
+\end{proof}
+
+\noindent
+The hypothesis holds in every configuration evaluated
+($\beammax=4096\gg P\le2$ on the validation grid). Combined with
+Proposition 7 below, the consequence is that module C can only
+\emph{retain} more candidate paths than baseline at each stitching level,
+never fewer. \textbf{What this does not establish:} $\mathrm{expanded}$
+is a count of ambiguous windows, not a bound on the number of
+globally consistent paths that exist, which depends on the joint
+structure of all $W$ windows' candidate sets and the carry check. $P'$ is
+therefore a heuristic budget-scaling rule, and nothing proves that the
+true path survives pruning at $P'$ on any particular trial.
+
+\subsection{Beam stitching is exact only when unsaturated (Proposition 7)}
+\PROVEN{}\quad\textit{If the number of compatible next-paths generated
+before truncation never exceeds the beam width at any level, the search
+returns the true global optimum under the product-of-weights score.
+Conversely, once the beam saturates, discarded paths are permanently
+unrecoverable.}
+
+\begin{proof}
+If the number of compatible next-paths never exceeds the beam width, the
+truncation to the top $P$ is a no-op at every level, so the surviving set
+after each level is the full set of compatible paths. By induction over
+levels, the final list contains every globally consistent path, sorted by
+score, with the true maximum first. Conversely, if the count exceeds the
+beam width at some level, the discarded paths are unrecoverable: the loop
+only ever extends the surviving set and never re-widens it after
+truncation, and there is no backtracking branch.
+\end{proof}
+
+\subsection{Module D terminates (Lemma 2)}
+\PROVEN{}\quad\textit{The resampling loop for window $w$ halts after at
+most $R_w\le\lceil\log_2(\Smax/S_w^{(0)})\rceil$ rounds.}
+
+\begin{proof}
+Each round adds $\min(S_w,\Smax-S_w)$ shots, where $S_w$ is the current
+total. While $S_w\le\Smax/2$ the added amount is $S_w$ itself, so $S_w$
+at least doubles, giving at most $\lceil\log_2(\Smax/S_w^{(0)})\rceil$
+such rounds before $S_w>\Smax/2$. Thereafter the added amount is
+$\Smax-S_w<S_w$, and $S_w$ is strictly increasing and bounded above by
+$\Smax$, so the loop reaches $S_w=\Smax$ --- at which point the increment
+is non-positive and the loop exits --- within one further round.
+\end{proof}
+
+\noindent
+This is a genuine termination guarantee rather than a mere engineering
+cap, and it matches the configured defaults exactly: at $S_w^{(0)}=4$ and
+$\Smax=64$, $\lceil\log_2(64/4)\rceil=4$ rounds, which is the value the
+configuration file's own comment records.
+
+\subsection{Equivalence to the published baseline (Invariant 1)}
+\INVAR{}\quad\textit{With all three modules disabled, the adaptive entry
+point executes a call sequence structurally identical to the published
+pipeline.}
+
+\begin{proof}[Justification (code inspection, not a mathematical proof)]
+By exhaustive inspection of the adaptive entry point. Each of the three
+module flags guards a complete \texttt{if}/\texttt{else}, and every
+\texttt{else} branch reproduces the pre-adaptive computation exactly:
+the same function calls with the same arguments, sourced from the fixed
+\texttt{candidate\_count} and \texttt{max\_paths} configuration fields
+rather than from any adaptive quantity. With all three flags false, the
+shot-stopping call is skipped entirely by its guard, so counts are
+sampled once and unmodified. No adaptive code path is reachable.
+\end{proof}
+
+\noindent
+The argument is complete for the implementation as written and carries no
+force for a re-implementation. Two independent execution-level checks
+accompany it, both reported in the main article: the Baseline arm's
+success rate reproduces the original campaign's figure across three
+measurements (52.1\%, 52.1\%, 51.1\%), where the original campaign drove
+a \emph{different} entry point, making the agreement cross-implementation
+evidence; and an instrumented re-run of the canonical grid reproduced the
+recorded per-trial outcomes of all five arms on all 144 trials
+bit-for-bit.
+
+\subsection{Sufficient decomposition of end-to-end correctness}
+\PROVEN{}\quad\textit{If (i) every window's top-ranked retained candidate
+equals the true window bit pattern, (ii) the carry check accepts exactly
+the carry-consistent pairs among those patterns, (iii) beam pruning never
+discards the resulting fully-true path, and (iv) continued-fraction
+expansion recovers the true order, then the pipeline returns the correct
+factorisation.}
+
+\begin{proof}
+Under (i)--(ii) the true patterns are pairwise compatible across every
+overlap, so a fully-true path exists at every stitching level. Under
+(iii) it survives pruning. Since the true pattern is top-ranked in every
+window by (i), that path attains the maximal product score and is ranked
+first. Under (iv), order recovery on it succeeds, so the outer loop
+returns on its first iteration.
+\end{proof}
+
+\noindent
+This decomposition is a logical convenience for organising the results
+above, \textbf{not} a claim that (i)--(iv) are \emph{necessary}. A correct
+answer can also arise from a non-top-ranked path, from a legitimate
+carry-borrow substituting for exact equality, or from a later stitched
+candidate succeeding where an earlier one failed. The sufficiency framing
+is retained because it is what the component-level results can actually
+establish.
+
+\subsection{Monotone non-restrictiveness, and why it does not imply monotone outcomes}
+\PROVEN{}\quad Under the per-module hypotheses above, each of B, C and D
+can only \emph{relax} a resource constraint relative to baseline --- more
+candidates, a wider beam, more shots --- and never tighten one. No module
+removes information or candidates that baseline would have kept.
+
+It is tempting to read this as implying that no arm can underperform
+baseline on any trial. That inference does not hold, and the data refute
+it: on the canonical grid module B alone turned two baseline successes
+into failures and module D six, and on $(N{=}15,a{=}2,r{=}4)$ module D
+broke exactly as many trials as it fixed. The reason is that relaxing a
+budget changes which candidates are retained and how the resulting paths
+rank, and continued-fraction order recovery is not monotone in the
+candidate set: a different phase can be tried first and fail where the
+baseline's first choice would have succeeded. \textbf{The monotonicity is
+a statement about resources, not about outcomes}, and the aggregate gains
+reported in the main article are empirical results rather than corollaries
+of this structure.
+
+% =====================================================================
+
+% =====================================================================
+\section{Calibration: bin-level data and diagnostics}
+\label{si:calib}
+
+Table~\ref{tab:calib} is the numerical form of the calibration figure in
+the main article, over 2{,}687 per-window observations from 579
+recaptured trials. Bins below $0.4$ are empty by construction:
+$\Cw\ge0.5$ whenever $n_1\ge n_2$, and $b^{(1)}_w$ is the top-ranked
+pattern by definition, so values below $0.5$ arise only from ties
+resolved by ordering.
+
+\begin{table}[h]
+\centering\small
+\caption{Reliability of $\Cw$ by predicted-confidence bin, from
+\texttt{phase6\_calibration.csv}. Raw Brier score $0.2239$ against
+$0.2500$ for a constant always-$0.5$ forecast; isotonic recalibration
+reduces this to $0.1988$ in-sample.}
+\label{tab:calib}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Predicted $\Cw$ bin & $n$ windows & Mean predicted & Observed correct \\
+\midrule
+$(0.4, 0.5]$ & 340 & 0.500 & 0.512 \\
+$(0.5, 0.6]$ & 216 & 0.518 & 0.606 \\
+$(0.6, 0.7]$ & 227 & 0.657 & 0.537 \\
+$(0.7, 0.8]$ & 743 & 0.749 & 0.693 \\
+$(0.8, 0.9]$ & 280 & 0.859 & 0.639 \\
+$(0.9, 1.0]$ & 881 & 0.964 & 0.792 \\
+\midrule
+All          & 2{,}687 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The overconfidence is not uniform across the range.} The
+lowest bin is well calibrated ($0.500$ predicted against $0.512$
+observed), and the $(0.5,0.6]$ bin is if anything under-confident. The
+gap opens in the upper half and is widest in $(0.8,0.9]$ --- $0.859$
+predicted against $0.639$ observed --- and in the heavily populated top
+bin, $0.964$ predicted against $0.792$ observed. Since module D's
+stopping threshold at $\varepsilon=0.05$ sits inside that top bin, the
+practical consequence is the one stated in the main article: windows that
+halt resampling are wrong about one time in five, not one in twenty.
+
+\paragraph{Ground truth.} The reference is not a bit-slice of a single
+``true phase''. The standard Shor $|1\rangle$ initial state is an equal
+superposition over all $r$ eigenphases $s/r$, so no single reference bit
+pattern per window exists. The well-defined ground truth is instead
+whether the observed top-1 pattern's \emph{true} (noiseless,
+infinite-shot) marginal probability really does exceed the observed
+top-2 pattern's --- that is, whether $\Cw$'s claim is correct for that
+window. The true marginal distribution is computed once per
+$(a,N,\text{window spec})$ by exact statevector simulation, independent
+of shots and seed, and cached.
+
+\paragraph{Mechanism.} The miscalibration is the predicted consequence of
+assumption (A2) being false. $b^{(1)}_w$ and $b^{(2)}_w$'s counts are two
+negatively correlated coordinates of one $K_w$-way multinomial, not two
+independent Binomials; ignoring that correlation pushes $\Cw$ toward more
+extreme values than the joint comparison would give. The defect is
+therefore structural rather than a tuning failure, and it is monotone
+rather than erratic --- which is precisely why the raw statistic remains
+serviceable as a ranking signal.
+
+\paragraph{Recalibration, and why it is not shipped.} Isotonic regression
+\cite{zadrozny2002} maps the raw score to a Brier of $0.1988$, bringing
+the top-bin value to $0.82$ against the same $0.792$ observed. This is an
+\emph{in-sample} fit on the same 2{,}687 observations, with no held-out
+split and no cross-validation, so it bounds what recalibration could
+achieve rather than estimating what it would achieve out of sample. It is
+deliberately not wired into module D's stopping rule, for two reasons.
+First, doing so would make the shipped rule depend on a fit whose
+generalisation to other instances, orders and window geometries has not
+been tested. Second, it would break the correspondence between the
+shipped configuration and the reported ablation, which thresholds on raw
+$\Cw$ throughout. Substituting the recalibrated value is a reasonable
+follow-up, but it would require re-running the ablation to attribute any
+resulting change correctly.
+
+% =====================================================================
+
+% =====================================================================
+\section{Artifact map and reproducibility detail}
+\label{si:artifacts}
+
+\subsection{Script-to-result-to-section mapping}
+
+Every numeric claim in the main article and in this document is a
+mechanical summary of one of the files in Table~\ref{tab:artifacts}. All
+files are in the released repository under
+\texttt{Data/failure\_study/}, and all generating scripts under
+\texttt{Experiments/}. The table lists only the files this article
+consumes; the companion study~\cite{companion} lists the files supporting
+the end-to-end evaluation, from the same release.
+
+\begin{table}[h]
+\centering\small
+\caption{Artifact map for the method article. ``Used in'' names the
+section of the main article (M) or of this document (S) that consumes the
+file.}
+\label{tab:artifacts}
+\scriptsize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.31\linewidth}>{\raggedright\arraybackslash}p{0.30\linewidth}>{\raggedright\arraybackslash}p{0.31\linewidth}@{}}
+\toprule
+Result file & Produced by & Used in \\
+\midrule
+\texttt{raw\_\allowbreak{}windows/*.json} (579 files) & \texttt{recapture\_\allowbreak{}window\_\allowbreak{}counts.py} & M: method validation \\
+\texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.csv} & \texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.py} & M: Table~5, Fig.~2 \\
+\texttt{phase6\_\allowbreak{}calibration.csv} & \texttt{phase6\_\allowbreak{}calibration.py} & M: Fig.~3; S: Table~\ref{tab:calib} \\
+\midrule
+\texttt{plots/paper\_\allowbreak{}figA\_\allowbreak{}window\_\allowbreak{}retention.png} & \texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.py} (rendering only) & M: Fig.~2 \\
+\texttt{plots/paper\_\allowbreak{}fig5\_\allowbreak{}calibration.png} & \texttt{paper\_\allowbreak{}figures.py} (rendering only; runs no trial) & M: Fig.~3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Determinism and the analysis pipeline}
+
+\paragraph{Trials are deterministic given their seed.} Each trial's seed
+is derived from its grid coordinates and seeds the simulator's sampling,
+so re-running any cell reproduces its counts exactly. It was verified
+rather than assumed: an instrumented re-run reproduced all 144 canonical
+trials, in all five arms, bit-for-bit~\cite{companion}.
+
+\paragraph{The window-level analysis samples nothing.} The retention
+script replays the frozen per-window counts in
+\texttt{raw\_windows/} through the shipped candidate-generation
+functions and scores the retained sets against statevector marginals
+computed once per $(a,N,\text{window specification})$. It executes no
+circuit on the sampler and recomputes no recorded outcome, and it asserts
+the calibration corpus size and raw Brier score before writing any
+output.
+
+\paragraph{The reference implementation carries its own checks.} Every
+executable module runs a self-test without arguments; the adaptive
+module's asserts Invariant~1 directly, by comparing the disabled-module
+path against the published fixed-budget reconstruction on identical
+counts.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{refs_A}
+
+\end{document}
