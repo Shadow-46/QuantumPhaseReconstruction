@@ -1,8 +1,10 @@
-qiskit==2.5
-qiskit-aer==0.15
-numpy==2.0
-scipy==1.14
-matplotlib==3.9
-networkx==3.3
-pandas==2.2
-scikit-learn==1.4
+# Exact versions that produced every result under Data/failure_study/.
+# Pinned rather than ranged because the recorded per-trial outcomes are
+# reproduced bit-for-bit, and a different Aer build may resample differently.
+qiskit==2.4.1
+qiskit-aer==0.17.2
+numpy==2.4.6
+scipy==1.17.1
+matplotlib==3.11.0
+pandas==3.0.3
+scikit-learn==1.9.0

@@ -38,14 +38,18 @@ class Requirement:
     maximum_exclusive: tuple[int, ...] | None = None
 
 
+# Lower bounds are the versions that produced the recorded results; see
+# requirements.txt. networkx was listed here but is imported by no module in
+# this repository, and scikit-learn was used by three modules without being
+# checked -- both corrected.
 REQUIREMENTS = (
-    Requirement("qiskit", "qiskit", (2, 5)),
+    Requirement("qiskit", "qiskit", (2, 4)),
     Requirement("qiskit-aer", "qiskit_aer", (0, 15)),
-    Requirement("numpy", "numpy", (2, 0), (3, 0)),
+    Requirement("numpy", "numpy", (2, 0)),
     Requirement("scipy", "scipy", (1, 14)),
     Requirement("matplotlib", "matplotlib", (3, 9)),
-    Requirement("networkx", "networkx", (3, 3)),
-    Requirement("pandas", "pandas", (2, 2), (3, 0)),
+    Requirement("pandas", "pandas", (2, 2)),
+    Requirement("scikit-learn", "sklearn", (1, 4)),
 )
 
 
@@ -58,8 +62,10 @@ SELF_TEST_MODULES = (
     "Reconstruction.carry",
     "Reconstruction.stitching",
     "Reconstruction.continued_fraction",
+    "Reconstruction.confidence",
     "Algorithms.standard_shor",
     "Algorithms.paper_algorithm",
+    "Algorithms.adaptive_reconstruction",
     "Algorithms.window_policy",
     "Evaluation.metrics",
     "Evaluation.experiments",
