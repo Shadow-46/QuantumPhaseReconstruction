@@ -417,12 +417,35 @@ def reconstruct_adaptive(
     beam_max: int = DEFAULT_ADAPTIVE.beam_max,
     epsilon: float = DEFAULT_ADAPTIVE.epsilon,
     s_max: int = DEFAULT_ADAPTIVE.s_max,
+    return_diagnostics: bool = False,
+    precomputed: tuple[list[dict[str, int]], list] | None = None,
 ):
     """Run the classical reconstruction pipeline with modules B (candidate
     coverage), C (beam width), and D (shot stopping) independently
     switchable, for the ablation study (FORMULATION.md Section 5). With all
-    three flags False this reproduces Baseline exactly."""
-    window_counts, specs = sample_window_counts(shor, window, noise_model=noise_model)
+    three flags False this reproduces Baseline exactly.
+
+    When return_diagnostics is True, also returns a dict of realized
+    per-trial resource usage -- m_w (candidates kept per window), max_paths
+    (realized beam width P'), and s_w (final shot count per window after
+    any D resampling) -- read off values already computed on the existing
+    control-flow path. Purely additive: no RNG draw, branch, or existing
+    return value changes when this flag is False.
+
+    precomputed, if given, is a (window_counts, specs) pair to reuse instead
+    of calling sample_window_counts again. Safe to share the same base
+    sample across multiple arms of the same (shor, window) trial: given a
+    fixed seed, sample_window_counts is deterministic, so every arm would
+    recompute bit-identical base counts anyway (Aer's own seeded sampling,
+    Algorithms/paper_algorithm.py:76-92) -- this only skips redundant
+    circuit transpile+execute, it does not change any arm's result.
+    _resample_shot_stopping already defensively copies
+    (`[dict(c) for c in window_counts]`) before mutating, so reuse across
+    arms cannot leak D's resampled counts back into a shared base."""
+    if precomputed is not None:
+        window_counts, specs = precomputed
+    else:
+        window_counts, specs = sample_window_counts(shor, window, noise_model=noise_model)
 
     if use_shot_stopping:
         window_counts = _resample_shot_stopping(shor, window, window_counts, specs, epsilon, s_max, noise_model)
@@ -445,8 +468,21 @@ def reconstruct_adaptive(
         max_paths = window.max_paths
 
     stitched = stitch_candidates(groups, max_paths=max_paths)
+    result = None
     for phase in stitched:
         recovered = recover_order_and_factors(phase.phase, shor.a, shor.N)
         if recovered.factors is not None:
-            return stitched, recovered
-    return stitched, None
+            result = (stitched, recovered)
+            break
+    if result is None:
+        result = (stitched, None)
+
+    if not return_diagnostics:
+        return result
+
+    diagnostics = {
+        "m_w": [len(g) for g in groups],
+        "max_paths": max_paths,
+        "s_w": [sum(c.values()) for c in window_counts],
+    }
+    return result[0], result[1], diagnostics
