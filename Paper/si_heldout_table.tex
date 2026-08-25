@@ -1,0 +1,48 @@
+\begin{table}[h]
+\centering\small
+\caption{Complete per-instance ablation. The canonical instance is shown
+for reference; the three below it were selected by a rule fixed before
+any trial of that stage ran. All grids are 144 seed-paired trials.
+$b$ = trials the arm broke (baseline succeeded, arm failed);
+$c$ = trials the arm fixed. $p$ is the exact two-sided binomial McNemar
+value. Values for the three held-out instances are uncorrected: they are
+replications, not members of the confirmatory Holm family
+(Sec.~\ref{si:tables}). Bootstrap CIs are 95\% percentile intervals on
+the paired difference, $B=2000$ resamples at seed 0.}
+\label{tab:heldout}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Instance & Arm & Success & Diff.\ vs.\ Baseline [95\% CI] & $(b,c)$ & Exact $p$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$N{=}21$, $a{=}19$, $r{=}6$ --- canonical (design grid)}}\\
+ & Baseline & 52.1\% & ---                              & ---      & ---  \\
+ & B        & 77.1\% & $+25.0$ pp $[+18.1,+33.3]$       & $(2,38)$ & $1.5\times10^{-9}$ \\
+ & C        & 56.9\% & $\phantom{0}+4.9$ pp $[+1.4,+8.3]$ & $(0,7)$  & $1.6\times10^{-2}$ \\
+ & D        & 76.4\% & $+24.3$ pp $[+16.0,+32.6]$       & $(6,41)$ & $1.8\times10^{-7}$ \\
+ & Full     & \textbf{100.0\%} & $\mathbf{+47.9}$ \textbf{pp} $[+39.6,+56.3]$ & $(0,69)$ & $3.4\times10^{-21}$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$N{=}21$, $a{=}2$, $r{=}6$ --- held-out: canonical order, new base}}\\
+ & Baseline & 50.0\% & ---                              & ---      & ---  \\
+ & B        & 76.4\% & $+26.4$ pp $[+18.8,+34.0]$       & $(1,39)$ & $7.5\times10^{-11}$ \\
+ & C        & 54.9\% & $\phantom{0}+4.9$ pp $[+1.4,+9.0]$ & $(0,7)$  & $1.6\times10^{-2}$ \\
+ & D        & 79.2\% & $+29.2$ pp $[+20.1,+38.9]$       & $(8,50)$ & $1.6\times10^{-8}$ \\
+ & Full     & \textbf{97.9\%}  & $\mathbf{+47.9}$ \textbf{pp} $[+39.6,+56.3]$ & $(0,69)$ & $3.4\times10^{-21}$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$N{=}15$, $a{=}2$, $r{=}4$ --- held-out: new modulus, new order}}\\
+ & Baseline & 88.9\% & ---                              & ---      & ---  \\
+ & B        & 100.0\% & $+11.1$ pp $[+6.3,+16.0]$       & $(0,16)$ & $3.1\times10^{-5}$ \\
+ & C        & 88.9\% & $\phantom{0}+0.0$ pp $[+0.0,+0.0]$ & $(0,0)$  & $1.00$ \\
+ & D        & 88.9\% & $\phantom{0}+0.0$ pp $[-5.6,+5.6]$ & $(8,8)$  & $1.00$ \\
+ & Full     & \textbf{100.0\%} & $+11.1$ pp $[+6.3,+16.0]$ & $(0,16)$ & $3.1\times10^{-5}$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$N{=}21$, $a{=}8$, $r{=}2$ --- held-out: baseline already at ceiling}}\\
+ & Baseline & 100.0\% & ---                             & ---      & ---  \\
+ & B        & 100.0\% & $\phantom{0}+0.0$ pp $[+0.0,+0.0]$ & $(0,0)$  & $1.00$ \\
+ & C        & 100.0\% & $\phantom{0}+0.0$ pp $[+0.0,+0.0]$ & $(0,0)$  & $1.00$ \\
+ & D        & 100.0\% & $\phantom{0}+0.0$ pp $[+0.0,+0.0]$ & $(0,0)$  & $1.00$ \\
+ & Full     & 100.0\% & $\phantom{0}+0.0$ pp $[+0.0,+0.0]$ & $(0,0)$  & $1.00$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
