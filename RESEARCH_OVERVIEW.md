@@ -1,6 +1,6 @@
 # Research Overview: Confidence-Guided Adaptive Reconstruction for Windowed Quantum Phase Estimation
 
-*A plain-language walkthrough of this project — how it started, what was learned, what was built, what broke, what was fixed, and where things stand today (2026-08-13).*
+*A plain-language walkthrough of this project — how it started, what was learned, what was built, what broke, what was fixed, and where things stand today (2026-08-26).*
 
 ---
 
@@ -14,7 +14,7 @@ The work went through five stages:
 2. **Stress-test it** with a large, systematic experimental campaign to find out how and when it actually breaks (it turns out single-factor stress barely matters, but starving several resources *at once* breaks it nearly half the time).
 3. **Catch and correct a mistake** in the team's own earlier finding — a "55% failure rate" claim that turned out to be a bug in the *test script*, not the algorithm. This was caught, verified three independent ways, and openly documented rather than quietly dropped.
 4. **Design and build a fix** — a new "confidence-guided adaptive reconstruction" method that spends more computational effort only where the algorithm is genuinely unsure, instead of a fixed budget everywhere. Tested head-to-head, it took the failure rate from **52% success → 100% success** on the hardest tested case.
-5. **Currently in progress**: broadening the validation so the result isn't just true for one lucky test case, and writing up the whole study as a paper draft.
+5. **Broaden and qualify the result** so it isn't just true for one lucky test case. Three pre-specified held-out instances reproduced the pattern, but matched-resource controls showed that no individual module beats a baseline given the same budget spent uniformly - so the supported claim is automatic budget *selection*, not superior *placement*. The work is written up as two cross-cited manuscripts.
 
 Nothing about the quantum circuit itself was changed — only the classical decision-making that happens after the quantum measurement.
 
@@ -116,17 +116,19 @@ A calibration check was also run to make sure the confidence statistic can be tr
 
 ### The results
 
-A controlled **ablation study** (139 of 144 planned trials completed; the remaining 5 were stopped once results had clearly stabilized) compared each module, and all three together, against the original fixed-budget baseline, on the hardest test case from the failure study:
+A controlled **ablation study** (144 of 144 trials completed) compared each module, and all three together, against the original fixed-budget baseline, on the hardest test case from the failure study:
 
 | Configuration | Success rate | Improvement vs. baseline | Statistical significance |
 |---|---|---|---|
-| Baseline (published algorithm) | 51.1% | — | — |
-| + Module B only | 76.3% | +25.2 points | p = 2.8×10⁻⁹ |
-| + Module C only | 56.1% | +5.0 points | p = 0.016 |
-| + Module D only | 76.3% | +25.2 points | p = 1.8×10⁻⁷ |
-| **All three together** | **100%** | **+48.9 points** | **p = 6.8×10⁻²¹** |
+| Baseline (published algorithm) | 52.1% | — | — |
+| + Module B only | 77.1% | +25.0 points | p = 1.5×10⁻⁹ |
+| + Module C only | 56.9% | +4.9 points | p = 0.016 |
+| + Module D only | 76.4% | +24.3 points | p = 1.8×10⁻⁷ |
+| **All three together** | **100%** | **+47.9 points** | **p = 3.4×10⁻²¹** |
 
-All differences are statistically significant. The baseline figure (51.1%) closely matches the original failure-study baseline (52.1%), confirming that fixing the test-script bug didn't quietly change how the underlying algorithm behaves — it only changed how a separate audit measured it. On this test set, **combining all three adaptive modules eliminated every measured failure.**
+The baseline figure (52.1%) matches the original failure-study baseline exactly, confirming that fixing the test-script bug didn't quietly change how the underlying algorithm behaves — it only changed how a separate audit measured it. On this test set, **combining all three adaptive modules eliminated every measured failure.**
+
+Two caveats belong with that table and are developed at length in the manuscripts. Module C does not survive multiple-comparison correction and is not supported as an independent intervention. And against **matched-resource controls** — a baseline handed each module's own realised budget to spend uniformly — no individual module is distinguishable from its control; only the full combination separates. The defensible claim is therefore automatic *selection* of the reconstruction budget, not superior *placement* of one.
 
 ---
 
@@ -134,33 +136,35 @@ All differences are statistically significant. The baseline figure (51.1%) close
 
 In parallel with the implementation work, substantial effort went into how to present this as a credible academic paper. A dedicated research pass studied what journals like *Quantum* and venues like ACM TQC actually expect from a paper that mixes formal claims with empirical results — things like: leading every result with effect size and confidence intervals (not just a p-value), correctly choosing and reporting statistical tests (McNemar's test for paired trial outcomes, bootstrap confidence intervals, Holm–Bonferroni correction across multiple comparisons), writing an honest "Limitations" section, and — specifically — how to disclose the self-caught carry-check correction without it reading as an "erratum" (it isn't one, since it was caught before publication).
 
-A full compiled report (`Data/failure_study/COMPILED_REPORT.md`) now exists, cross-referencing every claim back to its source data and consistently labeling each one as **(PROVEN)**, **(HEURISTIC)**, or **(EMPIRICAL)** so readers know exactly how much weight each claim can bear. A first draft of the actual manuscript exists in `Paper/main.tex`, targeting *MethodsX*.
+A full compiled report (`Data/failure_study/COMPILED_REPORT.md`) now exists, cross-referencing every claim back to its source data and consistently labeling each one as **(PROVEN)**, **(HEURISTIC)**, or **(EMPIRICAL)** so readers know exactly how much weight each claim can bear. The work is now written up as **two cross-cited manuscripts**: `Paper/A_method.tex` (the method and its window-level validation, targeting *MethodsX*) and `Paper/B_master.tex` plus the `Paper/B/` tree (the failure characterisation and end-to-end controlled evaluation, journal-neutral pending a venue decision). Each has its own supplementary. They share one released corpus and analyse it at different units - the method paper at the window, the study at the trial - and no figure, table, or result is common to both.
 
 ---
 
 ## 8. Current Status (as of this writing)
 
-The project is currently in **Phase 7: closing generalization gaps**, prompted by an honest self-review of the Phase 6 result. Three specific weaknesses were identified in the 100%-success headline number:
+**Phase 7 closed the generalization gaps**, prompted by an honest self-review of the Phase 6 result. Three specific weaknesses were identified in the 100%-success headline number:
 
 1. **It was only tested on one problem instance** (N=21, a=19) — so the result might not generalize.
 2. **That one instance was also the same one used to design the fix** — a circularity concern (tuning and testing on the same case).
 3. **There was no "matched-resource" control** — Module B/C/D succeed partly *because* they're allowed to use more computational resources (more candidates, wider search, more shots) than the fixed baseline. Without a fair comparison against a baseline given the *same* extra resources (just not spent adaptively), it's hard to know how much of the gain comes from the "confidence-guided" idea itself versus simply "spending more."
 
-`Experiments/phase7_generalization.py` (currently uncommitted, in-progress work) addresses all three:
+`Experiments/phase7_generalization.py` addresses all three, and is complete:
 
 - **Held-out instances:** the same 144-trial grid is being re-run on three additional, pre-registered problem instances the modules were never tuned against — (N=15, a=2), (N=21, a=8), and (N=21, a=2) — chosen by a fixed rule *before* any trial ran, to rule out cherry-picking.
 - **Matched-resource controls:** for each adaptive module, a "fair fight" baseline is constructed that gets fed the *same* realized resource usage (extra shots, extra candidates, wider beam) the adaptive version actually used in that trial — but without confidence guidance choosing where to spend it. This isolates whether the *adaptive allocation* itself is doing the work, not just the extra resources.
 - A safety gate re-runs the original canonical instance with new instrumentation and checks the results are **bit-for-bit identical** to the already-published numbers, to make sure adding this instrumentation didn't quietly change anything.
 
-### Live progress snapshot
+### Phase 7 outcome
 
 | Stage | Status |
 |---|---|
-| Canonical (N=21, a=19) instrumented re-run — sanity check | ✅ Done (144/144), verified to match the published numbers exactly |
+| Canonical (N=21, a=19) instrumented re-run — sanity check | ✅ Done (144/144), verified bit-for-bit against the published numbers |
 | Held-out instance (N=15, a=2) | ✅ Done (144/144) |
 | Held-out instance (N=21, a=8) | ✅ Done (144/144) |
-| Held-out instance (N=21, a=2) | 🔄 In progress (34/144) |
-| Matched-resource control arms | ⏳ Not yet started |
+| Held-out instance (N=21, a=2) | ✅ Done (144/144) |
+| Matched-resource control arms | ✅ Done (144/144) |
+
+The held-out grids reproduce the canonical pattern — the full combination reaches 97.9–100% across the four instances — but the matched-resource controls came back partly negative, and that is the finding the manuscripts lead with rather than the 100%. Phase 7 is closed.
 
 A pair of small support scripts were added alongside this: `Experiments/check_status.py` (reports how far each of the five stages above has progressed, since individual trials can take up to ~20–25 minutes) and `Experiments/resume_campaign.py` (safely restarts the campaign — already-finished stages are skipped instantly, so it's safe to re-run at any time, e.g. after an interruption).
 
@@ -176,8 +180,8 @@ Honestly-tracked open items, carried forward from the project's own notes:
 2. **Decide on the recalibration layer** — currently, the shot-stopping module makes decisions using the known-to-be-overconfident raw confidence score, not the improved recalibrated version. This needs an explicit decision either way, not silence.
 3. **Scale up trial counts** if the results are meant to support a publication — the qualitative ranking (B ≈ D > C, and all three together eliminating failures) is solid, but confidence intervals — especially for Module C's smaller effect — would tighten with more trials.
 4. **Solve or route around the compilation cliff** — this is flagged as the single most consequential unsolved engineering problem in the whole project, since it's the only failure mode that makes the algorithm *impossible to even run* at interesting sizes, rather than just less accurate. It's out of scope for this project's classical-reconstruction focus, but it is the ceiling on how far any of this can be validated.
-5. **Finish the manuscript** — incorporate the paper-craft research findings (contributions-first structure, proper statistical reporting, an honest limitations section, and matter-of-fact disclosure of the carry-check self-correction) into a submission-ready draft, first targeting *MethodsX*/*Quantum*, with ACM TQC as a fallback.
+5. **Submit** — Paper A to *MethodsX*, whose remit is customisations of a published method. Paper B's venue is not yet fixed; `Paper/B/config/README.md` records the candidates and what each would require.
 
 ---
 
-*This document summarizes the project state as of 2026-08-13. For full technical detail, see `Data/Theory_&_Research_Progress.md` (theory background), `Data/failure_study/REPORT.md` (Phases 1–5, with corrections), `Data/failure_study/PHASE6_SUMMARY.md` (the adaptive-framework build and ablation), `Data/failure_study/COMPILED_REPORT.md` (the full cross-referenced report with proofs and evidentiary labels), and `Paper/main.tex` (the manuscript draft).*
+*This document summarizes the project state as of 2026-08-26. For full technical detail, see `Data/Theory_&_Research_Progress.md` (theory background), `Data/failure_study/REPORT.md` (Phases 1-5, with corrections), `Data/failure_study/PHASE6_SUMMARY.md` (the adaptive-framework build and ablation), `Data/failure_study/COMPILED_REPORT.md` (the full cross-referenced report with proofs and evidentiary labels), and `Paper/A_method.tex` / `Paper/B_master.tex` (the two manuscripts).*

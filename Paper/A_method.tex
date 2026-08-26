@@ -180,15 +180,11 @@ comparison \sep beam search
 % =====================================================================
 \section*{Highlights}
 \begin{itemize}\itemsep2pt
-\item A per-window Bayesian statistic sets candidate, beam and shot budgets
-      from the already-measured counts; the quantum circuit is unchanged.
-\item Coverage-based retention captures $0.841$ of true per-window
-      probability mass against $0.571$ for a fixed budget, over 3{,}354
-      windows.
-\item Its value is insensitivity to the budget setting, not superiority at
-      any one setting.
-\item $\Cw$ ranks windows usefully at module D's operating point but is not
-      a calibrated probability.
+\item A per-window Bayesian statistic sets candidate, beam and shot budgets.
+\item The quantum circuit, its width, depth and sampling are left unchanged.
+\item Coverage-based retention holds 0.841 of true window mass; top-$k$, 0.571.
+\item Its value is insensitivity to the budget setting, not a better setting.
+\item $\Cw$ ranks windows usefully at module D's threshold but is uncalibrated.
 \end{itemize}
 
 % =====================================================================
@@ -1382,7 +1378,7 @@ this paper.
 \section*{Relation to the companion article}
 The method specified here is evaluated end to end in a companion
 study~\cite{companion}, which reports the failure-mode characterisation
-that motivated it, the five-arm ablation, generalisation to pre-registered
+that motivated it, the five-arm ablation, generalisation to pre-specified
 held-out instances, and the matched-resource controls that qualify the
 result. The two articles share one released corpus and one code archive,
 and analyse it at different units: this article at the window, the
