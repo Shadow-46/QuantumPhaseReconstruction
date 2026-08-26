@@ -1,0 +1,70 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{The central result of this study is not that confidence-guided
+allocation has been shown to outperform an equal uniform allocation of
+the same total resources.} The matched-resource controls do not support
+that claim. What the evidence shows is that the proposed rules can infer
+and deploy a workable reconstruction budget from the observed measurement
+data, whereas the original pipeline requires that budget to be selected
+manually in advance. Every statement elsewhere in this article is scoped
+to that reading.
+
+Three findings sit uneasily together at first reading: the combination
+of all three modules removes essentially every failure in the regime
+where failures occur; individually, no module beats a budget-matched
+control; and those controls are themselves not implementable, since they
+require knowing in advance what the adaptive rule would have chosen. The
+reconciliation is that the modules are not competing with a well-chosen
+fixed budget --- they are competing with the problem of choosing one.
+Secs.~\ref{sec:ofat} and~\ref{sec:combined} showed that no single starved
+budget causes failure while three starved together cause it half the time, so a
+practitioner cannot diagnose which knob to turn from a failure alone, and
+the correct setting varies cell by cell. That the rule's allocation
+performs like an oracle-matched uniform one is the strongest available
+evidence that it picks sensible values.
+
+Table~\ref{tab:adopt} states what we would recommend a practitioner
+adopt, and on what evidence. The modules are \emph{not} equally
+supported, and presenting them as a uniform package would misrepresent
+the study.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Adoption guidance. ``Evidence'' summarises
+Secs.~\ref{sec:results}--\ref{sec:matched}; costs are from the companion
+article~\cite{methodpaper}.}
+\label{tab:adopt}
+\begin{tabular}{@{}lp{0.36\linewidth}p{0.36\linewidth}@{}}
+\toprule
+Module & Evidence & Recommendation \\
+\midrule
+\textbf{B} coverage
+ & Largest and most stable effect; improved every instance with
+   headroom; broke at most two trials anywhere.
+ & \textbf{Adopt first.} Cheapest of the three: no additional circuit
+   execution, same asymptotic class as the code it replaces. \\[3pt]
+\textbf{D} shot stopping
+ & Large where shots bind, nil where they do not; the most two-sided
+   per-trial behaviour in the study.
+ & Adopt where sampling is cheap relative to a failed run; it dominates
+   wall-clock cost whenever it fires. \\[3pt]
+\textbf{C} beam width
+ & Fails Holm correction; null on two of three held-out instances;
+   indistinguishable from its matched control on every trial.
+ & \textbf{Do not enable alone.} Retained in the Full configuration only
+   because it provably never narrows the beam and 20 attributed failures
+   needed both budget axes relaxed together. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+None of this is in tension with the calibration result reported in the
+companion article~\cite{methodpaper}: module D's stopping rule needs
+$\Cw$ to order windows correctly, not to state a correct probability. Where the
+miscalibration does cost something is the choice of $\varepsilon$, which
+consequently has no principled setting and was left at its default.
+
+% =====================================================================
+
+% =====================================================================

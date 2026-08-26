@@ -1,0 +1,38 @@
+%% Journal-independent preamble: packages, theorem environments, and
+%% the symbol macros used throughout. Layout lives in B/config/.
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+
+
+% ---- draft markers: make every open item greppable and visible -------
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\PLACE}[1]{\textcolor{blue}{\textbf{[PLACEHOLDER: #1]}}}
+
+% ---- evidentiary labels, carried over verbatim from the source notes -
+\newcommand{\PROVEN}{\textsc{(proven)}}
+\newcommand{\HEUR}{\textsc{(heuristic)}}
+\newcommand{\EMPIR}{\textsc{(empirical)}}
+\newcommand{\INVAR}{\textsc{(implementation invariant)}}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{invariant}{Invariant}
+
+% Supplementary Information pointers (SI is a separate document, so these
+% are literal rather than \ref, which cannot cross documents).
+\newcommand{\SI}{Supplementary Information}
+\newcommand{\SIaudit}{\SI{}~Sec.~S1}
+\newcommand{\SItables}{\SI{}~Sec.~S2}
+\newcommand{\SIartifacts}{\SI{}~Sec.~S3}
+
+\newcommand{\Cw}{C_w}
+\newcommand{\dcov}{\delta_{\mathrm{cov}}}
+\newcommand{\Smax}{S_{\max}}
+\newcommand{\beammax}{\texttt{beam\_max}}

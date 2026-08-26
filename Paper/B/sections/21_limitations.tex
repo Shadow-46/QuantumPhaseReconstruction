@@ -1,0 +1,116 @@
+\section{Limitations}
+\label{sec:limitations}
+
+We group these into six, ordered by how much each constrains what a
+reader may conclude. Each names what would close it; several cannot be
+closed by writing.
+
+\paragraph{1. External validity and evaluation scope.}
+Every result is at $N\in\{15,21\}$ with $r\in\{2,4,6\}$, noiseless, and
+in simulation. \emph{The instance ceiling is not a choice}: the
+modular-arithmetic layer of our reference implementation is a dense
+unitary whose compilation time rises from $0.4$\,s at 5 work qubits to
+$42$\,s at 7 and exceeds a $45$\,s timeout at 8 ($N\approx143$),
+foreclosing larger instances before a shot is sampled; within that
+ceiling only $N\in\{15,21\}$ admits an odd two-prime modulus with the
+even, non-trivial order factor extraction requires. At these orders the
+continued-fraction search is very forgiving, and that forgiveness
+confounds \emph{any} claim about classical-stage robustness --- the $r=2$
+instance, where the unmodified baseline already succeeds on every trial,
+demonstrates it directly. \emph{The noiseless scope is a choice}, made to
+isolate the mechanism under test, and it leaves the 27\% of
+characterisation-campaign failures attributed to noise outside the
+evaluated regime. Modules B and C act only on already-sampled counts, but
+module D is more exposed: under a noise floor, additional shots can
+sharpen confidence in a wrong pattern while consuming the $\Smax$ budget.
+We make no claim about behaviour under noise in either direction.
+Simulation-only status further excludes the queueing, calibration-drift
+and per-shot cost structures D would meet on hardware. \emph{Closing
+these:} a reversible modular-arithmetic circuit \cite{cuccaro2004} for
+the ceiling; re-running the existing five-arm grid with the noise models
+already in the released code, which needs compute rather than new
+method.
+
+\paragraph{2. Attribution of the gain to allocation rather than budget.}
+Against matched-resource controls, no individual module is
+distinguishable from a control given the same realised budget spread
+uniformly (Sec.~\ref{sec:matched}). We therefore do not claim that
+per-window placement is intrinsically better; the supported claim is that
+the rule recovers an oracle-quality budget without being given one. Three
+residual gaps qualify even that. \textbf{No control matches all three
+budgets against the Full arm}: the Full-vs-control comparison equalises
+shots only, so part of its $+26.4$~pp is candidate and beam budget the
+control never received, and the figure cannot be attributed to confidence
+guidance alone. The shots- and candidates-matched controls approximate a
+non-uniform allocation by its mean; only the beam-matched control is
+exact (residuals and their directions are quantified in \SItables{}). And
+we have no instance whose ambiguity is concentrated in a minority of
+windows --- the regime where we would predict placement to separate from
+uniform allocation. \emph{Closing these:} a three-way matched control, a
+direct extension of the released instrumentation and the single
+experiment we would add next.
+
+\paragraph{3. The confidence model.}
+$\Cw$'s independence assumption (A2) is measurably false, and the
+calibration study quantifies the cost: raw Brier $0.2239$ against
+$0.2500$ for a constant $0.5$ forecast, with the top predicted bin at
+$0.96$ predicted against $0.79$ observed. The consequence is that
+$\varepsilon$ names an error target but delivers a heuristic threshold on
+an uncalibrated statistic; it must be tuned empirically rather than set
+from a desired error rate, and any extension consuming $\Cw$ as a
+probability would be unsound. The isotonic recalibration is deliberately
+not wired into the shipped rule, so that the shipped configuration is the
+one that was ablated --- and in any case it was fitted and evaluated
+in-sample on the same 2{,}687 observations, so its $0.1988$ bounds what
+recalibration could achieve rather than estimating out-of-sample
+performance. Separately, $\Cw$ compares only the top two patterns (A3),
+so a genuine three-way near-tie is not flagged as low-confidence: a
+structural blind spot rather than a tuned trade-off, accepted given
+$\ell_w\le6$ throughout our corpus. \emph{Closing these:} a
+Dirichlet-joint formulation of the statistic~\cite{methodpaper}; a
+held-out calibration split.
+
+\paragraph{4. Module-specific evidence.}
+\textbf{Module C is not supported as an independent intervention.} It
+fails Holm correction at the confirmatory family size
+(\SItables{}), is null on two of three held-out instances, and
+agrees with its matched control on every trial. Its rule is also
+heuristic: $\mathrm{expanded}$ counts ambiguous windows and is not a
+derived sufficient beam width. We recommend against enabling it alone and
+retain it in the Full configuration only on the strength of its proven
+inability to narrow the beam and the 20 compounded failures that needed
+both budget axes relaxed together. \textbf{Module B carries no population
+coverage guarantee}: $\dcov$ bounds coverage of the observed sample, not
+the probability that the true pattern is retained~\cite{methodpaper}; closing that requires a finite-sample
+concentration bound we neither derive nor implement. \textbf{Per-trial
+regressions are real}: enabled alone, B turned two canonical-grid
+successes into failures and D six, and on $(N{=}15,a{=}2)$ D broke
+exactly as many trials as it fixed. The Full arm regressed no trial on
+any instance, but a practitioner enabling a single module should expect a
+small rate of reversals.
+
+\paragraph{5. Parameters and statistical scope.}
+$\varepsilon$ and $\dcov$ were used at their published
+defaults~\cite{methodpaper} because those defaults already produced large
+effects, so no calibration failure prompted a search; we do not know how
+sensitive the reported effects are to them, and a looser $\varepsilon$
+might capture most of D's benefit at lower sampling cost. The canonical
+grid also served both to identify budget starvation and to evaluate the
+fix --- the held-out instances of Sec.~\ref{sec:heldout} address that
+circularity, but they broaden \emph{which} instance is tested rather than
+supplying a harder one. And McNemar's test speaks to one evaluation set:
+two repeats per grid cell do not characterise run-to-run variability.
+
+\paragraph{6. Deliberate scope exclusions.}
+Window geometry is fixed at configuration time and never revised in
+response to confidence (A5), so a separate and sharply-defined failure
+mode --- within ${\sim}1\%$ of a window's $0.5$ ambiguity boundary the
+winning bucket is unstable across repeated identical measurements --- is
+untouched by this framework, which by construction cannot revise geometry
+without regenerating circuits. Each window is also allocated
+independently, with no shared budget across windows (A4); we did not
+analyse jointly constrained allocation because no experiment in our
+harness imposes such a budget, which is itself a gap in the evaluation
+rather than evidence that coupling would not help.
+
+% =====================================================================

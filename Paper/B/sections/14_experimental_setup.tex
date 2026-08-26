@@ -1,0 +1,79 @@
+\section{Experimental Setup}
+\label{sec:design}
+
+Validation proceeds in three stages, addressing in turn whether the
+method works, whether it works on instances it was not designed against,
+and whether what works is the adaptivity or merely the extra budget.
+
+\paragraph{Stage 1 --- ablation on the canonical grid.} We reuse the
+144-cell combined-stress grid of Sec.~\ref{sec:combined} (72 parameter
+combinations $\times$ 2 repeats, $N=21$, $a=19$, $r=6$) and run all five
+arms on every cell. Each trial's seed is derived deterministically from
+its grid coordinates, so a given cell produces identical sampled counts
+under every arm and only the classical stage differs --- the pairing that
+makes this a within-subjects design.
+
+\paragraph{Stage 2 --- pre-specified held-out instances.} The grid above
+is the one that identified budget starvation as the failure mode, so it
+cannot speak to generalisation. We re-ran the identical design, unchanged,
+on three instances chosen by a rule fixed before any trial of this stage:
+the lowest valid base achieving each target order, excluding the
+canonical $a=19$. This gives $(N{=}15,a{=}2,r{=}4)$ --- new modulus and
+order; $(N{=}21,a{=}8,r{=}2)$ --- canonical modulus, new order; and
+$(N{=}21,a{=}2,r{=}6)$ --- canonical order, new base.
+
+The choice set is small, and we state why rather than presenting it as
+preference. Within the ${\le}5$ work-qubit ceiling forced by the
+compilation cliff (Sec.~\ref{sec:limitations}, Limitation~1), only
+$N\in\{15,21\}$ admits an odd two-prime modulus with an even, non-trivial
+order, which factor extraction requires. Since $r=6$ at $N=21$ is already
+the largest reachable even order, held-out instances broaden \emph{which}
+instance is tested but cannot supply one that is \emph{harder}. They
+close the circularity objection --- the method was never tuned on them ---
+while only narrowing, not eliminating, the external-validity question.
+The selection rule was fixed before any trial of this stage ran and is
+documented in the module docstring of the script that ran it. We describe
+the instances as \emph{pre-specified}: the rule preceded the data, but
+it carries no third-party timestamp, so the reader is being asked to
+accept a repository artifact rather than an independent record. We make
+no claim to the procedural guarantees of a formal registration.
+
+Before Stage 2 ran, the canonical grid was re-executed with resource
+instrumentation attached, gated on reproducing the already-recorded
+per-trial outcomes bit-for-bit. It did, on all 144 trials.
+
+\paragraph{Stage 3 --- matched-resource controls.} Each module succeeds
+partly because it may spend more than baseline. To separate the
+allocation \emph{rule} from the allocation \emph{size}, the instrumented
+run records each arm's realised budget per trial --- per-window candidate
+counts $m_w$, realised beam width $P'$, final per-window shots $S_w$. For
+every trial we then build a control given that same realised budget
+\emph{uniformly}, evaluated through the Baseline code path with all three
+flags disabled, so no confidence guidance appears anywhere in the
+control. The shots-matched control redistributes the total extra shots
+evenly across windows; the candidates-matched control uses a fixed
+$k=\mathrm{round}(\overline{m_w})$; the beam-matched control uses that
+trial's realised $P'$ unconditionally. Only the beam-matched control is
+exact; the other two approximate a non-uniform allocation by its mean,
+and \SItables{} quantifies the residual and its direction.
+
+These controls are deliberately favourable to the baseline: they receive
+a budget that could only be known \emph{after} watching the adaptive rule
+choose it. They are oracles, not competitors, and the comparison asks
+whether confidence guidance beats an allocator that already knows the
+answer it would have given.
+
+\paragraph{All three stages are noiseless.} Every trial reported here was
+sampled from an ideal simulator with no noise model. This is deliberate:
+budget starvation is the failure mode under test, and injecting noise
+would add a second, independently varying source of failure the modules
+were not built to address. The cost is that the 27\% of
+characterisation-campaign failures attributed to noise
+(Fig.~\ref{fig:pareto}) fall outside the evaluated regime, and we make no
+claim about behaviour when noise rather than budget is the binding
+constraint (Limitation~1).
+
+\paragraph{Outcome.} The primary outcome is binary end-to-end success:
+the returned phase estimate yields the true order and a non-trivial
+factorisation of $N$. Secondary outcomes (realised candidate count, beam
+width, additional shots) are in \SItables{}.

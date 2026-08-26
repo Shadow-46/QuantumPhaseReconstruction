@@ -1,0 +1,14 @@
+\section{Experimental Design}
+\label{sec:chardesign}
+
+The characterisation treats the reproduction as a black box and probes it
+along five axes, in the order they were run: single-parameter sweeps
+(Sec.~\ref{sec:ofat}), combined budget starvation
+(Sec.~\ref{sec:combined}), injected noise (Sec.~\ref{sec:noise}), direct
+fault injection into the classical stage (Sec.~\ref{sec:adversarial}), and
+scaling (Sec.~\ref{sec:cliff}). A counterfactual attribution pass over every
+failure any of them produced closes Part I (Sec.~\ref{sec:attribution}).
+
+Each trial is seeded from its grid coordinates, and the simulator's sampling
+is seeded from that, so any cell reproduces exactly on re-run. All raw
+per-trial records are released.

@@ -1,0 +1,56 @@
+%% =====================================================================
+%%  JOURNAL PROFILE: neutral
+%%
+%%  This is the only file that should change when retargeting the
+%%  manuscript. It owns column layout, float style, spacing, and the
+%%  bibliography style. Nothing under B/sections/ refers to a journal.
+%%
+%%  To add a profile: copy this file to B/config/<name>.tex, adjust, and
+%%  point \JournalProfile at it in B_master.tex (also swapping the
+%%  \documentclass line there, which LaTeX requires to come first).
+%% =====================================================================
+
+\journal{Preprint}
+
+% ---- bibliography style ---------------------------------------------
+\newcommand{\BibStyle}{elsarticle-num}
+
+% ---- float placement -------------------------------------------------
+% Without these the tables drift to the end of the document, far from the
+% text that discusses them.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.7}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+
+% ---- spacing ---------------------------------------------------------
+\setlength{\bibsep}{2pt plus 0.3ex}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\abovedisplayskip}{6pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{6pt plus 2pt minus 2pt}
+
+% ---- layout-adaptive wide floats -------------------------------------
+% Floats declared widefigure / widetable span both columns under a
+% two-column profile and behave as ordinary floats under a single-column
+% one, so no section file needs to know which is in force. The branch is
+% taken once, here.
+\makeatletter
+\if@twocolumn
+  \newenvironment{widefigure}{\begin{figure*}[tbp]}{\end{figure*}}
+  \newenvironment{widetable}{\begin{table*}[tbp]}{\end{table*}}
+  \renewcommand{\dbltopfraction}{0.9}
+  \renewcommand{\dblfloatpagefraction}{0.6}
+  \setcounter{dbltopnumber}{3}
+  \setlength{\emergencystretch}{2em}
+\else
+  \newenvironment{widefigure}{\begin{figure}[htbp]}{\end{figure}}
+  \newenvironment{widetable}{\begin{table}[htbp]}{\end{table}}
+  % A section-level float barrier cannot be satisfied by a starred float,
+  % so placeins is single-column only.
+  \usepackage[section]{placeins}
+\fi
+\makeatother

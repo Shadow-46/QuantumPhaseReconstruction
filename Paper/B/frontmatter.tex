@@ -1,0 +1,56 @@
+\begin{frontmatter}
+
+
+\title{Where Windowed Shor's Algorithm Actually Fails, and What Fixing
+It Buys: A Controlled Study}
+
+\author[inst1]{Sanjay Lakshmanan R}
+\ead{rajasanjay21@gmail.com}
+
+\address[inst1]{Department of Computer Science and Engineering,
+Amrita Vishwa Vidyapeetham, Chennai, India}
+
+\begin{abstract}
+Windowed quantum phase estimation makes Shor's algorithm cheaper in qubits
+by splitting the phase register into narrow, independently measured windows
+and reassembling the phase classically. What that costs, and where the
+resulting pipeline actually breaks, has not been characterised. We report a
+black-box characterisation of a from-scratch reproduction, followed by a
+controlled evaluation of a fix.
+
+The characterisation is the first half. Varying any single parameter in
+isolation produces no failures at all across 435 trials --- a null result
+with a specific cause, and a warning about one-factor-at-a-time designs in
+this setting. Starving several classical budgets together on the same
+instance fails 47.9\% of the time with no injected noise. Depolarising and
+readout error compound super-additively, exceeding an independence baseline
+in all nine cells of a factorial sweep. Direct fault injection leaves the
+reconstruction logic intact under three of five conditions. A counterfactual
+ladder applied to all 94 observed failures attributes 72\% of them to
+classical budget starvation rather than to noise, corruption, or any defect
+in the reconstruction logic. We also report a compilation cliff that caps
+the reachable instance size before a shot is sampled, and an error of our
+own: an audit script that reported a 55.4\% false-accept rate in the
+carry-aware overlap check, which re-validation traced to a defect in the
+audit rather than the mechanism, retracting a planned fix before it was
+written.
+
+The evaluation is the second half, of the confidence-guided reconstruction
+method specified in the companion article. On a 144-cell grid the published
+pipeline succeeds 52.1\% of the time and the full adaptive configuration
+100\%; across three pre-registered held-out instances the combination
+reaches 97.9--100\%. Matched-resource controls qualify this and are reported
+as a primary finding: given each module's own realised budget spread
+uniformly, no individual module is distinguishable from its control. The
+evidence supports automatic, instance-adaptive selection of the
+reconstruction budget, not a demonstrated superiority of confidence-guided
+placement. All validation is noiseless, in simulation, and confined to
+$N\in\{15,21\}$ by the measured compilation cliff.
+\end{abstract}
+
+\begin{keyword}
+Shor's algorithm \sep quantum phase estimation \sep failure-mode analysis
+\sep classical post-processing \sep ablation study \sep reproducibility
+\end{keyword}
+
+\end{frontmatter}

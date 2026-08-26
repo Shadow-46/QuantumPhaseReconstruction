@@ -1,0 +1,26 @@
+\section{The Method Under Evaluation}
+\label{sec:method}
+
+Part I concluded that the classical reconstruction budget is where an
+intervention should go. The intervention evaluated here is
+confidence-guided adaptive reconstruction, specified in full in the
+companion article~\cite{methodpaper}; this section states only what is
+needed to read the results.
+
+A per-window posterior comparison statistic $\Cw$ --- the posterior
+probability, under a two-proportion Beta model with Jeffreys priors, that
+the most-observed bit pattern's true sampling probability exceeds the
+runner-up's --- is computed from counts already measured. It drives three
+independently switchable modules, each replacing one of the three fixed
+budgets of Sec.~\ref{sec:pipeline}: \textbf{B} retains candidates to a
+target probability mass instead of a fixed top-$k$; \textbf{C} scales the
+beam width by how many windows needed that expansion; \textbf{D} resamples
+windows whose $\Cw$ falls below a threshold, up to a hard cap. With all
+three disabled the implementation reduces to the published pipeline, which
+Sec.~\ref{sec:baselinecheck} verifies trial by trial.
+
+The quantum circuit, its width, its depth and its sampling procedure are
+unchanged. Five arms are compared throughout: Baseline, B, C, D, and Full
+(all three enabled).
+
+% =====================================================================

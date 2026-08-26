@@ -1,0 +1,30 @@
+\section{Baseline Reproduction as a Validity Check}
+\label{sec:baselinecheck}
+
+The companion article's equivalence invariant~\cite{methodpaper} asserts
+that the framework with all modules disabled \emph{is} the published
+pipeline. That is a claim about code
+structure, so measurement cannot establish it --- but measurement can
+falsify it, and we checked two ways.
+
+The Baseline arm's success rate reproduces the original combined-stress
+figure across three measurements: 52.1\% in the original failure-mode
+campaign, 52.1\% in the ablation reported here, and 51.1\% in an interim
+run at 139 of 144 trials.\footnote{The interim analysis predates the five
+heaviest configurations finishing. The full 144-trial results reported
+throughout supersede it; conclusions are unchanged.} The first is not a
+re-run of the same function: the original campaign drove the published
+pipeline through its own entry point, whereas the Baseline arm is the
+adaptive entry point with all flags disabled. Their agreement is
+therefore evidence \emph{across} implementations, which a single-function
+re-run could not provide.
+
+The second check is stronger than agreement between rates. The
+instrumented re-run of Sec.~\ref{sec:design} was gated on reproducing the
+recorded per-trial outcomes of \emph{every} arm exactly --- trial by
+trial, not in aggregate --- and did so on all 144 trials in all five arms.
+Adding the instrumentation that Sec.~\ref{sec:matched} depends on
+therefore changed no result, and the seed-paired determinism the whole
+design rests on holds in practice rather than merely in principle. Had it
+not, the matched-resource controls would have been uninterpretable, since
+each is built from a diagnostic recorded during that run.

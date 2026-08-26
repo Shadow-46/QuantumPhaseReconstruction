@@ -1,0 +1,39 @@
+% =====================================================================
+%  DRAFT FOR AUTHOR APPROVAL -- NOT YET SIGNED OFF.
+%
+%  Paper B had no Conclusion section. Most target journals require one.
+%  Every sentence below is a restatement of a claim already made verbatim
+%  elsewhere in this manuscript; no new claim, number, or interpretation
+%  has been introduced, and no existing claim has been strengthened.
+%  Replace or approve before submission.
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+This article characterised a from-scratch reproduction of windowed phase
+estimation and then evaluated a fix for what the characterisation found.
+
+The characterisation established that varying any single parameter in
+isolation produces no failures at all, and that starving several classical
+budgets together fails 47.9\% of the time on an instance the same pipeline
+solves trivially when any one budget is relaxed. A counterfactual ladder
+applied to all 94 observed failures attributed 72\% of them to classical
+budget starvation rather than to noise, corruption, or any defect in the
+reconstruction logic. That attribution is what selects the classical
+reconstruction stage as the place to intervene.
+
+The evaluation found that the published pipeline succeeds on 52.1\% of the
+canonical grid and the full adaptive configuration on 100\%, reaching
+97.9--100\% across three pre-registered held-out instances. Matched-resource
+controls qualify this and are reported as a primary finding: given each
+module's own realised budget spread uniformly, no individual module is
+distinguishable from its control. The evidence therefore supports automatic,
+instance-adaptive selection of the reconstruction budget --- removing the need
+to choose it correctly in advance --- rather than a demonstrated superiority
+of confidence-guided placement over an equivalent uniform allocation.
+
+Two limits carry through. All validation is noiseless, in simulation, and
+confined to $N\in\{15,21\}$ by a measured compilation cliff rather than by
+choice. And the modules are not equally supported: module C is not validated
+as an independent intervention, and is retained only as part of the full
+configuration.

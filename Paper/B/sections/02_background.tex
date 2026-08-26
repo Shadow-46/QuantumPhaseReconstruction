@@ -1,0 +1,38 @@
+\section{Background and Related Work}
+\label{sec:pipeline}
+
+\subsection{Windowed reconstruction and its three fixed budgets}
+
+The published method \cite{wqpe2025,modularshor2025} replaces one
+$\ell$-qubit phase register with $W$ overlapping windows of width
+$\ell_w\ll\ell$, each measured independently by its own block-local QPE
+circuit, and reassembles the phase from the per-window measurement counts in
+three classical steps: generate the top-$k$ candidate bit patterns per
+window, stitch compatible candidates across overlaps under a carry-aware
+consistency check with a beam of width $P$, and recover the order by
+continued fractions. Factor extraction follows from an even order $r$ via
+$\gcd(a^{r/2}\pm1,N)$.
+
+Three quantities in that stage --- the retained candidate count $k$, the beam
+width $P$, and the per-window shot count $S_w$ --- are fixed at configuration
+time and identical for every window of every instance. They are the subject
+of both halves of this article: Part I establishes that they are the binding
+constraint, and Part II evaluates replacing them.
+
+\subsection{Problem formulation: the reproduction, and what counts as success}
+
+All results here are from an independent from-scratch reproduction, not from
+the original authors' code. Throughout, a trial \emph{succeeds} only if it
+recovers a correct non-trivial factor pair of $N$ end to end. This is a
+deliberately unforgiving criterion: it does not credit a partially correct
+phase, and it makes every reported rate directly comparable across the two
+halves.
+
+One consequence of it shapes Part I. At the small multiplicative orders our
+compilation ceiling permits (Sec.~\ref{sec:cliff}), the continued-fraction
+multiplier search is extremely forgiving --- theoretically under-resolved
+configurations still recover the correct order. Any characterisation that
+sweeps one parameter at a time will therefore find nothing, and
+Sec.~\ref{sec:ofat} shows that it does.
+
+% =====================================================================

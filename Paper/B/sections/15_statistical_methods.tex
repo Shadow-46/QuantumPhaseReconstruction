@@ -1,0 +1,37 @@
+\section{Statistical Methods}
+\label{sec:stats}
+
+Outcomes are paired binary, so we use McNemar's test \cite{mcnemar1947},
+which Dietterich \cite{dietterich1998} identifies as the appropriate
+choice for algorithms evaluated once per unit. We use the \textbf{exact
+two-sided binomial form} throughout rather than the $\chi^2$
+approximation, because several comparisons have few discordant pairs ---
+the C-vs-baseline contrast has only $b+c=7$. Discordant counts $(b,c)$
+accompany every $p$-value, since the test is a statement about those
+counts alone. Effect sizes are absolute percentage-point differences with
+95\% percentile bootstrap intervals, $B=2000$ resamples at fixed seed 0,
+resampling the \emph{per-pair differences} so the pairing is preserved
+\cite{efron1993}.
+
+We pre-declare \textbf{Full vs.\ Baseline} as the primary comparison. The
+confirmatory family comprises the four arm-vs-baseline tests on the
+canonical grid, the planned B-vs-C contrast, and the four
+adaptive-arm-vs-matched-control tests --- a family of nine, to which
+Holm's sequentially rejective procedure \cite{holm1979} is applied
+(\SItables{}). The held-out instances are analysed identically
+but are \emph{not} pooled into the family: they are replications of an
+already pre-declared comparison rather than new hypotheses, so their
+$p$-values are reported uncorrected. Full procedural detail is in
+\SItables{}.
+
+One consequence deserves flagging here rather than in a footnote:
+\textbf{module C's improvement over baseline does not survive the
+correction} at this family size ($p=1.6\times10^{-2}$ against a threshold
+of $1.25\times10^{-2}$). A smaller five-comparison family covering the
+canonical ablation alone would have retained it. We report the larger
+family because it is the one the completed validation actually tests.
+
+Following Dietterich, McNemar's test speaks to the difference in error
+proportion on \emph{one} evaluation set; two repeats per grid cell do not
+characterise variability across independent re-runs of the whole
+campaign, and no result here should be read as doing so.

@@ -1,0 +1,52 @@
+%% =====================================================================
+%%  Where Windowed Shor's Algorithm Actually Fails, and What Fixing It
+%%  Buys: A Controlled Study
+%%
+%%  JOURNAL-NEUTRAL MASTER. Retargeting this manuscript should require
+%%  changing only the two marked lines below plus B/config/<profile>.tex.
+%%  No file under B/sections/ contains journal-specific formatting.
+%%
+%%  Build:  pdflatex B_master / bibtex B_master / pdflatex B_master x2
+%% =====================================================================
+
+% ---- JOURNAL SWITCH: these two lines, and nothing else ---------------
+\documentclass[preprint,11pt]{elsarticle}
+\newcommand{\JournalProfile}{neutral}
+% ----------------------------------------------------------------------
+
+\input{B/config/\JournalProfile}
+\input{B/preamble}
+
+\begin{document}
+
+\input{B/frontmatter}
+
+\input{B/sections/01_introduction}
+\input{B/sections/02_background}
+\input{B/sections/03_part1_opener}
+\input{B/sections/04_experimental_design}
+\input{B/sections/05_single_parameter_sweep}
+\input{B/sections/06_combined_starvation}
+\input{B/sections/07_noise_interaction}
+\input{B/sections/08_fault_injection}
+\input{B/sections/09_compilation_cliff}
+\input{B/sections/10_failure_attribution}
+\input{B/sections/11_audit_error}
+\input{B/sections/12_part2_opener}
+\input{B/sections/13_method_under_evaluation}
+\input{B/sections/14_experimental_setup}
+\input{B/sections/15_statistical_methods}
+\input{B/sections/16_ablation_results}
+\input{B/sections/17_heldout_generalisation}
+\input{B/sections/18_matched_resource_controls}
+\input{B/sections/19_baseline_reproduction}
+\input{B/sections/20_discussion}
+\input{B/sections/21_limitations}
+\input{B/sections/22_conclusion}
+
+\input{B/backmatter}
+
+\bibliographystyle{\BibStyle}
+\bibliography{refs_B}
+
+\end{document}

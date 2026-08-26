@@ -1,0 +1,48 @@
+\section{A Self-Caught Audit Error}
+\label{sec:retraction}
+
+Between the characterisation and the intervention we planned a fourth
+module, A, to fix the carry-aware overlap check. Our own Phase 3 audit had
+reported that the check false-accepts $55.4\%$ of all possible overlap bit
+patterns --- serious over-permissiveness in a mechanism central to the
+published method, and consistent with the $43.8\%$ success rate under
+overlap corruption in Sec.~\ref{sec:adversarial}.
+
+Re-validating that evidence before writing any code showed the finding was
+wrong, and wrong in the audit rather than in the mechanism. \textbf{The audit
+script pinned the actual computed overlap to one bit regardless of the
+nominal overlap width it was sweeping}, so the overlapping bit strings were
+never compared at their declared width. The swept parameter did not vary the
+quantity it named.
+
+Three independent checks establish the correction.
+
+\begin{enumerate}\itemsep2pt
+\item \emph{Algebraically}, the implementation's acceptance condition and the
+audit's ground-truth oracle reduce to the same Boolean function, so the
+original test could only ever have detected its own bug. The companion
+article~\cite{methodpaper} states and proves this.
+\item \emph{Empirically}, the same exhaustive 168-combination audit re-run on
+corrected geometry gives \textbf{0\% false-accept and 0\% false-reject}
+across all three overlap widths --- 42 true accepts and 126 true rejects,
+with no error of either kind (\SIaudit{}).
+\item \emph{By instrumented replay}, a deliberately corrupted candidate was
+rejected in all 80 trials of the overlap-corruption condition.
+\end{enumerate}
+
+Two consequences follow. Module A was deleted from the design before any
+code was written, and the carry-check implementation required no change. The
+residual failures under overlap corruption are explained by the same
+budget-starvation mechanism as everything else in Sec.~\ref{sec:attribution}
+--- the corrupted candidate is correctly rejected, and a narrow beam then has
+no alternative path left --- rather than by the check being fooled.
+
+We report this at length for two reasons. The corrected result is what
+justifies leaving the carry check untouched, so the reader needs it to
+evaluate the intervention in Part II. And the failure pattern it exposes ---
+a swept parameter that does not in fact vary the quantity it names --- is a
+reusable warning for anyone building comparable audits. The prior reports
+were corrected in place with visible strikethrough rather than silently
+edited.
+
+% =====================================================================

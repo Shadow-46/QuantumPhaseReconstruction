@@ -1,0 +1,45 @@
+\section{Introduction}
+\label{sec:intro}
+
+Shor's algorithm \cite{shor1997} reduces factorisation to order-finding and
+order-finding to quantum phase estimation
+\cite{kitaev1995,cleve1998,nielsenchuang}. Textbook QPE needs a phase
+register as wide as the requested precision. The windowed formulation
+\cite{wqpe2025,modularshor2025} removes that requirement by partitioning the
+register into narrow, independently measured, overlapping windows and
+reassembling the full-precision phase classically. The qubit saving is real
+and it is bought with classical work: reconstruction must recover one phase
+from $W$ partial, individually ambiguous measurements.
+
+That trade has been proposed and its correctness demonstrated. What has not
+been established is where the resulting pipeline fails, how often, and
+\emph{why} --- which is the question a practitioner deciding whether to
+adopt it actually has. This article answers it in two halves, and the two
+halves are methodologically different: the first is exploratory
+characterisation of a system we did not design the failure modes of, the
+second is a pre-registered controlled evaluation of a specific intervention.
+
+\paragraph{Part I} characterises a from-scratch reproduction as a black box.
+It reports a null result that matters (single-parameter sweeps find nothing),
+the combined-stress regime where the pipeline does fail, a noise interaction
+study, direct fault injection into the classical stage, a compilation cliff
+that bounds every experiment in this article, and a counterfactual
+attribution of all 94 observed failures. It also reports an error of our
+own, and what re-validating it cost and saved.
+
+\paragraph{Part II} evaluates the confidence-guided adaptive reconstruction
+method specified in the companion article~\cite{methodpaper}, which replaces
+the three fixed classical budgets with quantities computed from the measured
+counts. The evaluation is seed-paired, spans four instances, and includes
+matched-resource controls that change the conclusion.
+
+\paragraph{What the reader should take from this.} The headline number ---
+$52.1\%$ to $100\%$ on the canonical grid --- is the least interesting result
+here, because it compares against an unmodified baseline that was never given
+the extra resources the adaptive rule spends. The matched-resource controls
+of Sec.~\ref{sec:matched} are the finding we would ask a reader to carry
+away, and they are partly negative. What the modules buy is not a better
+placement of a given budget; it is not having to choose the budget in
+advance.
+
+% =====================================================================

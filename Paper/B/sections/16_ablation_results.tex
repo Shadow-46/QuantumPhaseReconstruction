@@ -1,0 +1,52 @@
+\section{Ablation Results}
+\label{sec:results}
+
+\textbf{Enabling all three modules raised end-to-end success from 52.1\%
+to 100.0\% --- an absolute gain of $+47.9$ percentage points (95\%
+bootstrap CI $[+39.6, +56.3]$), a relative reduction of 100\% of the
+baseline failure rate, on the 144-cell combined-stress grid at $N=21$,
+$a=19$, $r=6$.} All 69 baseline failures were converted, and no trial
+regressed ($b=0$, $c=69$; exact McNemar $p=3.4\times10^{-21}$).
+
+This is a within-regime result and should be read as one: it is the
+comparison the ablation was designed to make, and Secs.~\ref{sec:heldout}
+and \ref{sec:matched} each qualify it materially.
+
+Per-arm figures for this grid appear as the first block of
+Table~\ref{tab:heldout}, alongside the held-out instances, so that the
+canonical and replication results can be read against each other rather
+than in separate tables. Module B (candidate coverage) and module D (shot
+stopping) each recover roughly half the baseline failure rate on their
+own, at $+25.0$ and $+24.3$ percentage points. Module C (beam width)
+moves the success rate by only $+4.9$ points on seven discordant trials
+and does not survive Holm correction at the confirmatory family size
+(\SItables{}); it should be read as a null result rather than a
+small positive one. The planned B-vs-C contrast confirms the asymmetry:
+B outperforms C by $20.1$ points (95\% CI $[+12.5,+29.2]$, $(b,c)=(8,37)$
+counting C as the reference, $p=1.5\times10^{-5}$), and the same contrast
+reproduces on the held-out $(N{=}21,a{=}2,r{=}6)$ instance at $+21.5$
+points ($p=3.1\times10^{-6}$).
+
+
+
+\paragraph{The modules are not interchangeable.} B at 77.1\% and C at
+56.9\% do not compose to Full's 100\%, consistent with the attribution of
+Sec.~\ref{sec:attribution}: 20 of the 69 hardest failures needed candidate
+budget \emph{and} beam width relaxed together, and neither axis alone
+reaches them. D's effect size closely matching B's likewise corroborates
+the shot-limitation attribution (48 of 69) --- a prediction the design
+made in advance rather than a post-hoc reading.
+
+\paragraph{Individual modules can regress individual trials.} Module B
+turned two baseline successes into failures, and module D six. These are
+not measurement noise; they are the expected consequence of a point made
+in the companion article~\cite{methodpaper}. Relaxing a budget changes which
+candidates are retained and how the resulting paths rank, and the
+continued-fraction stage is not monotone in the candidate set --- a
+different phase can be tried first and fail where the baseline's would
+have succeeded. Both regressions are absorbed in the Full arm, which
+regresses no trial on any of the four instances, but a practitioner
+enabling B or D \emph{alone} should expect a small rate of such
+reversals; on $(N{=}15,a{=}2,r{=}4)$ module D alone breaks exactly as
+many trials as it fixes (Sec.~\ref{sec:heldout}). We flag this because
+the structural monotonicity result invites the opposite conclusion.

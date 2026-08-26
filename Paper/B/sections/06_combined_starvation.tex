@@ -1,0 +1,20 @@
+\section{Starving budgets together}
+\label{sec:combined}
+
+The same six parameters, constrained \emph{simultaneously}, tell the
+opposite story. On $(N{=}21,a{=}19,r{=}6)$ we ran a 144-cell grid holding
+$k\in\{1,2\}$, $P\in\{1,2\}$ and $S_w\in\{4,8,16\}$ while maximising
+precision ($\ell\in\{16,24,32\}$) and sweeping overlap ($o\in\{0,3\}$).
+
+\textbf{69 of 144 trials failed --- $47.9\%$ --- with zero injected noise and
+zero corruption.} The same instance succeeds on every trial when any single
+one of those budgets is relaxed. This grid is the canonical evaluation grid
+for everything in Part II.
+
+Two features of it are worth stating plainly. It is an adversarial regime,
+deliberately chosen to make failures observable, and it is not
+representative of a well-provisioned run. But it is also not artificial: each
+constrained value lies inside the range a practitioner might reasonably pick
+to save classical time, and nothing in the published method warns which
+combinations are unsafe. The failure appears only in combination, which is
+precisely why the sweep of Sec.~\ref{sec:ofat} could not find it.

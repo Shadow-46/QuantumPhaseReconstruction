@@ -4,7 +4,29 @@
 %%  Companion to B_study.tex. Standalone document.
 %%  Build:  pdflatex supplementary / bibtex supplementary / pdflatex x2
 %% =====================================================================
+% ---------------------------------------------------------------------
+%  LAYOUT SWITCH -- keep in step with the profile selected in B_master.tex.
+%    preprint,11pt   single column
+%    final,5p,times  two column
+% ---------------------------------------------------------------------
 \documentclass[preprint,11pt]{elsarticle}
+%\documentclass[final,5p,times,longtitle]{elsarticle}
+
+% Layout-adaptive wide floats, matching B/config/neutral.tex so that the
+% supplementary converts alongside the master with no per-table edits.
+\makeatletter
+\if@twocolumn
+  \newenvironment{widefigure}{\begin{figure*}[tbp]}{\end{figure*}}
+  \newenvironment{widetable}{\begin{table*}[tbp]}{\end{table*}}
+  \renewcommand{\dbltopfraction}{0.9}
+  \renewcommand{\dblfloatpagefraction}{0.6}
+  \setcounter{dbltopnumber}{3}
+  \setlength{\emergencystretch}{2em}
+\else
+  \newenvironment{widefigure}{\begin{figure}[htbp]}{\end{figure}}
+  \newenvironment{widetable}{\begin{table}[htbp]}{\end{table}}
+\fi
+\makeatother
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
