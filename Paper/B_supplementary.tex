@@ -1,0 +1,457 @@
+%% =====================================================================
+%%  SUPPLEMENTARY INFORMATION
+%%  Confidence-Guided Adaptive Reconstruction for Windowed QPE
+%%  Companion to B_study.tex. Standalone document.
+%%  Build:  pdflatex supplementary / bibtex supplementary / pdflatex x2
+%% =====================================================================
+\documentclass[preprint,11pt]{elsarticle}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\PLACE}[1]{\textcolor{blue}{\textbf{[PLACEHOLDER: #1]}}}
+
+% evidentiary labels, identical to the main article
+\newcommand{\PROVEN}{\textsc{(proven)}}
+\newcommand{\HEUR}{\textsc{(heuristic)}}
+\newcommand{\EMPIR}{\textsc{(empirical)}}
+\newcommand{\INVAR}{\textsc{(implementation invariant)}}
+
+\newcommand{\Cw}{C_w}
+\newcommand{\dcov}{\delta_{\mathrm{cov}}}
+\newcommand{\Smax}{S_{\max}}
+\newcommand{\beammax}{\texttt{beam\_max}}
+
+% S-prefixed numbering so nothing collides with the main article
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\journal{MethodsX}
+
+\begin{document}
+
+\begin{frontmatter}
+\title{Supplementary Information for\\
+\emph{Where Windowed Shor's Algorithm Actually Fails, and What Fixing
+It Buys: A Controlled Study}}
+\author[inst1]{Sanjay Lakshmanan R}
+\ead{rajasanjay21@gmail.com}
+\address[inst1]{Department of Computer Science and Engineering,
+Amrita Vishwa Vidyapeetham, Chennai, India}
+
+\begin{abstract}
+This document contains the full carry-audit record, the complete
+failure-attribution breakdown, the exhaustive statistical and resource
+tables, and the artifact map supporting the main article. Nothing here is
+required to judge the central claims; everything here is required to
+verify them independently. No number in this document differs from the
+corresponding number in the main article, and every value is a direct
+summary of a released result file (Sec.~\ref{si:artifacts}). The
+mathematical derivations of the method's properties, and the bin-level
+calibration data, accompany the companion article~\cite{methodpaper}
+instead.
+
+Section numbers of the form ``Sec.~S$n$'' refer to this document.
+References to the main article are given by section name.
+\end{abstract}
+\end{frontmatter}
+
+\tableofcontents
+\vspace{1em}
+% =====================================================================
+\section{Failure-study and carry-audit documentation}
+\label{si:audit}
+
+\subsection{The corrected carry-check audit, before and after}
+
+The main article records that a carry-related hypothesis (originally
+``Module A'') was investigated, that the audit supporting it was found to
+have a geometry defect, that the corrected audit returned 0\%
+false-acceptance, and that the module was consequently removed rather
+than retained without evidence. This section gives the quantitative
+record.
+
+Both rows of Table~\ref{tab:audit} are the same 168-combination
+exhaustive enumeration over every
+$(\mathrm{tail},\mathrm{head},\text{carry-bit})$ triple at overlap widths
+1--3. They differ only in whether the synthetic window pair's geometry
+was constructed correctly.
+
+\begin{table}[h]
+\centering\small
+\caption{Carry-check audit, before and after the geometry fix. The
+superseded row is retained for auditability. Percentages are of the 168
+enumerated combinations.}
+\label{tab:audit}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Outcome & Original (superseded) & Corrected \\
+\midrule
+True accept  & 19.6\% (33) & 25.0\% (42) \\
+True reject  & 19.6\% (33) & 75.0\% (126) \\
+False accept & \textbf{55.4\% (93)} & \textbf{0.0\% (0)} \\
+False reject & 5.4\% (9)   & 0.0\% (0) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The defect, precisely}
+
+The audit script constructed its synthetic window pairs with
+\texttt{right.start = overlap} instead of
+\texttt{right.start = width - overlap}. Because the computed overlap
+width is a function of the two windows' start positions and widths, this
+pinned the \emph{actual} overlap to exactly one bit regardless of the
+nominal \texttt{overlap} value the loop was sweeping. The
+$\mathrm{tail}$ and $\mathrm{head}$ bit strings were therefore never
+compared at their declared width, and the multi-bit-overlap cases that
+the 55.4\% figure was supposed to characterise were never exercised at
+all. The swept parameter was disconnected from the geometry it named.
+
+This is worth stating precisely because the failure pattern is reusable:
+a synthetic-data generator that accepts a parameter but does not vary the
+quantity that parameter names will produce confident, reproducible,
+entirely fictitious measurements. The generator was internally
+consistent, the loop ran to completion, and the resulting number was
+stable across repeats.
+
+\subsection{Three independent checks on the correction}
+
+\begin{enumerate}\itemsep3pt
+\item \textbf{Algebraic.} The implementation's acceptance condition and
+the audit's ground-truth oracle reduce to the same Boolean function of
+the same $(\mathrm{tail},\mathrm{head},c)$ triple
+(Lemma 1 of the companion article~\cite{methodpaper}). The original test could therefore only
+ever have detected its own arithmetic bug, never a defect in the
+predicate it was auditing. This is the strongest of the three checks: it
+explains why the corrected result must hold for all inputs, not merely
+for the 168 enumerated.
+\item \textbf{Empirical re-run.} With the geometry corrected and the same
+168-combination enumeration re-executed, the classifier agrees with the
+oracle on every combination: 0\% false-accept, 0\% false-reject
+(Table~\ref{tab:audit}).
+\item \textbf{Instrumented replay.} Across 80 trials reproducing the
+overlap-corruption fault-injection condition, a deliberately corrupted
+candidate was rejected every time and never survived into a stitched
+path. The residual failures under that condition therefore trace to the
+beam collapsing to zero surviving paths --- a budget problem, and the
+same mechanism modules B, C and D target --- rather than to the check
+being fooled.
+\end{enumerate}
+
+No change was made to the carry-check implementation; the correction is
+entirely to the audit script that measured it. The fix, the regenerated
+truth table, and the instrumented replay are all in the released
+repository: the corrected audit function in
+\texttt{Experiments/phase3\_adversarial.py}, the regenerated truth table
+\texttt{phase3\_carry\_truth\_table.csv}, and the instrumented-replay
+record. The exact revision will be recorded in the archived snapshot
+deposited at acceptance.
+
+\subsection{Coverage of the corrected audit}
+
+The corrected audit's input coverage was additionally checked against
+every window geometry the windowing routine can actually produce,
+exhaustively over total precisions 2--60 and window sizes 1--16. This
+confirms that the degenerate case in which an overlap consumes an entire
+window --- the one geometry for which the compatibility check's
+precondition $o>0$ could fail to be meaningful --- never arises in
+practice.
+
+\subsection{Failure attribution: the full category breakdown}
+
+The attribution figure in the main article groups the 94 failures
+observed anywhere in the characterisation campaign by the first rung of a
+fixed counterfactual ladder (exact bits $\to$ widened beam $\to$
+exhaustive candidates $\to$ noise disabled $\to$ ten-fold shots) that
+recovers them. Table~\ref{tab:attrib} gives the counts.
+
+\begin{table}[h]
+\centering\small
+\caption{Root-cause attribution of all 94 naturally observed failures,
+from \texttt{phase5\_attribution.csv}. The first two rows are the
+classical-budget mechanisms that motivated the method.}
+\label{tab:attrib}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Category & Count & Share & Mechanism \\
+\midrule
+Shot limitation            & 48 & 51\% & resolved by additional shots alone \\
+Compounded budget interaction & 20 & 21\% & needs candidates \emph{and} beam together \\
+\midrule
+Noise sensitivity          & 25 & 27\% & resolved by disabling noise \\
+Attribution timed out      &  1 &  1\% & ladder did not complete \\
+\midrule
+\textbf{Total}             & \textbf{94} & & \textbf{72\% classical budget starvation} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+The 20 compounded-interaction failures are the ones invisible to any
+single-axis relaxation, and 15 of the 20 occurred at overlap $o=3$. They
+are the reason module C is retained in the framework despite its weak
+independent evidence: they establish that a coupling between candidate
+budget and beam width exists, even though the ablation cannot show that C
+is what exploits it.
+
+% =====================================================================
+
+% =====================================================================
+\section{Extended statistical and resource tables}
+\label{si:tables}
+
+\subsection{Full per-instance ablation}
+
+Table~\ref{tab:heldout} is the complete per-arm, per-instance record
+underlying the held-out validation figure and summary in the main
+article. All four grids completed 144 seed-paired trials.
+
+\input{si_heldout_table}
+
+\subsection{Realised resource usage per arm}
+
+Table~\ref{tab:secondary} reports what each arm actually spent on the
+canonical grid, aggregated over all 144 trials and, for the per-window
+quantities, over all windows within them (the grid spans $W=4$ to $W=29$
+windows per trial depending on precision and overlap). These are the
+quantities from which the matched-resource controls were constructed.
+
+Two features are worth noting. Module B's mean retained candidate count
+is $4.25$ against a baseline $k$ of $1.50$, and its maximum reaches 10:
+the coverage rule expands substantially beyond the fixed budget it
+replaces on ambiguous windows, which is the entire mechanism of its
+effect. And the Full arm's mean $m_w$ of $6.52$ exceeds B's $4.25$ even
+though both use the same coverage rule --- module D's additional shots
+reveal additional distinct patterns, which the coverage rule then has to
+cover. The three modules interact through the counts, not only through
+the pipeline.
+
+\begin{table}[h]
+\centering\small
+\caption{Realised resource usage by arm on the canonical 144-trial grid,
+from \texttt{phase6\_ablation\_diagnostics.csv}. $m_w$ and $S_w$ are
+averaged over all windows of all trials; $P'$ is a per-trial scalar.}
+\label{tab:secondary}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Arm & mean $m_w$ & max $m_w$ & mean $P'$ & max $P'$ & mean $S_w$ & max $S_w$ \\
+\midrule
+Baseline & 1.50 & 2  & 1.50  & 2  & 9.33  & 16 \\
+B        & 4.25 & 10 & 1.50  & 2  & 9.33  & 16 \\
+C        & 1.50 & 2  & 21.07 & 60 & 9.33  & 16 \\
+D        & 1.50 & 2  & 1.50  & 2  & 54.92 & 64 \\
+Full     & 6.52 & 13 & 21.44 & 60 & 54.92 & 64 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Exactness of the matched-resource controls}
+
+The beam-matched control is exact: $P'$ is already a trial-level scalar,
+and the control receives that trial's value unchanged, so its realised
+beam width equals module C's on every one of the 144 trials. The other
+two controls approximate a non-uniform per-window allocation by its mean,
+and the direction of the residual error matters for interpreting the null
+results, so Table~\ref{tab:matchacc} records it.
+
+\begin{table}[h]
+\centering\small
+\caption{How closely each matched-resource control reproduced the
+adaptive arm's realised budget, canonical grid, from
+\texttt{phase7\_matched\_resource.csv}. A control that is
+\emph{over}-matched makes the corresponding null result harder to obtain,
+not easier.}
+\label{tab:matchacc}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccl@{}}
+\toprule
+Control & Quantity matched & Adaptive arm & Control & Residual \\
+\midrule
+candidates-matched vs.\ B & mean candidates/window & $4.25$ & $4.29$ & over-matched by $0.9\%$ \\
+shots-matched vs.\ D & mean extra shots/window & $43.82$ & $43.70$ & under-matched by $0.26\%$ \\
+beam-matched vs.\ C & realised beam width $P'$ & $21.07$ & $21.07$ & exact on every trial \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Neither residual is large enough to change a conclusion. The
+candidates-matched control was, if anything, given slightly more than
+module B used. The shots-matched control was given $0.26\%$ less than
+module D drew --- a shortfall far too small to account for D's $+2.8$
+percentage-point point estimate, and in the direction that favours D
+rather than the control.
+
+\subsection{Statistical procedure in full}
+
+\paragraph{Paired significance test.} Outcomes are paired binary, so
+McNemar's test \cite{mcnemar1947} is the appropriate choice; Dietterich
+\cite{dietterich1998} identifies it as the only test with acceptable
+type-I error for algorithms evaluated once per unit, and warns explicitly
+against substituting a difference-of-two-proportions test. We use the
+exact two-sided binomial form throughout,
+$p=2\Pr[\mathrm{Bin}(b+c,\tfrac12)\le\min(b,c)]$, rather than the
+$\chi^2$ approximation with or without continuity correction. The exact
+form is required here because several comparisons have few discordant
+pairs --- the C-vs-baseline contrast has $b+c=7$, far below the
+$b+c\gtrsim25$ threshold at which the $\chi^2$ approximation is
+trustworthy. The discordant counts $(b,c)$ are reported alongside every
+$p$-value, since the test is a statement about those counts alone.
+
+\paragraph{Effect-size intervals.} We report 95\% percentile bootstrap
+confidence intervals on the paired success-rate difference, with
+$B=2000$ resamples at fixed seed 0. The resampling unit is the trial, and
+we bootstrap the \emph{per-pair differences} rather than the two arms
+separately, which is what preserves the pairing. Point estimates are
+computed once on the full sample; interval bounds are the 2.5th and
+97.5th percentiles of the resampled distribution \cite{efron1993}.
+
+\paragraph{Multiple comparisons.} Holm's sequentially rejective procedure
+\cite{holm1979} is applied across a pre-declared confirmatory family of
+nine: the four arm-vs-baseline tests on the canonical grid, the planned
+B-vs-C contrast, and the four adaptive-arm-vs-matched-control tests. It
+controls the family-wise error rate without an independence assumption
+and is uniformly more powerful than Bonferroni. The held-out instances
+are analysed identically but are \emph{not} pooled into the family: they
+are replications of an already pre-declared comparison rather than new
+hypotheses, and their uncorrected $p$-values are reported with
+per-instance discordant counts so a reader may apply any correction they
+consider appropriate.
+
+\paragraph{The correction applied.} Table~\ref{tab:holm} gives the
+sorted $p$-values with their sequential Holm thresholds and decisions.
+Rejection proceeds sequentially and halts at the first retention, so
+ranks 6--9 are all retained. \textbf{Module C's improvement over baseline
+is the boundary case} at rank 6: $p=1.6\times10^{-2}$ against a threshold
+of $1.25\times10^{-2}$. Under the smaller five-comparison family covering
+the canonical ablation alone, C would have been retained as significant;
+we report the family of nine because it is the one the completed
+validation actually tests.
+
+\begin{table}[h]
+\centering\small
+\caption{Holm--Bonferroni correction across the pre-declared confirmatory
+family of nine, $\alpha=0.05$. Rejection proceeds sequentially and halts
+at the first retention, so ranks 6--9 are all retained. Module C's
+improvement over baseline (rank 6) is the boundary case.}
+\label{tab:holm}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}clccc@{}}
+\toprule
+Rank $i$ & Comparison & Exact $p$ & Holm threshold $\alpha/(9-i+1)$ & Decision \\
+\midrule
+1 & Full vs.\ Baseline                 & $3.4\times10^{-21}$ & $0.0056$ & Reject $H_0$ \\
+2 & Full vs.\ shots-matched control    & $7.3\times10^{-12}$ & $0.0063$ & Reject $H_0$ \\
+3 & B vs.\ Baseline                    & $1.5\times10^{-9}$  & $0.0071$ & Reject $H_0$ \\
+4 & D vs.\ Baseline                    & $1.8\times10^{-7}$  & $0.0083$ & Reject $H_0$ \\
+5 & B vs.\ C                           & $1.5\times10^{-5}$  & $0.0100$ & Reject $H_0$ \\
+\midrule
+6 & C vs.\ Baseline                    & $1.6\times10^{-2}$  & $0.0125$ & \textbf{Retain} $H_0$ \\
+7 & D vs.\ shots-matched control       & $0.67$              & $0.0167$ & Retain $H_0$ \\
+8 & B vs.\ candidates-matched control  & $1.00$              & $0.0250$ & Retain $H_0$ \\
+9 & C vs.\ beam-matched control        & $1.00$              & $0.0500$ & Retain $H_0$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\paragraph{The caveat that carries through.} Following Dietterich,
+McNemar's test speaks to the difference in error proportion on \emph{one}
+evaluation set. It does not account for variability across independent
+re-runs of the whole campaign, and two repeats per grid cell are not
+sufficient to characterise that. No result in the main article or here
+should be read as doing so.
+
+% =====================================================================
+
+% =====================================================================
+\section{Artifact map and reproducibility detail}
+\label{si:artifacts}
+
+\subsection{Script-to-result-to-section mapping}
+
+Every numeric claim in the main article and in this document is a
+mechanical summary of one of the files in Table~\ref{tab:artifacts}. All
+files are in the released repository under
+\texttt{Data/failure\_study/}, and all generating scripts under
+\texttt{Experiments/}. The table lists the files this article consumes;
+the companion article~\cite{methodpaper} lists the per-window files
+supporting its window-level validation, from the same release.
+
+\begin{table}[h]
+\centering\small
+\caption{Artifact map. ``Used in'' names the section of the main article
+(M) or of this document (S) that consumes the file.}
+\label{tab:artifacts}
+\scriptsize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.31\linewidth}>{\raggedright\arraybackslash}p{0.30\linewidth}>{\raggedright\arraybackslash}p{0.31\linewidth}@{}}
+\toprule
+Result file & Produced by & Used in \\
+\midrule
+\texttt{phase1\_\allowbreak{}ofat.csv} & \texttt{phase1\_\allowbreak{}ofat.py} & M: single-parameter sweep \\
+\texttt{phase1b\_\allowbreak{}combined\_\allowbreak{}stress.csv} & \texttt{phase1b\_\allowbreak{}combined\_\allowbreak{}stress.py} & M: combined starvation \\
+\texttt{phase2\_\allowbreak{}noise\_\allowbreak{}combined.csv}, \texttt{\_\allowbreak{}single.csv} & \texttt{phase2\_\allowbreak{}noise.py} & M: noise interaction \\
+\texttt{phase3\_\allowbreak{}adversarial.csv} & \texttt{phase3\_\allowbreak{}adversarial.py} & M: fault injection \\
+\texttt{phase3\_\allowbreak{}ambiguity\_\allowbreak{}boundary.csv} & \texttt{phase3\_\allowbreak{}adversarial.py} & M: ambiguity boundary \\
+\texttt{phase3\_\allowbreak{}carry\_\allowbreak{}truth\_\allowbreak{}table.csv} & \texttt{phase3\_\allowbreak{}adversarial.py} & S: Table~\ref{tab:audit} \\
+\texttt{phase4\_\allowbreak{}transpile\_\allowbreak{}cliff.csv}, \texttt{phase4\_\allowbreak{}scaling\_\allowbreak{}by\_\allowbreak{}*.csv} & \texttt{phase4\_\allowbreak{}scaling.py} & M: compilation cliff \\
+\texttt{phase5\_\allowbreak{}attribution.csv} & \texttt{phase5\_\allowbreak{}attribution.py} & M: attribution; S: Table~\ref{tab:attrib} \\
+\texttt{phase6\_\allowbreak{}ablation.csv} & \texttt{phase6\_\allowbreak{}ablation.py} & M: ablation \\
+\texttt{phase6\_\allowbreak{}ablation\_\allowbreak{}diagnostics.csv} & \texttt{phase7\_\allowbreak{}generalization.py} & M: held-out, baseline check; S: Tables~\ref{tab:secondary}, \ref{tab:matchacc} \\
+\texttt{phase7\_\allowbreak{}heldout\_\allowbreak{}*.csv} & \texttt{phase7\_\allowbreak{}generalization.py} & M: held-out; S: Table~\ref{tab:heldout} \\
+\texttt{phase7\_\allowbreak{}matched\_\allowbreak{}resource.csv} & \texttt{phase7\_\allowbreak{}generalization.py} & M: matched controls \\
+\midrule
+\texttt{plots/*.png} & \texttt{paper\_\allowbreak{}figures.py} and the phase scripts (rendering only; run no trial) & M: all figures \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Determinism, resumability, and the analysis pipeline}
+
+\paragraph{Trials are deterministic given their seed.} Each trial's seed
+is derived from its grid coordinates and seeds the simulator's sampling,
+so re-running any cell reproduces its counts exactly. This is what
+licenses the five-arm within-subjects comparison. It was verified rather
+than assumed: the instrumented re-run reproduced all 144 canonical
+trials, in all five arms, bit-for-bit.
+
+\paragraph{Long runs are resumable.} A completed trial is skipped on
+restart by its seed, so an interrupted campaign resumes without altering
+any result --- a practical necessity rather than a convenience, since at
+the heaviest grid cells a single trial takes tens of minutes and module
+D's resampling rounds each involve a real transpile-and-execute measured
+at approximately $3.3$\,s.
+
+\paragraph{Per-cell outcome grids.} The complete per-trial records --- 144
+rows $\times$ 5 arms for each of the four instances, plus the four
+matched-resource control columns, each row carrying its grid coordinates,
+seed, and realised diagnostics --- are released as the CSV files in
+Table~\ref{tab:artifacts} rather than reproduced here, since they run to
+576 rows and every aggregate in either document is a direct summary of
+them.
+
+\subsection{A naming trap in the released summary files}
+
+Anyone recomputing the reported tables from the \emph{summary} CSVs under
+\texttt{summary\_tables/} should be aware that their two discordant-count
+columns, \texttt{baseline\_only\_fixed\_count} and
+\texttt{arm\_only\_broke\_count}, hold the reverse of what their names
+suggest: the first is $b$ (baseline succeeded, arm failed) and the second
+is $c$ (baseline failed, arm succeeded). The per-trial CSVs are
+unambiguous and are what every table in the main article and in this
+document was built from. We record the discrepancy rather than silently
+renaming the columns, so that anyone who has already used them can tell
+which convention they were reading.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{refs_B}
+
+\end{document}
