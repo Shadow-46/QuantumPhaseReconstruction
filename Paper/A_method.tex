@@ -5,7 +5,27 @@
 %%  fields only (affiliation, ORCID, repo URL, DOI, commit, funding).
 %%  Build:  pdflatex main / bibtex main / pdflatex x2
 %% =====================================================================
+% ---------------------------------------------------------------------
+%  LAYOUT SWITCH -- exactly one of the two \documentclass lines may be
+%  active. Nothing else in this file depends on the choice: wide floats
+%  use the widefigure / widetable / widealgorithm environments defined
+%  below, which adapt to the column count automatically.
+%
+%    preprint,11pt        single column. This is the format Elsevier asks
+%                         for: "Articles are prepared and submitted in
+%                         single column format even if the final printed
+%                         article will come in a double column format
+%                         journal." Roughly 28 pp.
+%
+%    final,5p,times       two-column journal layout, i.e. what the article
+%                         looks like in print. Permitted for LaTeX
+%                         submissions. Roughly half the page count.
+%                         `times` is narrower than Computer Modern and is
+%                         what Elsevier expects for 5p; `longtitle` keeps
+%                         the title spanning the full text width.
+% ---------------------------------------------------------------------
 \documentclass[preprint,11pt]{elsarticle}
+%\documentclass[final,5p,times,longtitle]{elsarticle}
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
@@ -15,7 +35,9 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
-\usepackage[section]{placeins}
+\makeatletter
+\if@twocolumn\else\usepackage[section]{placeins}\fi
+\makeatother
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
@@ -28,6 +50,42 @@
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{5}
+
+% ---- layout-adaptive wide floats ------------------------------------
+% Floats declared with these span both columns under the two-column
+% setting of the LAYOUT SWITCH, and behave as ordinary floats under
+% preprint. Used for the schematic, the algorithm, the multi-panel
+% figures, and every table too wide for a single column.
+% The branch is taken once, here, so each environment is a plain
+% pass-through wrapper. (Deliberately not \@dblfloat: `algorithm` is a
+% float.sty float whose caption setup \@dblfloat would bypass.)
+\makeatletter
+\if@twocolumn
+  \newenvironment{widefigure}{\begin{figure*}[tbp]}{\end{figure*}}
+  \newenvironment{widetable}{\begin{table*}[tbp]}{\end{table*}}
+  \newenvironment{widealgorithm}{\begin{algorithm*}}{\end{algorithm*}}
+\else
+  \newenvironment{widefigure}{\begin{figure}[htbp]}{\end{figure}}
+  \newenvironment{widetable}{\begin{table}[htbp]}{\end{table}}
+  \newenvironment{widealgorithm}{\begin{algorithm}[htbp]}{\end{algorithm}}
+\fi
+\makeatother
+
+% Two-column-specific tuning. The float fractions above govern
+% single-column floats only; starred floats obey the \dbl* family, whose
+% defaults are tight enough to strand a wide float alone on a page.
+% \emergencystretch buys the line breaker room in the narrow measure,
+% which is where nearly all the overfull boxes of a two-column build come
+% from.
+\makeatletter
+\if@twocolumn
+  \renewcommand{\dbltopfraction}{0.9}
+  \renewcommand{\dblfloatpagefraction}{0.6}
+  \setcounter{dbltopnumber}{3}
+  \setlength{\emergencystretch}{2em}
+\fi
+\makeatother
+
 
 % ---- page efficiency (formatting only; no content is affected) -------
 \setlength{\bibsep}{2pt plus 0.3ex}
@@ -294,13 +352,14 @@ already-sampled counts, as shown schematically in
 Figure~\ref{fig:schematic}. A symbol table is given in \SIproofs{};
 every symbol is also defined where it first appears below.
 
-\begin{figure}[htbp]
+\begin{widefigure}
 \centering
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
   font=\small,
   box/.style={draw, rounded corners, align=center, minimum height=1.05cm, minimum width=2.05cm, inner sep=3pt},
-  mod/.style={draw, dashed, rounded corners, align=center, minimum height=0.85cm, fill=gray!8, inner sep=3pt},
+  mod/.style={draw, dashed, rounded corners, align=center, minimum height=0.85cm, fill=gray!8, inner sep=3pt,
+            text width=2.35cm, font=\footnotesize},
   arr/.style={-{Latex[length=2.2mm]}, thick},
   node distance=6mm
 ]
@@ -341,7 +400,7 @@ needed to expand coverage. All three modules are independently
 switchable and the pipeline reduces to the published baseline when all
 three are disabled.}
 \label{fig:schematic}
-\end{figure}
+\end{widefigure}
 
 
 
@@ -405,7 +464,7 @@ occupy the same cells as the source method by construction; the two
 rightmost columns are where this article differs, and the adaptive-sampling
 cell differs only in the restricted sense its footnote records.
 
-\begin{table}[htbp]
+\begin{widetable}
 \centering\footnotesize
 \caption{Positioning against the cited prior work.
 \checkmark~= present and adaptive; \emph{fixed} = present but set at
@@ -445,7 +504,7 @@ $\dagger$~Module D adapts only \emph{how many shots} an already-specified
 window circuit receives; it never changes which circuit is run, unlike
 the Bayesian methods in row 3.
 \end{minipage}
-\end{table}
+\end{widetable}
 
 The gap we address is therefore specific: \emph{a rule that sets the
 classical reconstruction budget --- candidates retained, beam width, and
@@ -610,7 +669,7 @@ arms of Sec.~\ref{sec:validation} arms of one procedure rather than
 separate pipelines: setting all three to \textsc{false} yields exactly
 the published baseline (Invariant~\ref{prop:baseline}).
 
-\begin{algorithm}[htbp]
+\begin{widealgorithm}
 \caption{Confidence-guided adaptive reconstruction. Inputs are the
 window specifications, the sampling configuration, the three module
 flags, and the parameters of Table~\ref{tab:params}. Lines marked
@@ -661,7 +720,7 @@ flags $\textit{useD},\textit{useB},\textit{useC}$; $\dcov,\varepsilon,\Smax,\bea
 \EndFor
 \State \Return \textsc{fail}
 \end{algorithmic}
-\end{algorithm}
+\end{widealgorithm}
 
 \subsection{A retracted module and an unchanged carry check}
 \label{sec:retraction}
@@ -802,7 +861,7 @@ Table~\ref{tab:properties} summarises the remaining results together with
 what each one does \emph{not} establish --- the second column is as much
 the point as the first.
 
-\begin{table}[htbp]
+\begin{widetable}
 \centering\small
 \caption{Theoretical properties of the framework. Full statements and
 derivations are in \SIproofs{}. ``Does not establish'' is stated
@@ -835,7 +894,7 @@ Beam stitching is exact while unsaturated; lossy once saturated
 \bottomrule
 \end{tabular}
 }
-\end{table}
+\end{widetable}
 
 \paragraph{Monotone resources do not imply monotone outcomes.} Each
 module can only \emph{relax} a resource constraint relative to baseline
@@ -901,7 +960,7 @@ instance. Trials with no ambiguous window incur no overhead at all:
 $m_w$ collapses to 1 where baseline would keep $k\ge2$, $P'=P$, and D
 does not resample.
 
-\begin{table}[htbp]
+\begin{widetable}
 \centering\small
 \caption{Per-stage cost, baseline versus adaptive. The final column is
 the worst-case multiplier at the evaluated defaults ($k\le2$, $P\le2$,
@@ -921,7 +980,7 @@ Order recovery & $O(PN\log N\,M(\log N))$ & $O(P'N\log N\,M(\log N))$ & $\beamma
 \bottomrule
 \end{tabular}
 }
-\end{table}
+\end{widetable}
 
 \paragraph{(c) Practical wall-clock cost.} The asymptotics are not what a
 practitioner waits for. Modules B and C are purely classical: a sort over
@@ -1088,7 +1147,7 @@ essentially the whole effect comes from $(N{=}21,a{=}19)$ at $r=6$, the one
 instance in the corpus with enough ambiguity for a retention rule to
 matter.
 
-\begin{table}[htbp]
+\begin{widetable}
 \centering\small
 \caption{Window-level retention against the exact noiseless marginal.
 Baseline is the published fixed top-$k$ rule; module B is coverage-based
@@ -1116,9 +1175,9 @@ $N{=}21$, $a{=}8$     &  470 & 0.995 & 1.000 & 0.996 & 1.000 & 1.30 & 1.31 \\
 $N{=}21$, $a{=}19$    & 2414 & 0.406 & 0.779 & 0.709 & 0.933 & 1.73 & 5.04 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{widetable}
 
-\begin{figure}[htbp]
+\begin{widefigure}
 \centering
 \includegraphics[width=\linewidth]{../Data/failure_study/plots/paper_figA_window_retention.png}
 \caption{\textbf{Does the retention rule capture the phase information the
@@ -1132,7 +1191,7 @@ each, in candidates retained per window: the coverage rule is flat at
 ${\approx}3.9$ while the fixed rule rises linearly with $k$. Rendered from
 \texttt{paperA\_window\_validation.csv}.}
 \label{fig:window}
-\end{figure}
+\end{widefigure}
 
 \subsection{Calibration analysis: $\Cw$ ranks usefully at module D's
 operating point and is not a calibrated probability estimate}
@@ -1203,7 +1262,7 @@ probability --- combining it across windows, or propagating it into a
 downstream posterior --- would be unsound without out-of-sample validated
 recalibration, which we have not performed.
 
-\begin{figure}[htbp]
+\begin{widefigure}
 \centering
 \includegraphics[width=0.94\linewidth]{../Data/failure_study/plots/paper_fig5_calibration.png}
 \caption{\textbf{Does $\Cw$'s numerical value behave like a
@@ -1223,7 +1282,7 @@ generalise. It is a diagnostic artifact and is deliberately not used by
 the shipped stopping rule. Rendered from
 \texttt{phase6\_calibration.csv}.}
 \label{fig:calib}
-\end{figure}
+\end{widefigure}
 
 
 % =====================================================================

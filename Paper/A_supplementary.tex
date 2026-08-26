@@ -4,7 +4,29 @@
 %%  Companion to A_method.tex. Standalone document.
 %%  Build:  pdflatex supplementary / bibtex supplementary / pdflatex x2
 %% =====================================================================
+% ---------------------------------------------------------------------
+%  LAYOUT SWITCH -- keep this in step with A_method.tex.
+%    preprint,11pt   single column, the format Elsevier asks for.
+%    final,5p,times  two-column journal layout.
+% ---------------------------------------------------------------------
 \documentclass[preprint,11pt]{elsarticle}
+%\documentclass[final,5p,times,longtitle]{elsarticle}
+
+% Layout-adaptive wide floats: span both columns under the two-column
+% setting, ordinary floats under preprint. The branch is taken once here.
+\makeatletter
+\if@twocolumn
+  \newenvironment{widefigure}{\begin{figure*}[tbp]}{\end{figure*}}
+  \newenvironment{widetable}{\begin{table*}[tbp]}{\end{table*}}
+  \renewcommand{\dbltopfraction}{0.9}
+  \renewcommand{\dblfloatpagefraction}{0.6}
+  \setcounter{dbltopnumber}{3}
+  \setlength{\emergencystretch}{2em}
+\else
+  \newenvironment{widefigure}{\begin{figure}[htbp]}{\end{figure}}
+  \newenvironment{widetable}{\begin{table}[htbp]}{\end{table}}
+\fi
+\makeatother
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
@@ -475,7 +497,7 @@ files are in the released repository under
 consumes; the companion study~\cite{companion} lists the files supporting
 the end-to-end evaluation, from the same release.
 
-\begin{table}[h]
+\begin{widetable}
 \centering\small
 \caption{Artifact map for the method article. ``Used in'' names the
 section of the main article (M) or of this document (S) that consumes the
@@ -494,7 +516,7 @@ Result file & Produced by & Used in \\
 \texttt{plots/paper\_\allowbreak{}fig5\_\allowbreak{}calibration.png} & \texttt{paper\_\allowbreak{}figures.py} (rendering only; runs no trial) & M: Fig.~3 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{widetable}
 
 \subsection{Determinism and the analysis pipeline}
 
