@@ -38,18 +38,21 @@ class Requirement:
     maximum_exclusive: tuple[int, ...] | None = None
 
 
-# Lower bounds are the versions that produced the recorded results; see
-# requirements.txt. networkx was listed here but is imported by no module in
-# this repository, and scikit-learn was used by three modules without being
-# checked -- both corrected.
+# Lower bounds are the exact versions that produced every recorded result, and
+# match requirements.txt, which is the authority. They are pinned rather than
+# ranged because the per-trial outcomes reproduce bit-for-bit only under these
+# builds -- a different Aer in particular may resample differently, so passing
+# this check on a newer stack does not guarantee the recorded numbers.
+# networkx was listed here but is imported by no module in this repository, and
+# scikit-learn was used by three modules without being checked -- both fixed.
 REQUIREMENTS = (
-    Requirement("qiskit", "qiskit", (2, 4)),
-    Requirement("qiskit-aer", "qiskit_aer", (0, 15)),
-    Requirement("numpy", "numpy", (2, 0)),
-    Requirement("scipy", "scipy", (1, 14)),
-    Requirement("matplotlib", "matplotlib", (3, 9)),
-    Requirement("pandas", "pandas", (2, 2)),
-    Requirement("scikit-learn", "sklearn", (1, 4)),
+    Requirement("qiskit", "qiskit", (2, 4, 1)),
+    Requirement("qiskit-aer", "qiskit_aer", (0, 17, 2)),
+    Requirement("numpy", "numpy", (2, 4, 6)),
+    Requirement("scipy", "scipy", (1, 17, 1)),
+    Requirement("matplotlib", "matplotlib", (3, 11, 0)),
+    Requirement("pandas", "pandas", (3, 0, 3)),
+    Requirement("scikit-learn", "sklearn", (1, 9, 0)),
 )
 
 

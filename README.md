@@ -10,8 +10,10 @@ classical reconstruction:
   measurement circuits.
 - `Reconstruction/`: window candidates, carry/overlap checks, stitching, and
   continued-fraction order recovery.
-- `Algorithms/`: standard Shor, the paper-style windowed algorithm, and a clean
-  adaptive extension point.
+- `Algorithms/`: standard Shor (`standard_shor.py`), the paper-style windowed
+  algorithm (`paper_algorithm.py`), the confidence-guided adaptive method
+  itself (`adaptive_reconstruction.py`), and a small window-geometry policy
+  (`window_policy.py`).
 - `Simulation/`: Aer backends and noise models.
 - `Evaluation/`: experiment sweeps, metrics, plots, tables, and CSV logs.
 - `Experiments/`: the failure-study phase campaign (see below) and its shared
@@ -21,8 +23,19 @@ classical reconstruction:
 
 ```bash
 python3.12 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+`requirements.txt` pins exact versions rather than ranges. The recorded
+per-trial outcomes reproduce bit-for-bit under those versions; a different
+Aer build may resample differently.
+
+Then verify the environment before running anything. This checks every pinned
+dependency and runs the self-test of all 18 modules:
+
+```bash
+python validate_environment.py
 ```
 
 ## Smoke run
@@ -33,16 +46,13 @@ python main.py --N 15 --a 2 --phase-qubits 8 --shots 2048
 
 ## Module self-tests
 
-Each executable module has a lightweight self-test:
+Every executable module carries a self-test that runs without arguments;
+`validate_environment.py` above runs all of them. To run one directly:
 
 ```bash
-python Circuits/modular_multiplication.py
-python Circuits/iqft.py
-python Circuits/qpe.py
-python Algorithms/standard_shor.py
-python Circuits/windowed_qpe.py
-python Algorithms/paper_algorithm.py
-python Evaluation/experiments.py
+python Algorithms/adaptive_reconstruction.py   # asserts the baseline-equivalence invariant
+python Reconstruction/confidence.py            # symmetry, monotonicity, sample-size sensitivity
+python Circuits/windowed_qpe.py                # block-local vs full-register agreement
 ```
 
 ## Experiment sweep
@@ -70,7 +80,21 @@ python Experiments/phase5_attribution.py       # failure-mode attribution
 python Experiments/recapture_window_counts.py  # backfills per-window raw data
 python Experiments/phase6_calibration.py       # confidence-statistic calibration
 python Experiments/phase6_ablation.py          # ablation of the adaptive modules (B/C/D)
+python Experiments/phase7_generalization.py    # held-out instances + matched-resource controls
 python Experiments/analyze.py                  # aggregate report + Pareto plot
+```
+
+Phase 7 is long-running and resumable. `Experiments/resume_campaign.py`
+restarts it safely (finished stages are skipped) and
+`Experiments/check_status.py` reports progress, since a single heavy trial can
+take 20-25 minutes.
+
+Analyses and figures for the manuscripts are then rendered from the frozen
+CSVs, without re-running any trial:
+
+```bash
+python Experiments/paperA_window_validation.py  # window-level retention + C_w discrimination
+python Experiments/paper_figures.py             # publication figures from frozen result files
 ```
 
 Phase 6 introduces confidence-guided adaptive reconstruction
@@ -79,4 +103,11 @@ Phase 6 introduces confidence-guided adaptive reconstruction
 width, and confidence-gated shot-stopping. See
 `Data/failure_study/PHASE6_SUMMARY.md` for the narrative writeup and
 `Data/failure_study/REPORT.md` / `COMPILED_REPORT.md` for the full findings,
-and `Paper/` for the MethodsX manuscript draft built on this data.
+and `Paper/` for the two manuscripts built on this data — `A_method.tex`
+(the method and its window-level validation, targeting MethodsX) and
+`B_master.tex` (the failure characterisation and end-to-end evaluation,
+journal-neutral). See `Paper/BUILD.md` for how to build them.
+
+## Licence
+
+Apache-2.0. See `LICENSE`.

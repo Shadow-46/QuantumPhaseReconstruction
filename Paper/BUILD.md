@@ -1,106 +1,159 @@
 # Paper build notes
 
-The submission is now **two documents**: a 38-page main manuscript and a 19-page
-Supplementary Information. Both build clean — zero errors, zero undefined
-references, zero BibTeX warnings.
+The work is written up as **two cross-cited manuscripts**, each with its own
+supplementary. They share one released corpus and analyse it at different units
+— Paper A at the window, Paper B at the trial — and no figure, table, or result
+is common to both.
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `main.tex` | The main manuscript. `elsarticle`, MethodsX structure, 11pt preprint. |
-| `supplementary.tex` | Supplementary Information. Standalone, S-prefixed numbering, own ToC and bibliography. |
-| `si_heldout_table.tex` | The full per-instance ablation table, `\input`-ed by the SI. |
-| `refs.bib` | Bibliography, 22 entries, all verified against arXiv / publishers. Shared by both documents. |
+| `A_method.tex` | **Paper A**, the method article. Targets MethodsX. `elsarticle`. |
+| `A_supplementary.tex` | Paper A's SI: derivations (S1), calibration bins (S2), artifact map (S3). |
+| `refs_A.bib` | Paper A bibliography, 18 entries (MethodsX allows 25). |
+| `graphical_abstract.tex` | Generates Paper A's graphical abstract from its Figure 1. |
+| `B_master.tex` | **Paper B**, the study article. Journal-neutral driver. |
+| `B/` | Paper B's content tree — see below. |
+| `B_supplementary.tex` | Paper B's SI: carry audit (S1), statistical tables (S2), artifact map (S3). |
+| `si_heldout_table.tex` | Full per-instance ablation table, `\input`-ed by Paper B's SI. |
+| `refs_B.bib` | Paper B bibliography, 21 entries, 12 cited. |
 | `BUILD.md` | This file. |
+
+`A_method.tex` and the `B/` tree are the **source of truth** and are edited
+directly. (Earlier drafts were generated from a since-retired `main.tex`; that
+file, `supplementary.tex` and `refs.bib` were removed once superseded and are
+recoverable at the `pre-paper-split` tag.)
 
 ## Building
 
-Both documents, from this directory:
+Each document is a separate LaTeX root. From this directory:
 
-```
-pdflatex main && bibtex main && pdflatex main && pdflatex main
+```bash
+pdflatex -interaction=nonstopmode A_method
+bibtex A_method
+pdflatex -interaction=nonstopmode A_method
+pdflatex -interaction=nonstopmode A_method
 ```
 
-```
-pdflatex supplementary && bibtex supplementary && pdflatex supplementary && pdflatex supplementary
+Same four-step cycle for `A_supplementary`, `B_master`, and `B_supplementary`.
+Two passes after BibTeX are required — the first resolves citations, the second
+the page cross-references.
+
+The graphical abstract is built separately and converted to PNG:
+
+```bash
+pdflatex -interaction=nonstopmode graphical_abstract
+pdftocairo -png -r 300 -singlefile graphical_abstract.pdf graphical_abstract
 ```
 
-Packages used beyond the class: `amsmath`, `amssymb`, `amsthm`, `booktabs`,
-`graphicx`, `xcolor`, `array`, `hyperref`, `tikz`, `placeins`, `algorithm`,
-`algpseudocode`. All ship with TeX Live and MiKTeX.
+Expected clean state: **0 errors and 0 undefined references or citations** in
+all four documents. Anything else is a regression.
 
-On Overleaf, upload both `.tex` files, `si_heldout_table.tex`, `refs.bib`, and
-the four PNGs listed under *Figures*, then flatten the
-`../Data/failure_study/plots/` paths.
+| Document | Pages | Overfull boxes |
+|---|---|---|
+| `A_method` | 28 (preprint) / 14 (two-column) | 12 / 3 |
+| `A_supplementary` | 11 / 6 | 10 / 4 |
+| `B_master` | 30 | 6 |
+| `B_supplementary` | 11 | 2 |
+
+## Paper A: the layout switch
+
+`A_method.tex` and `A_supplementary.tex` each carry two `\documentclass` lines
+at the top, exactly one active:
+
+```latex
+\documentclass[preprint,11pt]{elsarticle}              % active default
+%\documentclass[final,5p,times,longtitle]{elsarticle}  % two-column
+```
+
+`preprint` is the format Elsevier asks for — *"Articles are prepared and
+submitted in single column format even if the final printed article will come
+in a double column format journal."* The two-column line shows the published
+length and is permitted for LaTeX submissions.
+
+Nothing in the body depends on the choice. Floats too wide for one column use
+`widefigure` / `widetable` / `widealgorithm`, which resolve once at preamble
+time to starred or unstarred floats. `placeins` is loaded in one-column mode
+only, since a section-level float barrier cannot be satisfied by a starred
+float.
+
+## Paper B: the journal profile
+
+`B_master.tex` is journal-neutral. Retargeting touches only two lines there
+plus one file in `B/config/`:
+
+```latex
+\documentclass[preprint,11pt]{elsarticle}   % LaTeX requires this first
+\newcommand{\JournalProfile}{neutral}       % selects B/config/neutral.tex
+```
+
+| Path | Contents |
+|---|---|
+| `B/config/neutral.tex` | The only file a new target needs forking: `\journal`, `\BibStyle`, float fractions, spacing, wide-float definitions. |
+| `B/config/README.md` | How to add a profile, and what each likely target requires. |
+| `B/preamble.tex` | Journal-independent packages, theorem environments, symbol macros. |
+| `B/frontmatter.tex` | Title, author, abstract, keywords. |
+| `B/sections/*.tex` | One file per section, 22 of them, in reading order. |
+| `B/backmatter.tex` | Declarations, availability statements, companion relation. |
+
+**No file under `B/sections/` contains a journal-specific command.**
+
+No target journal is selected yet. `B/config/README.md` records the candidates
+and their prerequisites — note that `IEEEtran.cls` and `ieeeaccess.cls` are not
+currently installed in this MiKTeX tree.
 
 ## What lives where
 
-The main manuscript is self-contained for a first reading: a reviewer can follow
-the problem, the method, the mathematics, the implementation, the validation and
-the limitations without opening the SI. The SI holds what is needed to *verify*
-rather than *understand*:
-
-| SI section | Contents |
+| Paper A owns | Paper B owns |
 |---|---|
-| S1 | Notation table; complete proofs of all ten theoretical results |
-| S2 | Carry-audit before/after, the defect in detail, three verification checks, failure-attribution counts |
-| S3 | Full per-instance ablation, realised resource usage, matched-control exactness, Holm table, full statistical procedure |
-| S4 | Calibration bin table, ground-truth construction, mechanism, recalibration rationale |
-| S5 | Artifact map, determinism and resumability, the summary-CSV naming trap |
+| The C_w statistic, modules B/C/D, Algorithm 1 | The Phase 1–5 failure characterisation |
+| Theoretical properties, cost analysis, reuse protocol | The five-arm ablation and held-out generalisation |
+| Window-level validation and the calibration study | The matched-resource controls |
 
-Cross-references from the main article use the `\SIproofs`, `\SIaudit`,
-`\SItables`, `\SIcalib`, `\SIartifacts` macros, which expand to literal section
-numbers — `\ref` cannot cross documents, so these must be kept in step manually
-if SI sections are reordered.
+Cross-references between the papers are citations (`companion` in `refs_A.bib`,
+`methodpaper` in `refs_B.bib`), never duplicated content. Both papers disclose
+that they analyse one released corpus at different units.
+
+## Figures
+
+| Paper | Figure | Source |
+|---|---|---|
+| A | method schematic | inline TikZ in `A_method.tex` |
+| A | window retention | `Experiments/paperA_window_validation.py` |
+| A | calibration reliability | `Experiments/paper_figures.py` |
+| B | logistic effect sizes, noise heatmap, adversarial conditions, scaling | phase scripts, rendered during the campaign |
+| B | failure attribution, held-out, matched-resource | `Experiments/paper_figures.py` |
+
+Figure paths are relative (`../Data/failure_study/plots/...`). **Flatten them
+before uploading to Overleaf or a publisher system**, which will not resolve a
+parent directory.
+
+## Cross-document macros
+
+The `\SIproofs` / `\SIcalib` / `\SIartifacts` (Paper A) and `\SIaudit` /
+`\SItables` / `\SIartifacts` (Paper B) macros expand to **literal** section
+numbers — LaTeX cannot resolve a `\ref` across documents. If either
+supplementary is renumbered, update the macro definitions in the corresponding
+preamble by hand.
 
 ## Remaining open items
 
-**Zero placeholders remain in either document.** Two author-supplied values are still outstanding
-and are described in `FINAL_REVISION_REPORT.md` §6:
-
 | Item | Status |
 |---|---|
-| ORCID iD | Not recorded in the project; add to both front matters once confirmed |
-| Archival DOI | Not yet minted; both documents state it will be supplied at acceptance |
-
-The Acknowledgements section was removed at the author's instruction. Restore it if a mentor,
-institution or funder must be credited.
-
-All bibliography entries were verified against arXiv and the publishers; the two source papers are
-now cited as their journal versions (Adv. Quantum Technol. 9(3) e00683; Eur. Phys. J. Plus 141, 474)
-rather than as preprints.
-
-## Figures and tables
-
-Main article: 5 figures, 7 tables, 1 algorithm. SI: 9 tables.
-
-| Figure | File | Generated by |
-|---|---|---|
-| 1 — method schematic | inline TikZ in `main.tex` | — |
-| 2 — failure attribution | `plots/paper_fig2_failure_attribution.png` | `Experiments/paper_figures.py` |
-| 3 — held-out generalisation | `plots/paper_fig3_heldout.png` | same |
-| 4 — matched-resource controls | `plots/paper_fig4_matched_resource.png` | same |
-| 5 — calibration reliability | `plots/paper_fig5_calibration.png` | same |
-
-`paper_figures.py` renders frozen CSVs only — it runs no trial and recomputes no
-result, and asserts the calibration Brier scores still equal 0.2239 / 0.1988
-before writing, so a data drift fails the build rather than producing a wrong
-figure. Regenerate all four with `python Experiments/paper_figures.py`.
-
-The graphical abstract still needs producing as an image file; the main article
-carries its build specification.
+| ORCID iD | Not recorded; required by MethodsX for the submitting author. Add to both front matters. |
+| Archival DOI | Not yet minted; both documents state it will be supplied at acceptance. |
+| Paper B venue | Not selected. |
+| Bibliography verification | Three entries unconfirmed: `wqpe2025` volume/DOI, `bae2025`/`biqae2026` author lists, attribution on `wqpe2025`/`modularshor2025`. |
 
 ## Checking the numbers
 
-Every numeric claim in either document is a summary of a released CSV; the
-mapping is SI §S5.1. After the restructuring, all values were re-verified
-programmatically against the CSVs and matched to whichever document now carries
-them — success rates, discordant counts, exact-binomial p-values, bootstrap
-intervals, Brier scores, calibration bins, realised resource usage, and the
-matched-control exactness figures. No discrepancies.
+Every numeric claim in either manuscript is a mechanical summary of a released
+result file. `Experiments/paper_figures.py` renders figures from frozen CSVs
+only — it runs no trial and recomputes no outcome, and asserts the reported
+Brier scores before writing. `Experiments/paperA_window_validation.py` does the
+same for Paper A's window-level table, asserting the calibration corpus size
+and raw Brier score first.
 
-One trap worth repeating: in `Data/failure_study/summary_tables/*.csv`, the
-columns `baseline_only_fixed_count` and `arm_only_broke_count` hold the reverse
-of what their names suggest — the first is *b*, the second *c*. The per-trial
-CSVs are unambiguous and are what both documents' tables were built from.
+The artifact map in each supplementary maps every result file to the script
+that produced it and the section that consumes it.
