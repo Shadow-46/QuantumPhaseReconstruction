@@ -55,7 +55,7 @@ Anything other than 0/0/0 is a regression. Build instructions: `Paper/BUILD.md`.
 | [x] | Reproducibility | present | present |
 | [x] | Supplementary material | present | present |
 | [x] | Relation to the companion article | present | present |
-| [ ] | **ORCID iD** | **missing** | **missing** |
+| [x] | ORCID iD | 0009-0006-9042-254X | 0009-0006-9042-254X |
 
 ---
 
@@ -109,7 +109,6 @@ Anything other than 0/0/0 is a regression. Build instructions: `Paper/BUILD.md`.
 
 | Item | Owner | Blocking? |
 |---|---|---|
-| ORCID iD for the submitting author, both papers | author | **yes — MethodsX requires it** |
 | Select Paper B's venue, then fork a profile in `Paper/B/config/` | author | yes for B |
 | Mint the Zenodo DOI and insert it | author | at acceptance |
 | Flatten relative figure paths for publisher upload | either | at upload |
