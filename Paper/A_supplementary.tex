@@ -9,8 +9,8 @@
 %    preprint,11pt   single column, the format Elsevier asks for.
 %    final,5p,times  two-column journal layout.
 % ---------------------------------------------------------------------
-\documentclass[preprint,11pt]{elsarticle}
-%\documentclass[final,5p,times,longtitle]{elsarticle}
+%\documentclass[preprint,11pt]{elsarticle}
+\documentclass[final,5p,times,longtitle]{elsarticle}
 
 % Layout-adaptive wide floats: span both columns under the two-column
 % setting, ordinary floats under preprint. The branch is taken once here.
@@ -36,6 +36,9 @@
 \usepackage[hidelinks]{hyperref}
 
 \newcommand{\PLACE}[1]{\textcolor{blue}{\textbf{[PLACEHOLDER: #1]}}}
+
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[section]
 
 % evidentiary labels, identical to the main article
 \newcommand{\PROVEN}{\textsc{(proven)}}
@@ -442,10 +445,28 @@ lowest bin is well calibrated ($0.500$ predicted against $0.512$
 observed), and the $(0.5,0.6]$ bin is if anything under-confident. The
 gap opens in the upper half and is widest in $(0.8,0.9]$ --- $0.859$
 predicted against $0.639$ observed --- and in the heavily populated top
-bin, $0.964$ predicted against $0.792$ observed. Since module D's
-stopping threshold at $\varepsilon=0.05$ sits inside that top bin, the
-practical consequence is the one stated in the main article: windows that
-halt resampling are wrong about one time in five, not one in twenty.
+bin, $0.964$ predicted against $0.792$ observed. Module D's stopping
+threshold at $\varepsilon=0.05$ sits \emph{inside} that top bin, so the bin
+rate is not the rate that governs the module: restricted to the
+$\Cw\ge0.95$ subset the observed correctness is $0.883$. The practical
+consequence is the one stated in the main article: windows that halt
+resampling are wrong about one time in nine, not one in twenty.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{../Data/failure_study/plots/paper_fig5_calibration.png}
+\caption{Reliability of $\Cw$ over the same 2{,}687 observations, raw
+(left) against isotonic-recalibrated (right). The left panel is the one
+reproduced in the main article. \textbf{The right panel is an in-sample
+fit and is not evidence of calibration on unseen data}: isotonic
+regression places the bins on the diagonal by construction, so the panel
+shows that the miscalibration is monotone and therefore correctable in
+principle, and bounds what recalibration could achieve on this corpus at
+Brier $0.1988$. It does not estimate out-of-sample performance, and the
+recalibration is deliberately not wired into module D's stopping rule.
+Rendered from \texttt{phase6\_calibration.csv}.}
+\label{fig:calibsi}
+\end{figure}
 
 \paragraph{Ground truth.} The reference is not a bit-slice of a single
 ``true phase''. The standard Shor $|1\rangle$ initial state is an equal
@@ -485,6 +506,176 @@ resulting change correctly.
 % =====================================================================
 
 % =====================================================================
+\section{The exact joint posterior for the top-two comparison}
+\label{si:dirichlet}
+
+\begin{proposition}[Closed form under the exact posterior]
+\label{prop:dirichlet}
+Let $n=(n_1,\dots,n_K)$ be a window's counts with $S_w=\sum_i n_i$, under
+$n\sim\mathrm{Multinomial}(S_w,p)$ with a symmetric Dirichlet prior
+$p\sim\mathrm{Dir}(\alpha_0\mathbf{1}_K)$. Then
+\[
+  \Pr[p_1>p_2\mid n] \;=\; 1-I_{1/2}(\alpha_0+n_1,\;\alpha_0+n_2),
+\]
+where $I_x(a,b)$ is the regularized incomplete Beta function.
+\end{proposition}
+
+\begin{proof}
+The posterior is $p\mid n\sim\mathrm{Dir}(\alpha_0+n)$. Aggregating the
+$K-2$ remaining categories,
+$(p_1,p_2,1-p_1-p_2)\sim\mathrm{Dir}(\alpha_0+n_1,\ \alpha_0+n_2,
+(K-2)\alpha_0+S_w-n_1-n_2)$. By the neutrality property of the Dirichlet,
+$V:=p_1/(p_1+p_2)\sim\mathrm{Beta}(\alpha_0+n_1,\alpha_0+n_2)$ and $V$ is
+independent of $p_1+p_2$. Since $p_1+p_2>0$ almost surely,
+$\{p_1>p_2\}=\{V>1/2\}$, so
+$\Pr[p_1>p_2]=1-F_V(1/2)=1-I_{1/2}(\alpha_0+n_1,\alpha_0+n_2)$.
+\end{proof}
+
+Two properties follow, both verified numerically against Dirichlet Monte
+Carlo at $K\in\{2,4,12,16\}$. First, the expression depends only on
+$(n_1,n_2)$ --- not on $S_w$ and not on $K$. This is correct rather than a
+defect: conditional on $n_1+n_2$, the remaining counts are ancillary for
+the ratio $p_1/(p_1+p_2)$, whose sign determines the event. Sample-size
+sensitivity is retained in the currency that matters for a pairwise
+comparison, $n_1+n_2$: the same $3{:}2$ proportion scores $0.670$ on five
+shots and $1.000$ on a thousand. Second, the shipped statistic converges to
+this one as the mass outside the top two grows, so the two agree on
+well-sampled windows and differ most where the top two take all the shots
+--- the opposite of the intuition that residual mass drives the gap.
+
+Table~\ref{tab:dirichlet} compares the two over the same 2{,}687
+observations. The ranking is preserved and the calibration improves; the
+behaviour change is monotone, with all 81 threshold crossings in the
+conservative direction.
+
+\begin{widetable}
+\centering
+\small
+\caption{The shipped statistic against the exact joint posterior, over the
+same 2{,}687 calibration observations. ``Gap at threshold'' is the nominal
+$0.95$ stopping level minus the observed correctness of the windows that
+halt. Isotonic figures are in-sample and bound what recalibration could
+achieve rather than estimating out-of-sample performance. From
+\texttt{paperA\_dirichlet\_comparison.csv}.}
+\label{tab:dirichlet}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+& independent Beta (shipped) & Dirichlet joint (exact) \\
+\midrule
+AUC                             & 0.6404 & 0.6388 \\
+Brier                           & 0.2239 & \textbf{0.2143} \\
+Brier, isotonic (in-sample)     & 0.1988 & 0.2005 \\
+Windows with $\Cw\ge0.95$       & 469 & 388 \\
+Correct above threshold         & 0.8827 & \textbf{0.9330} \\
+Gap at threshold                & $6.7$\,pp & \textbf{$1.7$\,pp} \\
+Spearman vs shipped             & --- & 0.990 \\
+Threshold crossings (down / up) & --- & 81 / 0 \\
+\bottomrule
+\end{tabular}
+\end{widetable}
+
+% =====================================================================
+\section{Module D: secondary outcomes and a constructed characterisation}
+\label{si:dresults}
+
+\subsection{Secondary outcomes of the window-level replay}
+
+The main article reports top-1 identification. Two secondary outcomes
+complete the picture and point in opposite directions. Under total
+variation distance to the true marginal, the shots-matched uniform control
+is \emph{better} than module D at every cap ($0.199$ against $0.209$ at
+$\Smax=32$; $0.151$ against $0.171$ at $64$; $0.090$ against $0.130$ at
+$256$). Under retained true mass with the retention rule held at a fixed
+top-$k$, the two are within $0.004$ everywhere. The reading is coherent:
+module D concentrates shots on the windows whose decision is in doubt and
+so improves the decision, while a uniform split improves the whole
+distribution, including windows that were never in doubt. Which is
+preferable depends on what the downstream stage consumes, and the
+reconstruction pipeline consumes the decision.
+
+A robustness check on the primary outcome: $7.8\%$ of windows in firing
+trials have a tied true argmax, for which the endpoint is satisfied by
+either winner. Restricting to untied windows moves the
+module-D-minus-control difference from $+1.12$ to $+1.10$ percentage
+points, so the tie class does not carry the result.
+
+\subsection{A constructed probe: when does placement matter?}
+\label{si:familyB}
+
+\paragraph{What this is, and what it is not.} The corpus's 156 exact
+marginals fall into three classes: 27 exact ties (margin $0$, both patterns
+in the true argmax set, so extra shots cannot help), 83
+resolvable-ambiguous (margin ${\approx}0.106$--$0.125$), and 46 decisive
+(margin $1.0$). Ambiguity and instance are almost perfectly confounded ---
+\emph{all} 83 resolvable marginals come from $(N{=}21,a{=}19)$ and
+\emph{all} 46 decisive ones from the other two instances --- so no
+within-instance manipulation of ambiguity concentration is possible. Mixed
+ensembles therefore draw from more than one instance, and the all-ambiguous
+ensembles draw from a single instance but from several different window
+specifications. In both cases the assembled window set spans more than one
+configuration, which is what makes it constructed: \textbf{no single circuit
+run produces such a window set.} This is a mechanism probe of the allocation
+rule: not a physical trial, not an end-to-end experiment, and not a
+validation of module D. It is reported as characterisation only. No
+hypothesis is tested, no $p$-value is computed, and nothing here revises
+the confirmatory result of the main article.
+
+\paragraph{Construction.} Ensembles of eight windows are assembled with
+$n\in\{1,2,4,8\}$ drawn from the resolvable pool and the remainder from the
+decisive pool: 30 ensembles per cell, 20 replicates, initial budgets
+$S_0\in\{4,8,16\}$, at the shipped cap. The exact-tie class is excluded
+from both pools. Arms are as in the main replay, plus an
+\textbf{anti-control} that spends module D's own budget on the windows D
+funded \emph{least} --- a worst-placement bracket, included so that D and
+the anti-control bound how much the placement decision can be worth at all.
+
+\paragraph{Result.} The ensemble-level difference is diluted, because at
+low concentration most windows are decisive and correct under every arm.
+The informative stratum is the ambiguous windows themselves, where the
+effect is monotone in concentration.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Placement premium on the ambiguous windows, by ambiguity
+concentration, averaged over $S_0\in\{4,8,16\}$ and 20 replicates.
+``D $-$ anti'' is the ensemble-level bracket between best and worst
+placement of the same budget. \textbf{These ensembles are constructed: each
+spans more than one configuration, so no single circuit run produces such a
+window set.} The table
+is a mechanism probe, reported without hypothesis tests, and is not
+validation of module D nor evidence of superiority on any real instance.
+From \texttt{paperA\_synthetic\_B\_summary.csv}.}
+\label{tab:familyB}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ambiguous fraction & D & uniform & premium & D $-$ anti \\
+\midrule
+1/8 & 0.818 & 0.642 & $+17.6$\,pp & $+2.7$\,pp \\
+2/8 & 0.802 & 0.677 & $+12.5$\,pp & $+5.1$\,pp \\
+4/8 & 0.808 & 0.725 & $+8.3$\,pp  & $+10.2$\,pp \\
+8/8 & 0.811 & 0.797 & $+1.5$\,pp  & $+11.0$\,pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The placement information $\Cw$ encodes is real: it is worth $17.6$
+percentage points on the windows that need help when one window in eight is
+ambiguous. It becomes negligible, $1.5$ points, when every window is
+equally ambiguous --- and that homogeneous case is what the released corpus
+contains, which is why the main article's replay finds no distinguishable
+placement advantage. The anti-control shows the same thing from the other
+side: at full concentration, spending \emph{badly} costs $11.0$ points
+against uniform while spending \emph{well} gains only $1.5$, so a uniform
+split is already near-optimal when ambiguity is homogeneous.
+
+\paragraph{What this does not license.} It does not show that module D
+helps on any real instance, because no reachable instance has the window
+structure these ensembles impose. It identifies the regime in which the
+statistic's placement information would become useful, and records that our
+corpus is not that regime.
+
+% =====================================================================
 \section{Artifact map and reproducibility detail}
 \label{si:artifacts}
 
@@ -512,9 +703,14 @@ Result file & Produced by & Used in \\
 \texttt{raw\_\allowbreak{}windows/*.json} (579 files) & \texttt{recapture\_\allowbreak{}window\_\allowbreak{}counts.py} & M: method validation \\
 \texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.csv} & \texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.py} & M: Table~5, Fig.~2 \\
 \texttt{phase6\_\allowbreak{}calibration.csv} & \texttt{phase6\_\allowbreak{}calibration.py} & M: Fig.~3; S: Table~\ref{tab:calib} \\
+\texttt{phase6\_\allowbreak{}calibration\_\allowbreak{}dirichlet.csv} & \texttt{paperA\_\allowbreak{}dirichlet\_\allowbreak{}recomputation.py} & M: Sec.~2.3; S: Table~\ref{tab:dirichlet} \\
+\texttt{paperA\_\allowbreak{}moduleD\_\allowbreak{}window\_\allowbreak{}validation.csv.gz} & \texttt{paperA\_\allowbreak{}moduleD\_\allowbreak{}validation.py} & M: Table~6; S: Sec.~\ref{si:dresults} \\
+\texttt{paperA\_\allowbreak{}synthetic\_\allowbreak{}grid\_A.csv.gz} & \texttt{paperA\_\allowbreak{}synthetic\_\allowbreak{}grid.py} & M: Sec.~2.3 (generalisation) \\
+\texttt{paperA\_\allowbreak{}synthetic\_\allowbreak{}grid\_B.csv.gz} & \texttt{paperA\_\allowbreak{}synthetic\_\allowbreak{}grid.py} & S: Table~\ref{tab:familyB} \\
 \midrule
 \texttt{plots/paper\_\allowbreak{}figA\_\allowbreak{}window\_\allowbreak{}retention.png} & \texttt{paperA\_\allowbreak{}window\_\allowbreak{}validation.py} (rendering only) & M: Fig.~2 \\
-\texttt{plots/paper\_\allowbreak{}fig5\_\allowbreak{}calibration.png} & \texttt{paper\_\allowbreak{}figures.py} (rendering only; runs no trial) & M: Fig.~3 \\
+\texttt{plots/paper\_\allowbreak{}fig5\_\allowbreak{}calibration\_\allowbreak{}raw.png} & \texttt{paper\_\allowbreak{}figures.py} (rendering only; runs no trial), cropped to the raw panel & M: Fig.~3 \\
+\texttt{plots/paper\_\allowbreak{}fig5\_\allowbreak{}calibration.png} & \texttt{paper\_\allowbreak{}figures.py} (rendering only; runs no trial) & S: Fig.~\ref{fig:calibsi} \\
 \bottomrule
 \end{tabular}
 \end{widetable}

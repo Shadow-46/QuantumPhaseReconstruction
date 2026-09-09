@@ -24,8 +24,8 @@
 %                         what Elsevier expects for 5p; `longtitle` keeps
 %                         the title spanning the full text width.
 % ---------------------------------------------------------------------
-\documentclass[preprint,11pt]{elsarticle}
-%\documentclass[final,5p,times,longtitle]{elsarticle}
+%\documentclass[preprint,11pt]{elsarticle}
+\documentclass[final,5p,times,longtitle]{elsarticle}
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
@@ -114,7 +114,10 @@
 \newcommand{\SI}{Supplementary Information}
 \newcommand{\SIproofs}{\SI{}~Sec.~S1}
 \newcommand{\SIcalib}{\SI{}~Sec.~S2}
-\newcommand{\SIartifacts}{\SI{}~Sec.~S3}
+\newcommand{\SIartifacts}{\SI{}~Sec.~S5}
+\newcommand{\SIdirichlet}{\SI{}~Sec.~S3}
+\newcommand{\SIdresults}{\SI{}~Sec.~S4}
+\newcommand{\SIfamilyB}{\SI{}~Sec.~S4.2}
 
 \newcommand{\Cw}{C_w}
 \newcommand{\dcov}{\delta_{\mathrm{cov}}}
@@ -151,23 +154,33 @@ We describe confidence-guided adaptive reconstruction, a drop-in
 customisation of the classical stage that leaves the quantum circuit, its
 width, its depth and its sampling procedure unchanged. A per-window
 posterior comparison statistic $\Cw$, computed from counts already
-measured, drives three independently switchable modules: coverage-based
-candidate retention, ambiguity-scaled beam width, and confidence-gated shot
-stopping. With all three disabled the implementation reduces to the
-published pipeline, verified trial by trial.
+measured, drives two evidence-supported modules --- coverage-based
+candidate retention and confidence-gated shot stopping --- alongside a
+third, ambiguity-scaled beam width, documented and switchable but not
+recommended on its own. With all modules disabled the implementation
+reduces to the published pipeline, verified trial by trial.
 
 Validation is at the window level, against exact noiseless marginals from
 statevector simulation. Over 3{,}354 windows, coverage-based retention
-raises retained true probability mass from $0.571$ to $0.841$. The gain is
-not superiority over a well-chosen fixed budget --- at $k=16$ it is
-marginally worse --- but insensitivity to the choice: it holds near $0.98$
-across $k$, where fixed retention ranges $0.29$ to $1.00$.
+raises retained true probability mass from $0.571$ to $0.841$, an aggregate
+carried by the one corpus instance ambiguous enough for a retention rule to
+act. The gain is not superiority over a well-chosen fixed budget --- at
+$k=16$ it is marginally worse --- but insensitivity to the choice: it spans
+$0.737$ to $0.986$ across $k$, where fixed retention spans $0.29$ to
+$1.00$.
 
-$\Cw$ is a modest ranking signal (AUC $0.640$) and measurably overconfident
-(Brier $0.2239$), so it must not be read as a calibrated probability.
-End-to-end factorisation evidence, and matched-resource controls showing
-that no individual module beats an equally-resourced uniform allocation,
-are reported in the companion study~\cite{companion}.
+Shot stopping is evaluated against a control given its own realised budget
+to spend uniformly. It is not distinguishable from that control at the
+shipped shot cap, and a cap sweep shows this is not an artefact of the cap
+binding. $\Cw$ is a modest ranking signal (AUC $0.640$) and measurably
+overconfident (Brier $0.2239$), so it must not be read as a calibrated
+probability; recomputing it under the exact joint posterior leaves the
+ranking unchanged and reduces the operating-point calibration gap from
+$6.7$ to $1.7$ percentage points. What the method delivers is therefore not
+better placement of a given budget but a workable budget recovered from the
+measured counts, with no value chosen in advance. End-to-end factorisation
+evidence and trial-level matched-resource controls are reported in the
+companion study~\cite{companion}.
 \end{abstract}
 
 \begin{keyword}
@@ -181,10 +194,11 @@ comparison \sep beam search
 % =====================================================================
 \section*{Highlights}
 \begin{itemize}\itemsep2pt
-\item A per-window Bayesian statistic sets candidate, beam and shot budgets.
+\item A per-window Bayesian statistic sets candidate and shot budgets.
 \item The quantum circuit, its width, depth and sampling are left unchanged.
 \item Coverage-based retention holds 0.841 of true window mass; top-$k$, 0.571.
 \item Its value is insensitivity to the budget setting, not a better setting.
+\item Shot stopping matches, but does not beat, an equal-budget uniform split.
 \item $\Cw$ ranks windows usefully at module D's threshold but is uncalibrated.
 \end{itemize}
 
@@ -276,9 +290,10 @@ candidate patterns to retain per window, how wide a beam to carry through
 stitching, and how many shots to spend per window --- and they are
 identical for every window of every instance, however decisive that
 window's measurement turned out to be. A prior characterisation of our own
-reproduction attributed 72\% of its observed failures to this uniform
-allocation rather than to noise or to any defect in the reconstruction
-logic. That campaign is reported in the companion
+reproduction positively attributed $51\%$ of its observed failures to
+starvation of the reconstruction-stage shot budget and $27\%$ to noise,
+left $21\%$ unattributed, and attributed none to a defect in the
+reconstruction logic. That campaign is reported in the companion
 study~\cite{companion}; here it is the design brief.
 
 The customisation replaces each constant with a quantity computed from
@@ -300,16 +315,22 @@ observed patterns, with proven ordinal properties (Sec.~\ref{sec:cw}).
 (ii) Three independently switchable modules driven by the sampled counts,
 with a verified equivalence to the published baseline when all are disabled
 (Algorithm~\ref{alg:adaptive}, Invariant~\ref{prop:baseline}) --- what makes
-the method safe to adopt incrementally. (iii) A reusable adoption protocol
+the method safe to adopt incrementally. Two of the three are supported by
+the evidence assembled here; module C is retained as a documented
+safeguard rather than a recommended intervention (Sec.~\ref{sec:moduleC}). (iii) A reusable adoption protocol
 (Sec.~\ref{sec:protocol}) and a cost analysis separating classical
 asymptotics from module D's additional \emph{quantum} sampling
 (Sec.~\ref{sec:cost}). (iv) Window-level validation against exact noiseless
 marginals (Sec.~\ref{sec:validation}): over 3{,}354 windows, coverage-based
 retention captures $0.841$ of the true probability mass against $0.571$ for
-a fixed budget, almost independently of how that budget was set. (v) A
-calibration study (Sec.~\ref{sec:calibration}) showing $\Cw$ ranks usefully
-where module D consults it, while being a poor probability estimate
-overall.
+a fixed budget, almost independently of how that budget was set. (v) A window-level evaluation of module D against a shots-matched uniform
+control, swept over three values of the shot cap (Sec.~\ref{sec:dresults}),
+which finds no distinguishable placement advantage and locates why.
+(vi) A calibration study (Sec.~\ref{sec:calibration}) showing $\Cw$ ranks
+usefully where module D consults it while being a poor probability estimate
+overall, together with an exact-posterior recomputation that leaves the
+ranking intact and sharply reduces the miscalibration at the operating
+point.
 \section{Method details}
 
 \subsection{The original method and the three constants it fixes}
@@ -427,14 +448,15 @@ are the only ones this article depends on. Varying any single parameter in
 isolation produced no failures across 435 one-factor-at-a-time trials,
 whereas starving several budgets together failed 47.9\% of the time on an
 instance the same pipeline solves trivially when any one budget is relaxed.
-Replaying every observed failure through a fixed counterfactual ladder
-attributed 72\% of them to classical budget starvation rather than to
-noise, corruption, or any defect in the reconstruction logic.
+Replaying every observed failure through a fixed branching counterfactual
+procedure attributed $51\%$ of them to starvation of the reconstruction
+stage's shot budget and $27\%$ to noise, left $21\%$ unattributed, and
+attributed none to a defect in the reconstruction logic.
 
-That attribution is what selects the classical reconstruction stage, rather
-than the circuit or the noise model, as the place to intervene: the
-failures are caused by spending a fixed classical budget on windows that
-needed an unequal one.
+That attribution motivates intervening in the classical reconstruction
+stage rather than in the circuit or the noise model: the positively
+attributed failures are consistent with a fixed classical budget failing to
+match the unequal information carried by different windows.
 
 \subsection{Relation to existing adaptive and Bayesian approaches}
 \label{sec:related}
@@ -443,38 +465,32 @@ Adaptivity and Bayesian inference are both well established in quantum
 estimation, so it is worth being precise about what is and is not new
 here.
 
-\emph{Bayesian amplitude- and phase-estimation methods}
-\cite{bae2025,biqae2026,vqae2022} maintain a posterior over the estimated
-quantity and use it to choose the next \emph{quantum} query --- which
-circuit to run, at what depth, for how many shots --- to reduce quantum
-query complexity. Module D is a deliberately narrower relative of that
-idea. The difference is what the posterior governs: those methods
-optimise the quantum sampling schedule, whereas modules B and C spend no
-quantum resources at all and reallocate a purely classical budget over
-counts already measured. The two are complementary, and nothing prevents
-combining them.
+\emph{Bayesian amplitude-estimation methods}
+\cite{bae2025,biqae2026,vqae2022} \emph{and adaptive Bayesian
+phase-estimation methods} \cite{wiebe2016,paesani2017} maintain a posterior
+and use it to choose the next \emph{quantum} query --- which circuit, at
+what depth, for how many shots. Adaptive Bayesian phase estimation is well
+established and we claim no novelty for it. Module D is a deliberately narrower relative: the difference is
+what the posterior governs, since those methods optimise the quantum
+sampling schedule whereas modules B and C spend no quantum resources at all
+and reallocate a purely classical budget over counts already measured. The
+two are complementary. \emph{Existing windowed-reconstruction pipelines}
+\cite{wqpe2025,modularshor2025} already contain multi-candidate retention,
+carry-aware stitching and beam-search pruning, all three of which we
+reproduce unchanged; what they lack is any rule connecting a window's
+budget to how ambiguous its measurement was. \emph{Exhaustive
+reconstruction} is the exactness endpoint of the same axis at a cost
+combinatorial in the number of windows, which our framework approaches in
+the joint limit $\Smax\to\infty$, $\dcov\to0$, $\beammax\to\infty$ --- a
+relationship of degree rather than kind. We surveyed that class rather than
+benchmarking a named implementation, and make no claim about any specific
+published algorithm.
 
-\emph{Existing windowed-reconstruction pipelines}
-\cite{wqpe2025,modularshor2025} already contain multi-candidate
-retention, carry-aware stitching and beam-search pruning; we reproduce
-all three unchanged. What they lack is any rule connecting the budget a
-window receives to how ambiguous that window's measurement was: overlap
-is static, and the candidate count and beam width are constants.
-
-\emph{Exhaustive reconstruction} --- searching every consistent path
-rather than a bounded beam --- is the exactness endpoint of the same axis,
-at a cost combinatorial in the number of windows. Our framework
-approaches it in the joint limit $\Smax\to\infty$, $\dcov\to0$,
-$\beammax\to\infty$, so the relationship is one of degree rather than
-kind. We make no claim about specific published exhaustive or
-dynamic-programming algorithms, having surveyed the class rather than
-benchmarked a named implementation.
-
-Table~\ref{tab:novelty} places the present work against these lines
-along the dimensions that distinguish them. The reproduced components
-occupy the same cells as the source method by construction; the two
-rightmost columns are where this article differs, and the adaptive-sampling
-cell differs only in the restricted sense its footnote records.
+Table~\ref{tab:novelty} places this work against those lines. Reproduced
+components occupy the same cells as the source method by construction; the
+two rightmost columns are where this article differs, and the
+adaptive-sampling cell differs only in the restricted sense its footnote
+records.
 
 \begin{widetable}
 \centering\footnotesize
@@ -500,7 +516,7 @@ Standard QPE \cite{kitaev1995,cleve1998}
   & ---        & ---            & ---        & ---            & ---        & --- \\[2pt]
 Windowed / modular WQPE \cite{wqpe2025,modularshor2025}
   & \checkmark & \emph{fixed}   & \checkmark & \emph{fixed}   & ---        & --- \\[2pt]
-Bayesian amplitude / phase estimation \cite{bae2025,biqae2026,vqae2022}
+Bayesian amplitude \cite{bae2025,biqae2026,vqae2022} / phase \cite{wiebe2016,paesani2017} estimation
   & ---        & ---            & ---        & ---            & \checkmark & --- \\[2pt]
 \textbf{This work}
   & \checkmark$^{\ast}$ & \checkmark & \checkmark$^{\ast}$ & \checkmark
@@ -578,9 +594,13 @@ parameter rather than a guarantee.
 
 \paragraph{Why this statistic and not a simpler one.}
 Raw probability, top-1/top-2 margin, and entropy over the observed counts
-are all \emph{sample-size-blind}. A $2/4$ split and a $500/1000$ split
-score identically under every one of them, even though the first is
-nearly uninformative and the second nearly certain. Since the dominant
+are all \emph{sample-size-blind}. A $3$--$1$ split on four shots and a
+$750$--$250$ split on a thousand score identically under every one of them,
+even though the first is nearly uninformative and the second nearly
+certain; $\Cw$ separates them, at $0.922$ and $1.000$. (A $2/4$ against a
+$500/1000$ split would not make the point: both are exact ties, and the
+symmetry property of Table~\ref{tab:properties} gives $\Cw=\tfrac12$ for
+either.) Since the dominant
 measured failure mode is under-sampling rather than genuine ambiguity
 (Sec.~\ref{sec:motivation}), a statistic that cannot tell these apart is
 the wrong instrument. Equation~\eqref{eq:cw} is the minimal quantity that
@@ -643,14 +663,22 @@ it is what keeps B and C separately switchable arms of the same ablation
 rather than confounded with one another.
 
 \emph{Evidential status.} Of the three modules, C is the one our data
-support least. Its independent effect is small on the design grid, absent
-on two of three held-out instances, does not survive multiple-comparison
-correction, and is indistinguishable from a beam-matched control on every
-trial~\cite{companion}. We retain it in the
+support least, and it is the one module this article does not validate at
+the window level. Stated plainly rather than by reference: enabled alone it
+moves end-to-end success by $+4.9$ percentage points on seven discordant
+trials, which does not survive multiple-comparison correction at the
+confirmatory family size; it is null on two of three held-out instances;
+and against a control handed its own realised beam width it agrees on
+\emph{every single trial}, with zero discordant pairs. Those measurements
+are the companion study's~\cite{companion}, made at the trial level; no
+window-level measurement of module C is reported here, because the beam is
+a cross-window quantity and this article's unit of analysis is the single
+window. We retain it in the
 framework as a combinatorial safeguard --- it provably never narrows the
 beam (Table~\ref{tab:properties}), and the attribution analysis of
-Sec.~\ref{sec:motivation} identified 20 failures needing candidate budget
-and beam width relaxed \emph{together} --- but we do not present it as
+Sec.~\ref{sec:motivation} left 20 failures unattributed in a regime where
+candidate budget and beam width were starved \emph{together} --- but we do
+not present it as
 independently validated, and Sec.~\ref{sec:protocol} recommends against
 enabling it alone.
 
@@ -662,9 +690,8 @@ $\Cw \ge 1-\varepsilon$, stop. Otherwise draw
 $\min(S_w,\ \Smax-S_w)$ further shots from the same operator and
 eigenstate, merge the counts, and repeat until either the threshold is
 met or the cap $\Smax$ is reached. Shots are thus spent only on the
-windows whose evidence is actually thin. This directly targets the 48 of
-69 combined-stress failures that the attribution ladder resolved by
-additional shots alone.
+windows whose evidence is actually thin. This directly targets the 48
+failures positively attributed to additional shots alone.
 
 Module D is the only module that returns to the quantum sampler, and it
 is correspondingly the most expensive: each round is one real transpile
@@ -742,16 +769,13 @@ in the carry-aware overlap check, on the strength of our own earlier audit
 reporting a 55.4\% false-accept rate. Re-validating that evidence before
 writing any code showed the finding was wrong, and wrong in the audit
 rather than in the mechanism; the companion study~\cite{companion} gives
-the defect, the corrected counts, and the three independent checks that
-establish the correction. Lemma~\ref{lem:carry} states the algebraic half
-of it: the implementation's acceptance condition and the audit's
-ground-truth oracle reduce to the same Boolean function, so the original
-test could only ever have detected its own bug.
-
-Two consequences follow for this article. Module A was removed from the
-design before any code was written, and the carry-check implementation
-required no change --- it is inherited from the original method untouched,
-and none of the three modules described below acts on it.
+the defect, the corrected counts and the three checks that establish the
+correction, and Lemma~\ref{lem:carry} states its algebraic half --- the
+implementation's acceptance condition and the audit's ground-truth oracle
+reduce to the same Boolean function, so the original test could only ever
+have detected its own bug. Module A was therefore removed before any code
+was written, and the carry check is inherited from the original method
+untouched: none of the three modules described below acts on it.
 
 \subsection{Assumptions and parameters}
 \label{sec:assumptions}
@@ -787,7 +811,7 @@ confidence. All adaptivity operates strictly on already-sampled classical
 data. This is what keeps the method inside the classical stage.
 \end{description}
 
-\label{sec:parameters}
+\label{sec:paramtable}
 
 \noindent
 Table~\ref{tab:params} is the framework's complete tunable surface;
@@ -804,8 +828,8 @@ structural decision rather than a knob.
 Parameter & Value & Provenance \\
 \midrule
 $\alpha_0$   & $0.5$  & Fixed convention (Jeffreys prior); not tuned. \\
-$\varepsilon$& $0.05$ & Used as-is in the reported ablation; not cross-validated. \\
-$\dcov$      & $0.05$ & Used as-is; not cross-validated. \\
+$\varepsilon$& $0.05$ & Used as-is in the reported ablation; not cross-validated. Tuning target, not a guaranteed error rate. \\
+$\dcov$      & $0.05$ & Used as-is; not cross-validated. Tuning target on \emph{observed} coverage, not a population guarantee. \\
 $\Smax$      & $64$   & Reduced from an initial $65536$ after measuring ${\approx}3.3$\,s per resampling round; retains 4--16$\times$ headroom over the grid's starved shot counts (4--16) while bounding worst-case per-trial cost. \\
 $\beammax$   & $4096$ & Carried over from a measured combinatorial blow-up in path-list growth during earlier attribution work. \\
 \bottomrule
@@ -1004,7 +1028,7 @@ per operation than anything in B or C. This sampling is \emph{not} free
 merely because $\Smax$ bounds it --- enabling D multiplies a trial's
 circuit executions by up to $5\times$ at the evaluated defaults, and on
 the canonical grid the realised mean per-window shot count rose from
-$9.3$ to $54.9$~\cite{companion}. Where shots are metered --- hardware time,
+$9.3$ to $53.0$~\cite{companion}. Where shots are metered --- hardware time,
 a cloud queue --- that is what will be billed, and it should be weighed
 against the cost of a failed reconstruction rather than against zero. Two
 properties bound the exposure: the increase is capped in advance by
@@ -1073,11 +1097,14 @@ it. Enable module B first: it carries the largest and most stable effect
 and is the cheapest of the three, adding no circuit execution and staying
 in the same asymptotic class as the code it replaces. Enable module D where
 sampling is cheap relative to a failed run, since it dominates wall-clock
-cost whenever it fires. Do not enable module C alone --- it is retained in
-the full configuration only because it provably never narrows the beam. The
-evidence behind this ordering, including the multiple-comparison and
-matched-resource analyses that qualify module C, is in the companion
-study~\cite{companion}.
+cost whenever it fires --- and enable it for the budget it recovers, not
+for where it places that budget, which Sec.~\ref{sec:dresults} finds
+indistinguishable from a uniform split of the same total. Do not enable
+module C alone: it agrees with a beam-matched control on every trial, fails
+multiple-comparison correction, and is null on two of three held-out
+instances, so it is retained in the full configuration only because it
+provably never narrows the beam. The trial-level measurements behind this
+ordering are in the companion study~\cite{companion}.
 
 
 % =====================================================================
@@ -1090,6 +1117,21 @@ whether those rewritten budgets capture the phase information the window
 actually carries. End-to-end factorisation outcomes, the five-arm ablation,
 held-out generalisation and the matched-resource controls are the subject
 of the companion study~\cite{companion} and are not reproduced here.
+
+\paragraph{Statistical methods.} Outcomes are paired per window. Effect
+sizes are absolute percentage-point differences with $95\%$ percentile
+bootstrap intervals, $B=2000$ resamples at fixed seed $0$, resampling
+\emph{trials} rather than windows: windows within a trial share a seed, a
+configuration and an instance, so the effective sample size is the number
+of trials and a window-level bootstrap would be anti-conservative.
+Hypothesis tests are exact two-sided binomial McNemar~\cite{dietterich1998},
+with the discordant counts $(b,c)$ reported alongside every $p$-value.
+Section~\ref{sec:dresults} declares a confirmatory family of three
+comparisons and applies a Holm correction within it; every other figure in
+this article is descriptive or exploratory and is reported uncorrected with
+that status stated. \textbf{This family is disjoint from the family of nine
+declared in the companion study}, which is tested at the trial level on
+end-to-end success; no comparison appears in both.
 
 \subsection{Ground truth at the window level}
 \label{sec:wdesign}
@@ -1140,8 +1182,11 @@ $0.951$, at a cost of $1.61\to3.99$ candidates per window.
 shows why.} Module B does not dominate a well-chosen fixed budget: at
 $k=16$ it retains marginally \emph{less} true mass than fixed top-$k$
 ($0.985$ against $1.000$), while using $3.89$ candidates rather than
-$6.22$. What it does is land near $0.98$ regardless of $k$, where fixed
-retention ranges from $0.293$ at $k=1$ to $1.000$ at $k=16$. The value of
+$6.22$. What it does is vary far less with $k$: it spans $0.737$ to
+$0.986$ across the range, holding near $0.98$ from $k=4$ upward, where
+fixed retention spans $0.293$ at $k=1$ to $1.000$ at $k=16$. The $k=4$,
+$8$ and $16$ groups rest on 45 windows each, so the crossing at $k=16$ is
+a small-sample observation. The value of
 the rule is insensitivity to a setting the practitioner would otherwise
 have to get right in advance, not superiority at any particular setting.
 This is the window-level counterpart of the end-to-end conclusion the
@@ -1176,7 +1221,7 @@ Group & windows & base & B & base & B & base & B \\
 \midrule
 All windows           & 3354 & 0.571 & \textbf{0.841} & 0.790 & \textbf{0.951} & 1.61 & 3.99 \\
 \midrule
-$k=1$                 & 1017 & 0.293 & 0.737 & 0.562 & 0.911 & 1.00 & 4.19 \\
+$k=1$                 & 1017 & 0.293 & 0.737 & 0.561 & 0.911 & 1.00 & 4.19 \\
 $k=2$                 & 2202 & 0.676 & 0.880 & 0.882 & 0.967 & 1.74 & 3.91 \\
 $k=4$                 &   45 & 0.921 & 0.986 & 1.000 & 1.000 & 2.22 & 3.93 \\
 $k=8$                 &   45 & 0.977 & 0.986 & 1.000 & 1.000 & 3.56 & 3.91 \\
@@ -1184,7 +1229,7 @@ $k=16$                &   45 & \textbf{1.000} & 0.985 & 1.000 & 1.000 & 6.22 & 3
 \midrule
 $N{=}15$, $a{=}4$     &  470 & 0.995 & 1.000 & 0.998 & 1.000 & 1.30 & 1.31 \\
 $N{=}21$, $a{=}8$     &  470 & 0.995 & 1.000 & 0.996 & 1.000 & 1.30 & 1.31 \\
-$N{=}21$, $a{=}19$    & 2414 & 0.406 & 0.779 & 0.709 & 0.933 & 1.73 & 5.04 \\
+$N{=}21$, $a{=}19$    & 2414 & 0.406 & 0.779 & 0.709 & 0.932 & 1.73 & 5.04 \\
 \bottomrule
 \end{tabular}
 \end{widetable}
@@ -1205,6 +1250,138 @@ ${\approx}3.9$ while the fixed rule rises linearly with $k$. Rendered from
 \label{fig:window}
 \end{widefigure}
 
+\subsection{Module D at the window level}
+\label{sec:dresults}
+
+Section~\ref{sec:wresults} evaluates the rule that rewrites the candidate
+budget. This section evaluates the rule that rewrites the shot budget, and
+it asks the harder of the two questions about it. Module D spends extra
+shots; any arm that spends more will beat one that spends nothing. The
+question that decides whether the \emph{confidence} in confidence-gated
+stopping is doing work is whether spending \emph{there} beats spending the
+same total uniformly.
+
+\paragraph{Design.} Every window of the released corpus is replayed against
+its own exact marginal. Because the corpus is noiseless, that marginal is
+the true sampling law of the stored counts, so an additional shot is an
+exact multinomial draw from it and no circuit is transpiled or sampled. The
+marginal itself is obtained once per window specification by constructing
+that window's circuit and evaluating its statevector. Three arms are
+compared on identical draws: a \textbf{baseline} that spends nothing;
+\textbf{module D} following the shipped stopping rule; and a
+\textbf{shots-matched uniform control} that receives module D's own
+realised total for that trial, spread evenly over every window of the
+trial, with no confidence computed anywhere in the control. The control's
+budget is matched exactly by largest-remainder allocation. All arms consume
+prefixes of one common random number stream per window, so they differ only
+in how many shots a window receives, never in which. Twenty replicates are
+run at each of three shot caps, $\Smax\in\{32,64,256\}$; $64$ is the
+shipped value. The primary outcome is \textbf{top-1 identification} ---
+whether the observed argmax lies in the true marginal's argmax set --- a
+fixed target, identical across arms. Retained mass under a fixed top-$k$
+rule and total variation to the true marginal are secondary
+(\SIdresults{}).
+
+\paragraph{The control is an oracle, not an algorithm.} Its budget can only
+be known after watching module D choose it. It is the right comparator for
+the question asked and is not a procedure anyone could run.
+
+\paragraph{Result.} Table~\ref{tab:dsweep} gives the sweep. Against the
+unspent baseline module D raises top-1 identification from $0.649$ to
+$0.813$ at the shipped cap, $+16.4$ percentage points ($95\%$ CI
+$[11.5,21.5]$, $b=156$, $c=479$, $p<10^{-4}$). Against the shots-matched
+control it gains $+1.1$ points ($0.802$ to $0.813$; $b=65$, $c=88$;
+Holm-adjusted $p=0.075$). \textbf{That does not reject at the $0.05$ level,
+and we do not claim module D outperforms an equally-resourced uniform
+allocation.} The confirmatory family is these two comparisons plus the same
+contrast restricted to trials whose realised allocation was not already
+uniform ($+16.6$ points, $p<10^{-4}$), Holm-corrected across the three.
+
+\paragraph{The cap does not explain it.} A null at one cap setting would be
+uninterpretable on its own: if the cap binds before the confidence rule can
+act, module D is forced towards uniform allocation by construction. It does
+bind --- $92.3\%$ of firing windows run to the cap at $\Smax=32$, $82.2\%$
+at $64$, and $50.0\%$ at $256$ --- but relaxing it does not uncover a
+placement advantage. The gap against the matched control is $+0.50$,
+$+1.12$ and $+0.84$ points across the three caps: flat and non-monotone,
+while the saturation it would have to track falls by nearly half.
+\emph{Loosening the cap does not reveal a hidden effect.}
+
+\begin{widetable}
+\centering
+\small
+\caption{Module D at the window level, swept over the shot cap. Rates are
+top-1 identification over all windows of trials where module D fired
+(1{,}977 windows in 155 trials at $\Smax\in\{32,64\}$; 2{,}016 in 168 at
+$256$), averaged over 20 replicates. ``Cap-bound'' is the fraction of
+firing windows that exhausted the cap. The matched control receives module
+D's own realised total spread uniformly. $p$ is exact two-sided binomial
+McNemar on the first replicate; the $\Smax=64$ row is the confirmatory
+comparison and its value is Holm-adjusted within the family of three.
+\textbf{The pre-declared test is McNemar, and by it module D is not
+distinguishable from the matched control at the shipped cap.} The
+bootstrap intervals quoted in the text are effect-size summaries over
+replicate-averaged, trial-clustered differences; they answer a different
+question and are not used to declare significance.
+Rendered from \texttt{paperA\_moduleD\_summary.csv} and
+\texttt{paperA\_moduleD\_tests.csv}.}
+\label{tab:dsweep}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+$\Smax$ & cap-bound & extra shots & baseline & control & D & D $-$ control \\
+\midrule
+32  & 92.3\% & 20.3  & 0.649 & 0.726 & 0.731 & $+0.50$ \\
+\textbf{64}  & \textbf{82.2\%} & \textbf{45.3}  & \textbf{0.649} & \textbf{0.802} & \textbf{0.813} & \textbf{$+1.12$ ($p=0.075$)} \\
+256 & 50.0\% & 146.3 & 0.655 & 0.942 & 0.951 & $+0.84$ \\
+\bottomrule
+\end{tabular}
+\end{widetable}
+
+\paragraph{Why, mechanically.} Of the 1{,}977 windows in trials where
+module D fires, 1{,}810 share an identical true top-1-minus-top-2 margin of
+$0.106$ and only 12 are decisive. Every window in a firing trial is about
+equally ambiguous, so any sensible allocator distributes shots the same
+way, and there is nothing for a placement rule to exploit. This is the
+window-level counterpart of the trial-level conclusion the companion study
+reaches from matched-resource controls, arrived at independently and on a
+different unit of analysis.
+
+\paragraph{Scope.} The replayable population is narrow and its narrowness
+is measured rather than assumed: 1{,}874 of the 1{,}880 windows module D
+can act on ($99.7\%$) come from the single instance $(N{=}21, a{=}19)$, all
+at window width 4, drawn from 155 of 579 trials. A further $41\%$ of corpus
+windows (1{,}365 of 3{,}354) can never be acted on at all, because their
+configured shot count already meets or exceeds $\Smax$; counting every
+window module D leaves untouched for any reason, $43.9\%$ of the corpus is
+inert. This section characterises a mechanism on the corpus that
+exhibits it; it is not a general validation of module D.
+
+\paragraph{Generalisation across the corpus's configurations.} To test
+whether the finding survives outside that one instance, the same three arms
+were run on all 39 trial configurations present in the corpus, spanning all
+three instances and window widths $2$, $3$, $4$ and $6$, with counts drawn
+fresh from each window's exact marginal at initial budgets
+$S_0\in\{4,8,16,32\}$. The conclusion holds throughout. Module D tracks its
+matched control within $+0.12$ to $+0.67$ points overall, and on the two
+instances whose windows are decisive or exactly tied it changes the outcome
+by \emph{exactly} zero at every budget --- all arms sit at $1.000$, so
+module D fires on a fifth of their windows and achieves nothing. Meanwhile
+the pure budget effect, the uniform control against the unspent baseline,
+runs from $+5.4$ to $+14.3$ points: an order of magnitude larger than any
+placement premium. These 39 configurations are those represented in our
+corpus, not a sample from the space of Shor instances, and the statement is
+scoped accordingly.
+
+\paragraph{When would placement matter?} A constructed characterisation in
+\SIfamilyB{} answers this. Assembling ensembles from the corpus's
+ambiguous and decisive marginals at controlled concentration shows that the
+placement information $\Cw$ encodes becomes useful when ambiguity is
+confined to a minority of windows --- worth $+17.6$ points on the windows
+that need help when one window in eight is ambiguous, decaying to $+1.5$
+when all of them are. Those ensembles span more than one configuration and
+no single circuit run produces them: it is a mechanism probe, not an experiment, and it is
+reported as characterisation only. It does not alter the result above.
+
 \subsection{Calibration analysis: $\Cw$ ranks usefully at module D's
 operating point and is not a calibrated probability estimate}
 \label{sec:calibration}
@@ -1221,8 +1398,9 @@ specification by exact statevector simulation rather than by sampling
 \cite{brier1950} is $0.2239$, only marginally better than the $0.25$ a
 constant always-0.5 forecast would achieve. In the top predicted decile
 ($\Cw\in(0.9,1.0]$, mean prediction $0.96$) the observed correctness rate
-is $0.79$. Windows that satisfy module D's stopping rule at
-$\varepsilon=0.05$ are therefore wrong roughly 21\% of the time, not 5\%.
+is $0.79$. The windows that actually satisfy module D's stopping rule are
+the $\Cw\ge0.95$ subset of that bin, and they are wrong $11.7\%$ of the
+time --- not the $5\%$ the threshold nominally names.
 Figure~\ref{fig:calib} shows the reliability diagrams.
 
 \textbf{Discrimination, measured at the operating point.} Over the whole
@@ -1251,11 +1429,40 @@ correctable structure --- a monotone distortion, not noise --- which is
 the property that makes the raw statistic usable as a ranking signal at
 all. Bin-level data are in \SIcalib{}.
 
-\textbf{We deliberately do not ship the recalibration in the default
-decision rule}, and we want to be precise about why. The isotonic model
-is fitted on this corpus; wiring it into module D would make the
-shipped stopping rule depend on a fit whose generalisation to other
-instances, orders, and window geometries we have not tested, and would
+\paragraph{What the independence assumption costs, measured exactly.}
+Assumption (A2) treats the two counts as independent Binomials when they
+are negatively correlated coordinates of one multinomial. Dropping it gives
+the exact posterior for the same event, and --- unlike
+Eq.~\eqref{eq:cw} --- that exact posterior has an elementary closed form:
+by Dirichlet aggregation and neutrality,
+$\Pr[p_1>p_2\mid n]=1-I_{1/2}(\alpha_0+n_1,\,\alpha_0+n_2)$, one
+regularized incomplete Beta evaluation with no quadrature (\SIdirichlet{}).
+Recomputing all 2{,}687 calibration observations under it separates what
+changes from what does not. \textbf{The ranking does not change} ---
+Spearman $0.990$ against the shipped statistic, AUC $0.6404\to0.6388$ ---
+so, since module D consumes only the ordering, the correction does not
+change what the module knows. \textbf{The calibration does change, at
+exactly the point the module uses}: Brier $0.2239\to0.2143$, and the gap
+between the nominal $0.95$ stopping level and the observed correctness of
+the windows that halt falls from $6.7$ to $1.7$ percentage points. All 81
+windows that cross the threshold cross downward, so the exact statistic is
+uniformly the more conservative and would resample more often, never less.
+What remains after the correction is not attributed here: (A3) and the
+symmetric Jeffreys prior are both plausible contributors and this article
+does not separate them.
+
+\textbf{Neither the recalibration nor the exact statistic is shipped in the
+default decision rule}, for one reason that covers both. Module D
+thresholds the raw $\Cw$; every result in this article and its companion
+was produced with it, and substituting either would change the shipped
+behaviour --- the exact statistic on roughly $3\%$ of windows --- and
+invalidate the released ablation and generalisation corpora. Both
+alternatives are released as diagnostics, and the substitution is
+pre-registered for the next campaign. For the recalibration there is a
+second reason: the isotonic model is fitted on this corpus; wiring it into
+module D would make the shipped stopping rule depend on a fit whose
+generalisation to other instances, orders, and window geometries we have
+not tested, and would
 break the correspondence between the shipped configuration and the
 ablation reported in the companion study~\cite{companion}, which
 thresholds on raw
@@ -1276,22 +1483,24 @@ recalibration, which we have not performed.
 
 \begin{widefigure}
 \centering
-\includegraphics[width=0.94\linewidth]{../Data/failure_study/plots/paper_fig5_calibration.png}
+\includegraphics[width=0.52\linewidth]{../Data/failure_study/plots/paper_fig5_calibration_raw.png}
 \caption{\textbf{Does $\Cw$'s numerical value behave like a
 probability?} Reliability of $\Cw$ over 2{,}687 per-window observations
 from 579 trials; marker area is proportional to the number of windows in
-the bin. \emph{Left:} raw $\Cw$ lies below the diagonal across the upper
+the bin. Raw $\Cw$ lies below the diagonal across the upper
 range --- the shaded region is the overconfidence gap --- with Brier
 $0.2239$ against $0.2500$ for a constant $0.5$ forecast. The dash-dotted
 line marks module D's stopping threshold $1-\varepsilon=0.95$: windows
 that halt there sit in a bin whose mean prediction is $0.96$ but whose
-observed correctness is $0.79$. \emph{Right:} isotonic recalibration
-reduces the Brier score to $0.1988$. \textbf{The right-hand panel is an
-in-sample fit} --- isotonic regression places the bins on the diagonal by
-construction --- so it establishes that the miscalibration is
-\emph{correctable in principle}, not that a recalibrated $\Cw$ would
-generalise. It is a diagnostic artifact and is deliberately not used by
-the shipped stopping rule. Rendered from
+observed correctness is $0.79$; restricted to the $\Cw\ge0.95$ windows
+that actually halt, observed correctness is $0.883$. Isotonic
+recalibration of the same observations reduces the Brier score to
+$0.1988$, which establishes that the miscalibration is \emph{correctable
+in principle} but not that a recalibrated $\Cw$ would generalise: that fit
+is in-sample, placing its bins on the diagonal by construction. It is a
+diagnostic and is not used by the shipped stopping rule, so it is plotted
+in \SIcalib{} rather than beside the raw panel here, where the visual
+comparison would invite reading it as held-out calibration. Rendered from
 \texttt{phase6\_calibration.csv}.}
 \label{fig:calib}
 \end{widefigure}
@@ -1301,7 +1510,7 @@ the shipped stopping rule. Rendered from
 \section{Limitations}
 \label{sec:limitations}
 
-Four groups, ordered by how much each constrains what a reader may
+Five groups, ordered by how much each constrains what a reader may
 conclude. Limitations bearing on the end-to-end evaluation --- external
 validity of the factorisation results, and the module-by-module strength of
 evidence --- belong to the companion study~\cite{companion} and are stated
@@ -1320,7 +1529,14 @@ $0.4$\,s at 5 work qubits to $42$\,s at 7 and exceeds a $45$\,s timeout at
 Modules B and C act only on already-sampled counts, but module D is more
 exposed: under a noise floor, additional shots can sharpen confidence in a
 wrong pattern while consuming the $\Smax$ budget. We make no claim about
-behaviour under noise in either direction. \emph{Closing these:} a
+behaviour under noise in either direction. Module D's window-level
+evaluation (Sec.~\ref{sec:dresults}) narrows this only partly: it replays
+counts against exact \emph{noiseless} marginals, so it inherits the same
+scope, and $99.7\%$ of the windows it can act on come from one instance at
+one window width. The 39-configuration run extends the finding to every
+configuration our corpus contains, across all three instances and four
+window widths, but those configurations are the ones we happen to have, not
+a sample from the space of Shor instances. \emph{Closing these:} a
 reversible modular-arithmetic circuit \cite{cuccaro2004} for the ceiling;
 re-running the released grid with the noise models already in the code.
 
@@ -1332,9 +1548,20 @@ constrains this article directly. We therefore do not claim that per-window
 placement is intrinsically better than an equal allocation of the same
 resources. The supported claim is narrower and is the one made throughout:
 the rule recovers a workable budget from the measured counts without being
-given one. The window-level result of Sec.~\ref{sec:wresults} is consistent
-with exactly that reading --- module B is marginally worse than the best
-fixed budget and far better than a poorly chosen one.
+given one. Two window-level results now support that reading directly
+rather than by inheritance. Module B is marginally worse than the best
+fixed budget and far better than a poorly chosen one
+(Sec.~\ref{sec:wresults}). And module D, measured against a control given
+its own realised budget to spend uniformly, is not distinguishable from it
+at the shipped cap ($+1.1$ points, Holm $p=0.075$), with a cap sweep
+showing the null is not an artefact of the cap binding
+(Sec.~\ref{sec:dresults}). A constructed characterisation (\SIfamilyB{})
+locates the boundary: the placement information $\Cw$ carries is real but
+is only expressible when ambiguity is concentrated in a minority of
+windows, and our corpus is the homogeneous case, where a uniform split is
+already near-optimal. That analysis is a mechanism probe on ensembles no
+circuit produces; it is not evidence of real-world superiority and is not
+offered as any.
 
 \paragraph{3. The confidence model.}
 $\Cw$'s independence assumption (A2) is measurably false, and the
@@ -1354,12 +1581,40 @@ rather than estimating out-of-sample performance. Separately, $\Cw$
 compares only the top two patterns (A3), so a genuine three-way near-tie is
 not flagged as low-confidence: a structural blind spot rather than a tuned
 trade-off, accepted given $\ell_w\le6$ throughout our corpus.
-\emph{Closing these:} a Dirichlet-joint formulation of
-Eq.~\eqref{eq:cw}; a held-out calibration split.
 
-\paragraph{4. Parameters, coverage, and deliberate scope exclusions.}
+The first half of this is now closed rather than merely stated. The exact
+joint posterior has a closed form, and recomputing all 2{,}687 observations
+under it leaves the ranking intact (Spearman $0.990$) while cutting the
+operating-point gap from $6.7$ to $1.7$ percentage points
+(Sec.~\ref{sec:calibration}). Two qualifications remain. The exact
+statistic is \emph{not} the one this article ships, for the release-
+management reason given in Sec.~\ref{sec:calibration}, so every result here
+still carries the miscalibration described above. And the residual
+miscalibration that survives the correction is not attributed: (A3) and the
+symmetric Jeffreys prior are both plausible contributors and we have not
+separated them. \emph{Closing these:} shipping the exact statistic and
+re-running the ablation under it; a held-out calibration split; a
+decomposition of the residual.
+
+\paragraph{4. Module C is not validated in this article.}
+Modules B and D each have a window-level evaluation here
+(Secs.~\ref{sec:wresults}, \ref{sec:dresults}). Module C has none, and it
+cannot straightforwardly have one: the beam is a cross-window quantity
+while this article's unit of analysis is the single window. Its only
+evidence is trial-level and negative --- it agrees with a beam-matched
+control on every trial, fails multiple-comparison correction, and is null
+on two of three held-out instances~\cite{companion}. We ship it switchable
+and documented because it provably never narrows the beam
+(Table~\ref{tab:properties}) and because 20 failures were left unattributed
+in a regime where candidate budget and beam width were starved together, but
+a reader should treat
+it as an untested safeguard, not as a third validated module.
+\emph{Closing this:} a cross-window evaluation unit, which this article's
+design does not provide.
+
+\paragraph{5. Parameters, coverage, and deliberate scope exclusions.}
 $\varepsilon$ and $\dcov$ were used at their defaults
-(Sec.~\ref{sec:parameters}) because those defaults already produced large
+(Sec.~\ref{sec:paramtable}) because those defaults already produced large
 effects, so no calibration failure prompted a search; we do not know how
 sensitive the reported effects are to them. \textbf{Module B carries no
 population coverage guarantee}: $\dcov$ bounds coverage of the observed
@@ -1402,7 +1657,12 @@ that motivated it, the five-arm ablation, generalisation to pre-specified
 held-out instances, and the matched-resource controls that qualify the
 result. The two articles share one released corpus and one code archive,
 and analyse it at different units: this article at the window, the
-companion at the trial. No figure, table, or result is common to both.
+companion at the trial. No figure or table is common to both, and every
+analysis reported here is a window-level one that the companion does not
+contain. Where this article states a trial-level measurement --- the
+evidential status of module C in Sec.~\ref{sec:moduleC} is the only place
+it does --- the figure is the companion's and is attributed to it, quoted
+so that a reader can weigh the module without leaving this article.
 
 \section*{Reproducibility}
 
@@ -1425,6 +1685,7 @@ circuit and asserts the reported calibration figures before writing.
 its seed, so an interrupted campaign resumes without altering any result.
 
 \section*{Code availability}
+\begin{sloppypar}
 The complete implementation --- quantum circuits, classical reconstruction,
 the adaptive modules, and every experiment script named in \SIartifacts{}
 --- is released under the Apache-2.0 licence at
@@ -1440,6 +1701,7 @@ Invariant~\ref{prop:baseline}). Module D deliberately sits above
 \texttt{Reconstruction/}, which imports nothing from the circuit layer, for
 the reason given in step 3 of Sec.~\ref{sec:protocol}. Each executable
 module carries a self-test that runs without arguments.
+\end{sloppypar}
 
 \section*{Data availability}
 All raw per-trial records, per-window recaptured counts, summary tables,

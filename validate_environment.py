@@ -75,6 +75,13 @@ SELF_TEST_MODULES = (
     "Evaluation.plots",
     "Simulation.backend",
     "Simulation.noise",
+    # Analysis modules for the method article's window-level validation. Their
+    # self-tests run on constructed inputs and read no corpus file, so they
+    # are safe to run alongside the library suite.
+    "Experiments.replay",
+    "Experiments.paperA_moduleD_validation",
+    "Experiments.paperA_dirichlet_recomputation",
+    "Experiments.paperA_synthetic_grid",
 )
 
 
