@@ -1,0 +1,11 @@
+[p2c_lowshot_scaling] run_dir=research\results\p2c_lowshot_scaling\20260926T220629Z shards: 9 to run, 191 already done
+  1/9 shards done
+  2/9 shards done
+  3/9 shards done
+  4/9 shards done
+  5/9 shards done
+  6/9 shards done
+  7/9 shards done
+  8/9 shards done
+  9/9 shards done
+[p2c_lowshot_scaling] finished: 196 done, 0 failed -> research\results\p2c_lowshot_scaling\20260926T220629Z

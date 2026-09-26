@@ -1,0 +1,40 @@
+[p2c_lowshot_scaling] run_dir=C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\p2c_lowshot_scaling\20260926T220629Z shards: 200 to run, 0 already done
+  10/200 shards done
+  20/200 shards done
+  30/200 shards done
+  40/200 shards done
+  50/200 shards done
+  60/200 shards done
+  70/200 shards done
+  80/200 shards done
+  90/200 shards done
+  100/200 shards done
+  110/200 shards done
+  120/200 shards done
+  130/200 shards done
+  140/200 shards done
+  150/200 shards done
+  160/200 shards done
+  shard w8-8_s1_c1 FAILED (see failed/w8-8_s1_c1.txt)
+  shard w8-8_s1_c4 FAILED (see failed/w8-8_s1_c4.txt)
+  170/200 shards done
+  shard w8-8_s1_c0 FAILED (see failed/w8-8_s1_c0.txt)
+  shard w8-8_s2_c0 FAILED (see failed/w8-8_s2_c0.txt)
+  shard w8-8_s4_c4 FAILED (see failed/w8-8_s4_c4.txt)
+  shard w8-8_s4_c2 FAILED (see failed/w8-8_s4_c2.txt)
+  shard w8-8_s2_c1 FAILED (see failed/w8-8_s2_c1.txt)
+  shard w8-8_s2_c3 FAILED (see failed/w8-8_s2_c3.txt)
+  shard w8-8_s4_c0 FAILED (see failed/w8-8_s4_c0.txt)
+  shard w8-8_s4_c1 FAILED (see failed/w8-8_s4_c1.txt)
+  shard w8-8_s8_c4 FAILED (see failed/w8-8_s8_c4.txt)
+  shard w8-8_s4_c3 FAILED (see failed/w8-8_s4_c3.txt)
+  shard w8-8_s8_c1 FAILED (see failed/w8-8_s8_c1.txt)
+  shard w8-8_s8_c0 FAILED (see failed/w8-8_s8_c0.txt)
+  shard w8-8_s16_c4 FAILED (see failed/w8-8_s16_c4.txt)
+  shard w8-8_s16_c0 FAILED (see failed/w8-8_s16_c0.txt)
+  shard w8-8_s16_c1 FAILED (see failed/w8-8_s16_c1.txt)
+  shard w8-8_s8_c3 FAILED (see failed/w8-8_s8_c3.txt)
+  shard w8-8_s8_c2 FAILED (see failed/w8-8_s8_c2.txt)
+  shard w8-8_s1_c2 FAILED (see failed/w8-8_s1_c2.txt)
+  shard w8-8_s16_c2 FAILED (see failed/w8-8_s16_c2.txt)
+  shard w8-8_s1_c3 FAILED (see failed/w8-8_s1_c3.txt)
