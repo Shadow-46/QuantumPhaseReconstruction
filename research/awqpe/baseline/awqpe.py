@@ -131,13 +131,17 @@ def awqpe_reference(block_counts, widths, epsilon: float = DEFAULT_EPSILON, jitt
     return AWQPEResult(est, tuple(raw), tuple(corrected), tuple(flags), s_idx, tuple(t1s), tuple(t2s), tuple(ratios))
 
 
-def awqpe_vectorised(block_counts, widths, epsilon: float = DEFAULT_EPSILON, rng: np.random.Generator | None = None, jitter=None) -> dict[str, np.ndarray]:
+def awqpe_vectorised(block_counts, widths, epsilon: float = DEFAULT_EPSILON, rng: np.random.Generator | None = None, jitter=None, special_chunk_rule: bool = True) -> dict[str, np.ndarray]:
     """AWQPE over T runs. block_counts[i] has shape (T, 2^(m_i)).
 
     Tie-breaking jitter is drawn from `rng` (or taken from `jitter`, arrays of
     the same shapes, which is how tests pin it). Returns arrays: estimate (T,),
     raw/corrected/flags/top1/top2/ratio (T, B), special_index (T,) with
     1-indexed chunk numbers and 0 meaning None.
+
+    special_chunk_rule=False is a diagnostic ABLATION, not the published
+    algorithm: S_idx is still reported but no longer suppresses the borrow
+    (Algorithm 2, line 17 reduced to the ambiguity-flag test).
     """
     widths = [int(m) for m in widths]
     B, n = len(widths), sum(widths)
@@ -184,7 +188,8 @@ def awqpe_vectorised(block_counts, widths, epsilon: float = DEFAULT_EPSILON, rng
     corr = raw.copy()
     for j in range(B - 1, 0, -1):
         b_corr = (corr[:, j] >> (widths[j] - 1)) & 1
-        b_corr = np.where(flags[:, j - 1] | (special == j + 1), 0, b_corr)
+        suppress = flags[:, j - 1] | ((special == j + 1) if special_chunk_rule else False)
+        b_corr = np.where(suppress, 0, b_corr)
         corr[:, j - 1] = (corr[:, j - 1] - b_corr) % (1 << widths[j - 1])
     est = np.zeros(T, dtype=np.int64)
     for i, m in enumerate(widths):

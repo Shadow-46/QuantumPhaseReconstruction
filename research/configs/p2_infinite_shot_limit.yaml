@@ -1,0 +1,14 @@
+experiment_id: p2a_infinite_shot_limit
+description: >
+  Faithful AWQPE (Alg. 1+2) decoded on exact Dirichlet-kernel distributions
+  (infinite-shot limit) over a dense phase grid. Tests Theorem 3.7 without
+  sampling noise. Grid offset 0 contains every n-bit dyadic phase and exact
+  half-way points; offset 0.37 is a generic shifted grid.
+master_seed: 20260927
+partitions: [[4, 4], [2, 2, 2, 2], [3, 2, 3], [3, 3, 2], [2, 3, 3], [4, 4, 4], [3, 3, 3, 3], [2, 2, 2, 2, 2, 2]]
+grid_refine: 6
+grid_offsets: [0.0, 0.37]
+epsilons: [0.5, 0.7, 0.8, 0.9, 0.95]
+pilot_overrides:
+  partitions: [[3, 2, 3]]
+  grid_refine: 3

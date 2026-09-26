@@ -1,0 +1,68 @@
+{
+  "experiment_id": "p2b_awqpe_baseline_mc",
+  "run_id": "20260926T203732Z_pilot",
+  "created_utc": "2026-09-26T20:37:32.311087+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "70b7e6865e221a52abf6927b2862e8422a66456a",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_baseline.py --mode mc --pilot --max-workers 8",
+  "config": {
+    "experiment_id": "p2b_awqpe_baseline_mc",
+    "description": "Finite-shot Monte Carlo of the faithful AWQPE baseline (D1, epsilon sweep) and the likelihood decoder (D2) on identical counts, uniform shots per block, ideal Dirichlet-kernel model, eigenstate input. Development split: this run characterises the baseline and may inform later tuning, so it never uses held-out test phases.\n",
+    "master_seed": 20260927,
+    "split": "dev",
+    "partitions": [
+      [
+        3,
+        2,
+        3
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 8,
+    "replicates": 20,
+    "shots_per_block": [
+      16,
+      256
+    ],
+    "epsilons": [
+      0.5,
+      0.7,
+      0.8,
+      0.9,
+      0.95
+    ],
+    "likelihood_refine": 4,
+    "phase_chunk": 50,
+    "noise": null,
+    "is_pilot": true
+  },
+  "config_hash": "11df0ff063201f10",
+  "shards": {
+    "w3-2-3_s16_c0": "done",
+    "w3-2-3_s256_c0": "done",
+    "w4-4_s16_c0": "done",
+    "w4-4_s256_c0": "done"
+  }
+}

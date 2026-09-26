@@ -1,0 +1,22 @@
+experiment_id: p2b_awqpe_baseline_mc
+description: >
+  Finite-shot Monte Carlo of the faithful AWQPE baseline (D1, epsilon sweep)
+  and the likelihood decoder (D2) on identical counts, uniform shots per
+  block, ideal Dirichlet-kernel model, eigenstate input. Development split:
+  this run characterises the baseline and may inform later tuning, so it
+  never uses held-out test phases.
+master_seed: 20260927
+split: dev
+partitions: [[4, 4], [2, 2, 2, 2], [3, 2, 3], [3, 3, 2]]
+phases_per_stratum: 40
+replicates: 100
+shots_per_block: [16, 32, 64, 128, 256, 1024, 10240]
+epsilons: [0.5, 0.7, 0.8, 0.9, 0.95]
+likelihood_refine: 4
+phase_chunk: 50
+noise: null
+pilot_overrides:
+  partitions: [[3, 2, 3], [4, 4]]
+  phases_per_stratum: 8
+  replicates: 20
+  shots_per_block: [16, 256]
