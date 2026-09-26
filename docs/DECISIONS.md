@@ -79,3 +79,12 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 
 ### D-012 (2026-09-27): Terminology for the ε floor
 - **Decision.** Call it a "potential decoder limitation under the arXiv-v3 implementation" until the published version is checked. Do not call it an "AWQPE flaw".
+
+### D-013 (2026-09-27): Circuit-level verification uses explicit controlled matrices
+- **Decision.** `general_unitary_block` applies controlled-U^(2^(k+p)) as an explicit (2·dim)×(2·dim) `UnitaryGate` on [control, *targets] rather than `UnitaryGate(U^p).control(1)`.
+- **Why.** Identical mathematics, without Qiskit's synthesis of large controlled unitaries: about 70× faster and more accurate (1e-15 against 1e-13).
+- **Status.** This is a verification construction. Depth-realistic circuits for noise are a Phase 10 concern.
+
+### D-014 (2026-09-27): Mixture success metrics
+- **Decision.** For non-eigenstate inputs, report P(hit a nonzero eigenphase s/r) and P(output = 0) separately.
+- **Why.** "Hit any eigenphase" is inflated by the trivial s = 0 component, which the min(t1, t2) rule selects under ties.

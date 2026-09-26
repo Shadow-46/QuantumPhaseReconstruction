@@ -76,3 +76,8 @@ def predicted_failure(phi, widths, eps: float, special_rule: bool = True) -> tup
         block = np.where(f, j, block)
         fail |= f
     return fail, block
+
+
+def safe_epsilon(widths) -> float:
+    """docs/DECISIONS.md D-011: eps_safe = floor_{0.01}(min_j eps*(k_j, m_j)) - 0.02, fixed a priori."""
+    return round(float(np.floor(partition_epsilon_star(widths) * 100) / 100 - 0.02), 2)

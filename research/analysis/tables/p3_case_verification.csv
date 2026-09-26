@@ -1,0 +1,143 @@
+family,label,instance,state_prep,dominant_phase,dominant_weight,eigen_residual,qiskit_max_abs_diff,case_id,n_components,run
+A_phase_gate,phase_gate|1>,,eigenstate,0.25,1.0,0.0,8.881784197001252e-16,A_phase_gate:0,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.68359375,1.0,0.0,6.772360450213455e-15,A_phase_gate:1,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.76171875,1.0,0.0,8.881784197001252e-15,A_phase_gate:2,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.1484375,1.0,0.0,5.773159728050814e-15,A_phase_gate:3,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.26171875,1.0,0.0,8.881784197001252e-15,A_phase_gate:4,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.51953125,1.0,0.0,1.176836406102666e-14,A_phase_gate:5,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.515625,1.0,0.0,4.440892098500626e-16,A_phase_gate:6,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.03515625,1.0,0.0,1.4432899320127035e-15,A_phase_gate:7,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.47265625,1.0,0.0,9.325873406851315e-15,A_phase_gate:8,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.69140625,1.0,0.0,1.915134717478395e-15,A_phase_gate:9,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.5371998863,1.0,0.0,1.2674502891663053e-08,A_phase_gate:10,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.4550029463,1.0,0.0,6.435282084993332e-09,A_phase_gate:11,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.1112484238,1.0,0.0,3.910995638456427e-09,A_phase_gate:12,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3416654952,1.0,0.0,1.691162965222759e-08,A_phase_gate:13,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.0919838681,1.0,0.0,2.070523885677744e-08,A_phase_gate:14,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.6581876895,1.0,0.0,1.8900815079714306e-08,A_phase_gate:15,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3732178225,1.0,0.0,2.0953254242783714e-08,A_phase_gate:16,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.9551262109,1.0,0.0,2.6255085883164497e-09,A_phase_gate:17,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.2478883623,1.0,0.0,6.244423644830022e-09,A_phase_gate:18,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.9276655641,1.0,0.0,1.3369260698503638e-08,A_phase_gate:19,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.4087763564,1.0,0.0,7.586263839343133e-09,A_phase_gate:20,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.7811311376,1.0,0.0,2.502694718131693e-10,A_phase_gate:21,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3443093287,1.0,0.0,1.3188620195947465e-09,A_phase_gate:22,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.4048478849,1.0,0.0,1.4623673827429684e-08,A_phase_gate:23,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.0328308068,1.0,0.0,1.7972503485452762e-09,A_phase_gate:24,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.6563024984,1.0,0.0,2.588429470762321e-10,A_phase_gate:25,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.7176386414,1.0,0.0,1.4554223271012745e-08,A_phase_gate:26,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.2184316706,1.0,0.0,1.288859796666486e-09,A_phase_gate:27,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.2818087588,1.0,0.0,1.1215601669611885e-08,A_phase_gate:28,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.7833768724,1.0,0.0,1.431856333500292e-08,A_phase_gate:29,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.4801383981,1.0,0.0,3.9106227145424555e-09,A_phase_gate:30,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.2347174392,1.0,0.0,4.303874590050327e-09,A_phase_gate:31,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.620939842,1.0,0.0,7.156402137553641e-10,A_phase_gate:32,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.6332022641,1.0,0.0,8.104055870816751e-09,A_phase_gate:33,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.5001614553,1.0,0.0,2.9638683729515947e-09,A_phase_gate:34,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.7615719519,1.0,0.0,1.9064547718272706e-09,A_phase_gate:35,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.0780559998,1.0,0.0,3.7862823987211414e-10,A_phase_gate:36,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.9454641206,1.0,0.0,1.4648770529923638e-09,A_phase_gate:37,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.7536074444,1.0,0.0,1.891937273512667e-09,A_phase_gate:38,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.6676602852,1.0,0.0,5.477945652643257e-09,A_phase_gate:39,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.8164737809,1.0,0.0,2.6417179554982795e-10,A_phase_gate:40,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.2240763451,1.0,0.0,7.0985450850713505e-09,A_phase_gate:41,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.6990749132,1.0,0.0,4.23755031064843e-09,A_phase_gate:42,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3145472333,1.0,0.0,7.375580424184847e-09,A_phase_gate:43,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.5337050776,1.0,0.0,3.01075286923691e-09,A_phase_gate:44,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.848589329,1.0,0.0,9.137740564213459e-10,A_phase_gate:45,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.5105964739,1.0,0.0,1.239121893981121e-08,A_phase_gate:46,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3551421017,1.0,0.0,3.054994590634408e-09,A_phase_gate:47,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.3115482816,1.0,0.0,6.946630382032026e-09,A_phase_gate:48,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.0495066597,1.0,0.0,1.5920262885771308e-09,A_phase_gate:49,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.25,1.0,0.0,8.881784197001252e-16,A_phase_gate:50,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.1666666667,1.0,0.0,1.3815274368944586e-08,A_phase_gate:51,1,research/results/p3_state_sensitivity/20260926T211750Z
+A_phase_gate,phase_gate|1>,,eigenstate,0.1,1.0,0.0,4.773959005888173e-15,A_phase_gate:52,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|0>,,eigenstate,0.25,1.0,0.0,8.881784197001252e-16,B_diagonal:53,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v0>,,eigenstate,0.25,1.0,2.7188158944292753e-16,4.440892098500626e-16,C_conjugated:54,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|1>,,eigenstate,0.1666666667,1.0,0.0,1.381524528110134e-08,B_diagonal:55,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v1>,,eigenstate,0.1666666667,1.0,3.517683881858629e-16,1.3815246724391272e-08,C_conjugated:56,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|2>,,eigenstate,0.1,1.0,0.0,4.6629367034256575e-15,B_diagonal:57,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v2>,,eigenstate,0.1,1.0,3.1623395194429585e-16,4.884981308350689e-15,C_conjugated:58,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|3>,,eigenstate,0.3,1.0,0.0,1.7763568394002505e-15,B_diagonal:59,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v3>,,eigenstate,0.3,1.0,3.176770830354169e-16,1.532107773982716e-14,C_conjugated:60,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|4>,,eigenstate,0.8203125,1.0,0.0,1.6653345369377348e-15,B_diagonal:61,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v4>,,eigenstate,0.8203125,1.0,2.470199937579066e-16,1.27675647831893e-14,C_conjugated:62,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|5>,,eigenstate,0.5234375,1.0,0.0,3.608224830031759e-15,B_diagonal:63,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v5>,,eigenstate,0.5234375,1.0,9.348820781889382e-16,2.042810365310288e-14,C_conjugated:64,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|6>,,eigenstate,0.7071067812,1.0,0.0,1.1990424209074035e-09,B_diagonal:65,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v6>,,eigenstate,0.7071067812,1.0,4.0942781634879445e-16,1.1990320958332745e-09,C_conjugated:66,1,research/results/p3_state_sensitivity/20260926T211750Z
+B_diagonal,diagonal|7>,,eigenstate,0.0625,1.0,0.0,2.220446049250313e-15,B_diagonal:67,1,research/results/p3_state_sensitivity/20260926T211750Z
+C_conjugated,VDV+|v7>,,eigenstate,0.0625,1.0,6.739158254342333e-16,9.43689570931383e-16,C_conjugated:68,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod15|u_0>,"(15,2) r=4",eigenstate,0.0,1.0,0.0,2.246466901389964e-16,D_modmul_eigen:69,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod15|u_1>,"(15,2) r=4",eigenstate,0.25,1.0,1.2246467991473532e-16,1.5543122344752192e-15,D_modmul_eigen:70,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod15|u_2>,"(15,2) r=4",eigenstate,0.5,1.0,2.4492935982947064e-16,1.5543122344752192e-15,D_modmul_eigen:71,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod15|u_3>,"(15,2) r=4",eigenstate,0.75,1.0,3.6739403974420594e-16,1.1102230246251565e-15,D_modmul_eigen:72,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_2mod15|1>,"(15,2) r=4",mixture,0.25,0.2500000000000002,,1.1102230246251565e-15,E_modmul_one:73,4,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_0>,"(21,2) r=6",eigenstate,0.0,1.0,0.0,2.6645352591003757e-15,D_modmul_eigen:74,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_1>,"(21,2) r=6",eigenstate,0.1666666667,1.0,3.1146277803935463e-16,1.3815271371342419e-08,D_modmul_eigen:75,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_2>,"(21,2) r=6",eigenstate,0.3333333333,1.0,5.763416755806725e-16,1.3815282473572665e-08,D_modmul_eigen:76,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_3>,"(21,2) r=6",eigenstate,0.5,1.0,1.2557396508661338e-15,2.2464669013899637e-16,D_modmul_eigen:77,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_4>,"(21,2) r=6",eigenstate,0.6666666667,1.0,1.1581666975281182e-15,1.381525926991145e-08,D_modmul_eigen:78,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod21|u_5>,"(21,2) r=6",eigenstate,0.8333333333,1.0,1.713313256611859e-15,1.3815259825022963e-08,D_modmul_eigen:79,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_2mod21|1>,"(21,2) r=6",mixture,0.16666666666666666,0.16666666666666682,,4.565502420561529e-09,E_modmul_one:80,6,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_0>,"(33,2) r=10",eigenstate,0.0,1.0,0.0,8.104628079763643e-15,D_modmul_eigen:81,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_1>,"(33,2) r=10",eigenstate,0.1,1.0,1.1676254553267902e-16,5.10702591327572e-15,D_modmul_eigen:82,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_2>,"(33,2) r=10",eigenstate,0.2,1.0,2.260570699542563e-16,4.9960036108132044e-15,D_modmul_eigen:83,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_3>,"(33,2) r=10",eigenstate,0.3,1.0,2.724440562294687e-16,8.548717289613705e-15,D_modmul_eigen:84,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_4>,"(33,2) r=10",eigenstate,0.4,1.0,3.125208319380939e-16,1.0047518372857667e-14,D_modmul_eigen:85,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_5>,"(33,2) r=10",eigenstate,0.5,1.0,3.8726732145403874e-16,6.8833827526759706e-15,D_modmul_eigen:86,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_6>,"(33,2) r=10",eigenstate,0.6,1.0,4.623925182865307e-16,1.0325074129013956e-14,D_modmul_eigen:87,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_7>,"(33,2) r=10",eigenstate,0.7,1.0,2.0367153760174366e-15,1.9539925233402755e-14,D_modmul_eigen:88,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_8>,"(33,2) r=10",eigenstate,0.8,1.0,6.429271137885567e-16,2.0095036745715333e-14,D_modmul_eigen:89,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_2mod33|u_9>,"(33,2) r=10",eigenstate,0.9,1.0,2.664480900577544e-15,8.326672684688674e-15,D_modmul_eigen:90,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_2mod33|1>,"(33,2) r=10",mixture,0.1,0.10000000000000038,,2.2343238370581275e-15,E_modmul_one:91,10,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_4mod15|u_0>,"(15,4) r=2",eigenstate,0.0,1.0,0.0,8.881784197001252e-16,D_modmul_eigen:92,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_4mod15|u_1>,"(15,4) r=2",eigenstate,0.5,1.0,1.7319121124709868e-16,7.771561172376096e-16,D_modmul_eigen:93,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_4mod15|1>,"(15,4) r=2",mixture,0.5,0.5,,1.1102230246251565e-15,E_modmul_one:94,2,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_0>,"(21,19) r=6",eigenstate,0.0,1.0,0.0,6.106226635438361e-15,D_modmul_eigen:95,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_1>,"(21,19) r=6",eigenstate,0.1666666667,1.0,3.1146277803935463e-16,1.3815270261119394e-08,D_modmul_eigen:96,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_2>,"(21,19) r=6",eigenstate,0.3333333333,1.0,5.763416755806725e-16,1.3815282362550363e-08,D_modmul_eigen:97,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_3>,"(21,19) r=6",eigenstate,0.5,1.0,1.2557396508661338e-15,2.55351295663786e-15,D_modmul_eigen:98,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_4>,"(21,19) r=6",eigenstate,0.6666666667,1.0,1.1581666975281182e-15,1.3815259047866846e-08,D_modmul_eigen:99,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_19mod21|u_5>,"(21,19) r=6",eigenstate,0.8333333333,1.0,1.67929112829013e-15,1.381525971400066e-08,D_modmul_eigen:100,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_19mod21|1>,"(21,19) r=6",mixture,0.16666666666666666,0.166666666666667,,4.565502864650739e-09,E_modmul_one:101,6,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_13mod15|u_0>,"(15,13) r=4",eigenstate,0.0,1.0,0.0,3.1086244689504383e-15,D_modmul_eigen:102,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_13mod15|u_1>,"(15,13) r=4",eigenstate,0.25,1.0,1.2246467991473532e-16,1.5543122344752192e-15,D_modmul_eigen:103,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_13mod15|u_2>,"(15,13) r=4",eigenstate,0.5,1.0,2.4492935982947064e-16,1.887379141862766e-15,D_modmul_eigen:104,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_13mod15|u_3>,"(15,13) r=4",eigenstate,0.75,1.0,3.6739403974420594e-16,6.661338147750939e-16,D_modmul_eigen:105,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_13mod15|1>,"(15,13) r=4",mixture,0.25,0.2500000000000002,,1.1102230246251565e-15,E_modmul_one:106,4,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_8mod21|u_0>,"(21,8) r=2",eigenstate,0.0,1.0,0.0,3.3306690738754696e-15,D_modmul_eigen:107,1,research/results/p3_state_sensitivity/20260926T211750Z
+D_modmul_eigen,U_8mod21|u_1>,"(21,8) r=2",eigenstate,0.5,1.0,1.7319121124709868e-16,8.881784197001252e-16,D_modmul_eigen:108,1,research/results/p3_state_sensitivity/20260926T211750Z
+E_modmul_one,U_8mod21|1>,"(21,8) r=2",mixture,0.5,0.5,,2.4424906541753444e-15,E_modmul_one:109,2,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),random3 w0=1.0,eigenstate,0.1666666666666667,1.0,0.0,1.3815240507142335e-08,F_controlled_mix:110,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),shor_like6 w0=1.0,eigenstate,0.1666666666666667,1.0,0.0,1.3815246058257458e-08,F_controlled_mix:111,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),random3 w0=0.9,mixture,0.1666666666666667,0.8999999999999999,,1.2440041441408312e-08,F_controlled_mix:112,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),shor_like6 w0=0.9,mixture,0.1666666666666667,0.8999999999999999,,1.2705274832214286e-08,F_controlled_mix:113,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),random3 w0=0.75,mixture,0.1666666666666667,0.75,,1.0355089119507e-08,F_controlled_mix:114,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),shor_like6 w0=0.75,mixture,0.1666666666666667,0.7499999999999999,,1.1040319214394856e-08,F_controlled_mix:115,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),random3 w0=0.5,mixture,0.1666666666666667,0.5,,9.20770881762678e-09,F_controlled_mix:116,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),shor_like6 w0=0.5,mixture,0.1666666666666667,0.5000000000000001,,8.265393480755279e-09,F_controlled_mix:117,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),random3 w0=1.0,eigenstate,0.3,1.0,0.0,1.1102230246251565e-15,F_controlled_mix:118,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),shor_like6 w0=1.0,eigenstate,0.3,1.0,0.0,1.1102230246251565e-15,F_controlled_mix:119,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),random3 w0=0.9,mixture,0.3,0.8999999999999999,,3.911322238314696e-10,F_controlled_mix:120,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),shor_like6 w0=0.9,mixture,0.3,0.8999999999999999,,5.738976897873282e-10,F_controlled_mix:121,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),random3 w0=0.75,mixture,0.3,0.75,,1.6014798862040713e-09,F_controlled_mix:122,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),shor_like6 w0=0.75,mixture,0.3,0.7499999999999999,,1.4347444343698612e-09,F_controlled_mix:123,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),random3 w0=0.5,mixture,0.3,0.5000000000000001,,6.347310455012689e-10,F_controlled_mix:124,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),shor_like6 w0=0.5,mixture,0.3,0.5000000000000001,,2.8694878556612124e-09,F_controlled_mix:125,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),random3 w0=1.0,eigenstate,0.8203125,1.0,0.0,1.3877787807814457e-15,F_controlled_mix:126,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),shor_like6 w0=1.0,eigenstate,0.8203125,1.0,0.0,1.6653345369377348e-15,F_controlled_mix:127,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),random3 w0=0.9,mixture,0.8203125,0.8999999999999999,,4.837337891361315e-10,F_controlled_mix:128,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),shor_like6 w0=0.9,mixture,0.8203125,0.9,,5.478619363730175e-10,F_controlled_mix:129,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),random3 w0=0.75,mixture,0.8203125,0.75,,1.1331574914508202e-09,F_controlled_mix:130,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),shor_like6 w0=0.75,mixture,0.8203125,0.75,,1.36965438990444e-09,F_controlled_mix:131,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),random3 w0=0.5,mixture,0.8203125,0.5,,2.5347349219551063e-09,F_controlled_mix:132,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),shor_like6 w0=0.5,mixture,0.8203125,0.5,,2.7393101120765095e-09,F_controlled_mix:133,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),random3 w0=1.0,eigenstate,0.2587890625,1.0,0.0,7.216449660063518e-15,F_controlled_mix:134,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=1.0),shor_like6 w0=1.0,eigenstate,0.2587890625,1.0,0.0,1.5543122344752192e-15,F_controlled_mix:135,1,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),random3 w0=0.9,mixture,0.2587890625,0.8999999999999999,,1.4873087136879626e-09,F_controlled_mix:136,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.9),shor_like6 w0=0.9,mixture,0.2587890625,0.8999999999999999,,5.816545231573933e-10,F_controlled_mix:137,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),random3 w0=0.75,mixture,0.2587890625,0.75,,4.731162128734923e-10,F_controlled_mix:138,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.75),shor_like6 w0=0.75,mixture,0.2587890625,0.7499999999999999,,1.4541366236131559e-09,F_controlled_mix:139,6,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),random3 w0=0.5,mixture,0.2587890625,0.5000000000000001,,1.5258772023685196e-09,F_controlled_mix:140,4,research/results/p3_state_sensitivity/20260926T211750Z
+F_controlled_mix,mixture(w0=0.5),shor_like6 w0=0.5,mixture,0.2587890625,0.5000000000000001,,2.9082736913155216e-09,F_controlled_mix:141,6,research/results/p3_state_sensitivity/20260926T211750Z

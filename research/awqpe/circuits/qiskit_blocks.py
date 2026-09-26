@@ -56,9 +56,15 @@ def general_unitary_block(U: np.ndarray, psi: np.ndarray, offset: int, width: in
     qc = QuantumCircuit(width + nt, width if measure else 0)
     qc.append(StatePreparation(psi / np.linalg.norm(psi)), targets)
     qc.h(controls)
+    dim = U.shape[0]
+    P0, P1 = np.diag([1.0, 0.0]), np.diag([0.0, 1.0])
     for p in controls:
         Up = np.linalg.matrix_power(U, 1 << (offset + p))
-        qc.append(UnitaryGate(Up).control(1), [p, *targets])
+        # Controlled-U^(2^(k+p)) as an explicit matrix on qargs [control, *targets]
+        # (Qiskit little-endian: the control is the least significant qarg). This
+        # avoids gate synthesis of large controlled unitaries; it is exact.
+        cu = np.kron(np.eye(dim), P0) + np.kron(Up, P1)
+        qc.append(UnitaryGate(cu, check_input=False), [p, *targets])
     qc.append(QFTGate(width).inverse(), controls)
     if measure:
         qc.measure(controls, controls)

@@ -1,0 +1,26 @@
+[p3_state_sensitivity] run_dir=C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\p3_state_sensitivity\20260926T211750Z shards: 48 to run, 0 already done
+  2/48 shards done
+  4/48 shards done
+  6/48 shards done
+  8/48 shards done
+  10/48 shards done
+  12/48 shards done
+  14/48 shards done
+  16/48 shards done
+  18/48 shards done
+  20/48 shards done
+  22/48 shards done
+  24/48 shards done
+  26/48 shards done
+  28/48 shards done
+  30/48 shards done
+  32/48 shards done
+  34/48 shards done
+  36/48 shards done
+  38/48 shards done
+  40/48 shards done
+  42/48 shards done
+  44/48 shards done
+  46/48 shards done
+  48/48 shards done
+[p3_state_sensitivity] finished: 48 done, 0 failed -> C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\p3_state_sensitivity\20260926T211750Z

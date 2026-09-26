@@ -107,3 +107,57 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   6. The paper's worked examples still reproduce (tests `test_verification.py`, `test_awqpe_baseline.py`).
 - **Interpretation.** The failure floor is a property of Algorithms 1–2 as written in v3 under every reading we could construct. It is fully explained by one mechanism: the excluded case δ̂_k = 0.5 of Lemma 3.2, left unflagged when ε ≥ ε*(k, m).
 - **Next.** Confirm against the published version. The faithful ε=0.9 baseline is kept unchanged. The ε_safe baseline (D-011) is added as a separately labelled condition.
+
+## P3: Initial-state / eigenphase sensitivity (2026-09-27), PRELIMINARY (dev phases, n=8)
+- **Run.** `p3_state_sensitivity/20260926T211750Z` (config `p3_state_sensitivity.yaml`). Tables: `research/analysis/tables/p3_*.csv`.
+- **Objective.** Establish why the Paper A |1⟩/U_a experiments were not a clean single-eigenphase AWQPE experiment. Separate state preparation, eigenphase, grid location and resulting ambiguity.
+- **Configuration.**
+  - 142 cases in six families:
+    - A: phase gate, 53 stratified phases plus 1/4, 1/6, 1/10.
+    - B: 3-qubit diagonal U, 8 basis eigenstates.
+    - C: V·D·V† with a Haar-random V, 8 eigenvectors.
+    - D: U_a eigenstates |u_s⟩ for (15,2), (21,2), (33,2), (15,4), (21,19), (15,13) and (21,8).
+    - E: |1⟩ on the same U_a instances (the Paper A input).
+    - F: controlled mixtures, w0 ∈ {1, .9, .75, .5}.
+  - Partitions [4,4] and [3,2,3]; shots per block {16, 256, 2048}; 200 replicates.
+  - Decoders: AWQPE at ε=0.9, AWQPE at ε_safe (D-011), and D2 (which assumes a single eigenphase, so it is misspecified for mixtures).
+- **Verification.**
+  - All 111 claimed eigenstates have ‖Uψ − e^{2πiφ}ψ‖ ≤ 2.7e-15.
+  - Spectral decomposition of U_a|1⟩ gives weights exactly 1/r on s/r.
+  - For every case, real Qiskit circuits (StatePreparation of ψ, controlled U^(2^(k+p)), IQFT) match the mixture-of-kernels prediction to ≤ 2.1e-8.
+- **Results.**
+  1. **State-preparation route is irrelevant for exact eigenstates.** B (diagonal) and C (V·D·V†) with the same eigenphases differ by ≤ 0.02 in success, which is sampling noise.
+  2. **For eigenstates, grid location drives ambiguity and error.**
+
+     | Grid location | mean true top-two ratio | AWQPE ε=0.9 @2048 shots | AWQPE ε_safe @2048 | D2 @2048 |
+     |---|---|---|---|---|
+     | generic | 0.22 | 1.00 | 1.00 | 1.00 |
+     | dyadic_n | 0.28 | 1.00 | 1.00 | 1.00 |
+     | final_half | 0.81 | 0.89 | 0.98 | 1.00 |
+     | boundary_hard | 0.87 | 0.87 | 0.99 | 1.00 |
+
+     At 16 shots per block, boundary_hard gives 0.61 / 0.75 / 0.99 for the three decoders.
+  3. **U_a eigenstates |u_s⟩ work for every instance, dyadic or not.** With 2048 shots, P(|err| ≤ 2⁻ⁿ) = 1.00 with zero ambiguity flags for r = 2, 4, 6 and 10.
+  4. **The Paper A input |1⟩ (uniform mixture over s/r) behaves very differently.**
+     - Every block's true top-two ratio is exactly 1.0, so AWQPE flags 84–100% of trials as ambiguous, regardless of the phase grid.
+     - AWQPE's min(t1, t2) rule then collapses most outputs to 0, the trivial s = 0 component: P(output = 0) = 0.44–1.00.
+     - The probability of returning a *useful* nonzero s/r:
+
+       | r | phases | AWQPE | D2 |
+       |---|---|---|---|
+       | 2 | dyadic | 0.00–0.02 | 0.44–0.54 |
+       | 4 | dyadic | 0.47–0.56 | 0.73–0.77 |
+       | 6 | non-dyadic | 0.00–0.10 | ≈ 0 |
+       | 10 | non-dyadic | 0.04–0.18 | 0–0.25 |
+
+     - For non-dyadic r, independent blocks collapse onto different eigencomponents, so the decoded chunks do not belong to any single phase (cross-block incoherence).
+  5. **Mixtures with a dominant component (w0 ≥ 0.75) are nearly harmless.** Success is 1.00 at 2048 shots; degradation begins at w0 = 0.5.
+- **Interpretation (answers the P3 question).**
+  - The old setup's behaviour was caused **primarily by the non-eigenstate input**: a uniform mixture over s/r creates exact top-two ties in every block, irrespective of phase-grid location.
+  - **Phase-grid alignment modulates the damage**: for dyadic s/r (r = 2, 4) later blocks still agree across components; for non-dyadic r they do not.
+  - So the answer is **both, interacting**, with the mixture as the dominant cause.
+  - Consequence: Paper A's top-two / C_w evidence mostly measured mixture ties, not phase ambiguity. This supports Alok Shukla's point: with a proper eigenstate, the top-two structure reflects grid position and becomes informative.
+- **Supports or refutes.** Supports the hypothesis that the initial state, not only the decoder, invalidated the old experiments as AWQPE evidence.
+- **Next.**
+  - P4 information study on eigenstate inputs, with both D1 conditions and D2.
+  - Mixtures return in P9 as a robustness factor.

@@ -116,3 +116,22 @@ def test_grid_posterior_credible_mass():
     est = gp.map_estimate()
     assert gp.credible_mass(est, 0.5)[0] == pytest.approx(1.0)
     assert 0 < gp.credible_mass(est, 2 ** -6)[0] < 1
+
+
+def test_unitaries_eigenstates_and_paper_a_mixture():
+    """Eigenstate verification (test area: state preparation) and the Paper A |1> decomposition."""
+    from research.awqpe.circuits import unitaries as UN
+    from research.awqpe.circuits.qiskit_blocks import block_statevector_probabilities, general_unitary_block
+
+    e = UN.modmul_eigenstate_input(2, 21, 1)
+    assert e.is_eigenstate and e.eigen_residual < 1e-12 and np.allclose(e.phases, [1 / 6])
+    one = UN.modmul_one_input(2, 21)
+    assert not one.is_eigenstate
+    assert np.allclose(one.phases, np.arange(6) / 6) and np.allclose(one.weights, 1 / 6)
+    c = UN.conjugated_input([0.25, 0.1, 0.3, 0.7], 2, np.random.default_rng(0))
+    assert c.is_eigenstate and np.allclose(c.phases, [0.3])
+    sv = block_statevector_probabilities(general_unitary_block(one.unitary, one.state, 0, 3, measure=False), 3)
+    mix = one.weights @ block_probabilities(one.phases, 0, 3)
+    assert np.allclose(sv, mix, atol=1e-12)
+    padded = UN.controlled_mixture_input(0.3, 0.5, [0.1, 0.2, 0.4, 0.6, 0.8])
+    assert padded.unitary.shape == (8, 8) and np.isclose(padded.weights.sum(), 1.0)

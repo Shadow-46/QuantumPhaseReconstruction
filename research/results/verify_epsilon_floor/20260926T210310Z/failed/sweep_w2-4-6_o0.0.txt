@@ -1,0 +1,35 @@
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "C:\Python314\Lib\concurrent\futures\process.py", line 254, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\runner\core.py", line 119, in _worker
+    df = fn(cfg, spec)
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\run_verify_epsilon.py", line 180, in verify_shard
+    return TASKS[spec["task"]](cfg, spec)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\run_verify_epsilon.py", line 81, in task_sweep
+    P = probs(phis, w)
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\run_verify_epsilon.py", line 52, in probs
+    return [block_probabilities(phis, s.offset, s.width) for s in partition_blocks(widths)]
+            ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\model\kernel.py", line 101, in block_probabilities
+    p = kernel(block_thetas(phi, offset, width), M, damping)
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\model\kernel.py", line 50, in kernel
+    return 1.0 / M + 2.0 * np.sum(w * np.cos(phase), axis=-1)
+                                      ~~~~~~^^^^^^^
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 1.97 GiB for an array with shape (65536, 64, 63) and data type float64
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\runner\core.py", line 182, in run_sharded
+    _, dt = fut.result()
+            ~~~~~~~~~~^^
+  File "C:\Python314\Lib\concurrent\futures\_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\concurrent\futures\_base.py", line 395, in __get_result
+    raise self._exception
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 1.97 GiB for an array with shape (65536, 64, 63) and data type float64

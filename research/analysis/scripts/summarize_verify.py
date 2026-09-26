@@ -16,14 +16,9 @@ import numpy as np
 import pandas as pd
 
 from research.awqpe.runner.core import REPO_ROOT, latest_run
-from research.awqpe.verification.theory import partition_epsilon_star
+from research.awqpe.verification.theory import partition_epsilon_star, safe_epsilon
 
 OUT = REPO_ROOT / "research" / "analysis" / "tables"
-
-
-def safe_epsilon(widths) -> float:
-    """D-011: eps_safe = floor_{0.01}(min_j eps*(k_j, m_j)) - 0.02, fixed a priori (no tuning)."""
-    return round(np.floor(partition_epsilon_star(widths) * 100) / 100 - 0.02, 2)
 
 
 def main() -> None:

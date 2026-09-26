@@ -132,5 +132,9 @@ def controlled_mixture_input(phi0: float, w0: float, others) -> SpectralInput:
     others = list(others)
     phases = np.array([phi0] + others)
     amps = np.sqrt(np.array([w0] + [(1 - w0) / len(others)] * len(others))) if others else np.array([1.0])
+    # Pad to a qubit register (power-of-two dimension) with zero-amplitude eigenvalues.
+    dim = 1 << max(1, int(np.ceil(np.log2(len(phases)))))
+    phases = np.concatenate([phases, np.zeros(dim - len(phases))])
+    amps = np.concatenate([amps, np.zeros(dim - len(amps))])
     U = np.diag(np.exp(2j * np.pi * phases))
     return _make(f"mixture(w0={w0})", U, amps.astype(complex), phi0 if w0 == 1.0 else None)
