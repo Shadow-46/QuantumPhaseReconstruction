@@ -15,3 +15,9 @@ Paper/*.pdf
 # Reference papers (third-party, not authored content)
 /2507.22460v3.pdf
 /Shors Algorithm paper 1 .pdf
+
+# AWQPE research track
+.venv-awqpe/
+research/results/**/shards/
+research/results/**/*.tmp
+docs/refs/*.pdf
