@@ -1,0 +1,27 @@
+experiment_id: verify_epsilon_floor
+description: >
+  PRELIMINARY (arXiv-v3 reading). Independent verification of the infinite-shot
+  failure floor of AWQPE Algorithms 1-2: cross-implementation agreement, dense
+  epsilon sweep against the theoretical per-phase predicate, per-failure
+  diagnostics, all 216 readings of the paper's ambiguities, golden examples.
+master_seed: 20260927
+grid_refine: 4
+grid_refine_sweep: {"8": 6, "10": 5, "12": 4}
+offsets: [0.0, 0.37]
+crosscheck_partitions: [[4, 4], [2, 2, 2, 2], [3, 2, 3], [3, 3, 2]]
+crosscheck_eps: [0.3, 0.5, 0.61, 0.7, 0.78, 0.8, 0.9, 0.95]
+sweep_partitions: [[4, 4], [2, 2, 2, 2], [3, 2, 3], [3, 3, 2], [2, 3, 3], [5, 5], [3, 5], [5, 3], [6, 6], [4, 4, 4], [3, 3, 3, 3], [2, 4, 6], [6, 4, 2]]
+eps_lo: 0.30
+eps_hi: 0.99
+eps_step: 0.01
+failure_eps: [0.9]
+variant_partitions: [[4, 4], [2, 2, 2, 2], [3, 2, 3], [3, 3, 2]]
+variant_eps: [0.5, 0.9]
+variants_per_shard: 12
+pilot_overrides:
+  crosscheck_partitions: [[3, 2, 3]]
+  sweep_partitions: [[3, 2, 3]]
+  variant_partitions: [[3, 2, 3]]
+  variants_per_shard: 108
+  grid_refine: 2
+  grid_refine_sweep: {"8": 3}

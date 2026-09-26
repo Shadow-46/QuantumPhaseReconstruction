@@ -1,0 +1,98 @@
+{
+  "experiment_id": "verify_epsilon_floor",
+  "run_id": "20260926T210252Z_pilot",
+  "created_utc": "2026-09-26T21:02:52.698206+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "6bc3eb54eb2854e8e0b2797adb7845f7b6e148a5",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_verify_epsilon.py --pilot --max-workers 8",
+  "config": {
+    "experiment_id": "verify_epsilon_floor",
+    "description": "PRELIMINARY (arXiv-v3 reading). Independent verification of the infinite-shot failure floor of AWQPE Algorithms 1-2: cross-implementation agreement, dense epsilon sweep against the theoretical per-phase predicate, per-failure diagnostics, all 216 readings of the paper's ambiguities, golden examples.\n",
+    "master_seed": 20260927,
+    "grid_refine": 2,
+    "grid_refine_sweep": {
+      "8": 3
+    },
+    "offsets": [
+      0.0,
+      0.37
+    ],
+    "crosscheck_partitions": [
+      [
+        3,
+        2,
+        3
+      ]
+    ],
+    "crosscheck_eps": [
+      0.3,
+      0.5,
+      0.61,
+      0.7,
+      0.78,
+      0.8,
+      0.9,
+      0.95
+    ],
+    "sweep_partitions": [
+      [
+        3,
+        2,
+        3
+      ]
+    ],
+    "eps_lo": 0.3,
+    "eps_hi": 0.99,
+    "eps_step": 0.01,
+    "failure_eps": [
+      0.9
+    ],
+    "variant_partitions": [
+      [
+        3,
+        2,
+        3
+      ]
+    ],
+    "variant_eps": [
+      0.5,
+      0.9
+    ],
+    "variants_per_shard": 108,
+    "is_pilot": true
+  },
+  "config_hash": "bd8ee67b31b136ab",
+  "shards": {
+    "cross_w3-2-3_o0.0": "done",
+    "cross_w3-2-3_o0.37": "done",
+    "sweep_w3-2-3_o0.0": "done",
+    "fail_w3-2-3_o0.0": "done",
+    "sweep_w3-2-3_o0.37": "done",
+    "fail_w3-2-3_o0.37": "done",
+    "var_w3-2-3_o0.0_v0": "done",
+    "var_w3-2-3_o0.0_v108": "done",
+    "var_w3-2-3_o0.37_v0": "done",
+    "var_w3-2-3_o0.37_v108": "done",
+    "golden": "done"
+  },
+  "status": "PRELIMINARY (arXiv-v3 reading)"
+}

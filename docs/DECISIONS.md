@@ -62,3 +62,20 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - Held-out claims come from `split=test`, which is generated from a disjoint seed domain.
   - The paper's example phases (S5) appear only in dev.
 - **Rule.** Phases 2–4 are characterisation runs and use dev only. Test is first touched after policy constants are frozen (Phase 5+).
+
+### D-010 (2026-09-27): Independent verification implementation
+- **Decision.** `research/awqpe/verification/awqpe_strings.py` is a second, string-based implementation of Algorithms 1–2 with switchable readings of every ambiguity.
+- **Status.** Verification only. The faithful baseline (`baseline/awqpe.py`) is unchanged, and no reading is substituted into it.
+
+### D-011 (2026-09-27): Safe-epsilon baseline, a separate labelled condition
+- **Rule, fixed a priori with no tuning on any split:**
+
+  ε_safe(partition) = floor_{0.01}(min_j ε*(k_j, m_j)) − 0.02
+
+  where ε*(k, m) = K_M((½ + 2^−(k+1))/M) / K_M((½ − 2^−(k+1))/M), k = bits below boundary j, and m = width of the block above it.
+- **Examples.** [4,4] → 0.75; [3,2,3] → 0.60; [2,2,2,2] → 0.35; [6,6] → 0.91.
+- **Verification.** Zero infinite-shot failures at ε_safe for all 13 swept partitions (`verify_safe_epsilon.csv`).
+- **Usage.** Always reported *alongside* the faithful ε=0.9 condition, never replacing it. Its finite-shot behaviour (more flags from sampling noise) is measured, not assumed.
+
+### D-012 (2026-09-27): Terminology for the ε floor
+- **Decision.** Call it a "potential decoder limitation under the arXiv-v3 implementation" until the published version is checked. Do not call it an "AWQPE flaw".

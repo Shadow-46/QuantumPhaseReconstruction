@@ -46,24 +46,30 @@ def kernel(theta, M: int, damping: np.ndarray | None = None) -> np.ndarray:
     """K_M(theta) in Fejer form; broadcast over any theta shape."""
     theta = np.asarray(theta, dtype=float)
     d, w = _fourier_terms(M, damping)
-    phase = TWO_PI * theta[..., None] * d
-    return 1.0 / M + 2.0 * np.sum(w * np.cos(phase), axis=-1)
+    out = np.full(theta.shape, 1.0 / M)
+    for di, wi in zip(d, w):  # accumulate per frequency: O(theta.size) memory
+        out += 2.0 * wi * np.cos(TWO_PI * di * theta)
+    return out
 
 
 def kernel_d1(theta, M: int, damping: np.ndarray | None = None) -> np.ndarray:
     """dK_M/dtheta, exact."""
     theta = np.asarray(theta, dtype=float)
     d, w = _fourier_terms(M, damping)
-    phase = TWO_PI * theta[..., None] * d
-    return -2.0 * np.sum(w * TWO_PI * d * np.sin(phase), axis=-1)
+    out = np.zeros(theta.shape)
+    for di, wi in zip(d, w):
+        out -= 2.0 * wi * TWO_PI * di * np.sin(TWO_PI * di * theta)
+    return out
 
 
 def kernel_d2(theta, M: int, damping: np.ndarray | None = None) -> np.ndarray:
     """d^2K_M/dtheta^2, exact."""
     theta = np.asarray(theta, dtype=float)
     d, w = _fourier_terms(M, damping)
-    phase = TWO_PI * theta[..., None] * d
-    return -2.0 * np.sum(w * (TWO_PI * d) ** 2 * np.cos(phase), axis=-1)
+    out = np.zeros(theta.shape)
+    for di, wi in zip(d, w):
+        out -= 2.0 * wi * (TWO_PI * di) ** 2 * np.cos(TWO_PI * di * theta)
+    return out
 
 
 def kernel_closed_form(theta, M: int) -> np.ndarray:

@@ -30,7 +30,7 @@ See `DECISIONS.md` D-004. In brief:
 - **Table 2, case 4 (φ = 1/√2).** The table lists m = [3,3,3,3,3,3,3,3,3], which is 27 bits. The raw and final binary strings it prints have 30 bits. With ten 3-bit blocks our implementation reproduces both strings and the printed decimal 0.7071067811921239 exactly. With nine blocks the first 27 raw bits match. The partition in the table is a typo: it should list 10 blocks.
 - The other five §6 examples reproduce bit for bit in the infinite-shot limit: 0.8203125 with [3,2,3], 0.3 with [2,2], π/6 with [3,2,2,3], 0.671875 with [4,4] and sin(π/12) with [5,6,7,4]. The printed §6.1 counts also decode to the stated result. See `research/tests/test_awqpe_baseline.py`.
 
-## Behaviour of Algorithms 1–2 that the paper does not report (our reading of v3)
+## Potential decoder limitation under the arXiv-v3 implementation (PRELIMINARY; see RESULTS_LOG P2a and V1)
 These are findings from this project (see `RESULTS_LOG.md`, P2a/P2b). They should be confirmed against the published version and ideally with the authors before anything is claimed publicly.
 - **The deterministic failure mode.** Theorem 3.7 excludes the case δ̂_k = 0.5, where the remaining k bits round to exactly 10…0. Remark 2.1 describes the related case as "exceptionally rare" when the *true* fractional part is exactly 0.5.
 - **The excluded case is not rare.** The *rounded* case occurs with probability ≈ 2^−k at a boundary with k lower bits, e.g. 12.5% for a final block of width 3. In that case the lower chunks carry no information about which way the upper block rounded.
@@ -45,3 +45,10 @@ These are findings from this project (see `RESULTS_LOG.md`, P2a/P2b). They shoul
   | 4 | 1.8% |
 
 - **The special-chunk rule does not fix it.** Disabling the rule (ablation) moves failures between the two sides of the tie without reducing them.
+
+
+Independent verification (RESULTS_LOG V1) found the following:
+- A second implementation agrees on 262,144/262,144 infinite-shot decodes.
+- The theoretical predicate is exact on the generic grid (0 FP/FN).
+- All 216 readings of the ambiguities keep the floor at ε=0.9.
+- The worked examples select the in-place borrow reading.

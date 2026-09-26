@@ -40,6 +40,31 @@ def phase_gate_block(phi: float, offset: int, width: int, measure: bool = True) 
     return qc
 
 
+def general_unitary_block(U: np.ndarray, psi: np.ndarray, offset: int, width: int, measure: bool = True) -> QuantumCircuit:
+    """Block circuit for an arbitrary unitary U on target register prepared in psi.
+
+    Controlled powers U^(2^(k+p)) are exact matrix powers wrapped as
+    UnitaryGate(...).control(1); psi is loaded with StatePreparation. Used to
+    check at circuit level that non-eigenstate inputs produce the eigenphase
+    mixture predicted by circuits/unitaries.spectral_decomposition.
+    """
+    from qiskit.circuit.library import StatePreparation, UnitaryGate
+
+    nt = int(np.log2(U.shape[0]))
+    controls = list(range(width))
+    targets = list(range(width, width + nt))
+    qc = QuantumCircuit(width + nt, width if measure else 0)
+    qc.append(StatePreparation(psi / np.linalg.norm(psi)), targets)
+    qc.h(controls)
+    for p in controls:
+        Up = np.linalg.matrix_power(U, 1 << (offset + p))
+        qc.append(UnitaryGate(Up).control(1), [p, *targets])
+    qc.append(QFTGate(width).inverse(), controls)
+    if measure:
+        qc.measure(controls, controls)
+    return qc
+
+
 def block_statevector_probabilities(qc: QuantumCircuit, width: int) -> np.ndarray:
     """Exact control-register outcome distribution p[y] of an unmeasured block."""
     from qiskit.quantum_info import Statevector

@@ -91,3 +91,19 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   - P4: information signals and marginal-value-of-shots study.
   - Lower-budget regime (1–16 shots per block).
   - n = 12 and 16.
+
+## V1: Independent verification of the ε=0.9 infinite-shot floor (2026-09-27), PRELIMINARY (arXiv-v3 reading)
+- **Status.** This is a **potential decoder limitation under our arXiv-v3 implementation**, not a claim about the published algorithm. Earlier entries (P2a) used stronger wording ("refutes"). This entry supersedes that wording; the earlier entries are left unedited per the append-only rule.
+- **Run.** `verify_epsilon_floor/20260926T210310Z` (config `research/configs/verify_epsilon.yaml`). 11 shards failed with out-of-memory errors at m=6. They were re-run via `--resume --rerun-failed` after making the kernel memory-linear (identical values; tests unchanged).
+- **Tables.** `research/analysis/tables/verify_*.csv`, including every failure record in `verify_failure_records.csv.gz`. Each record carries: phi, partition, ε, affected block, the block's full probability vector, t1/t2 and their probabilities, C2/C1, flag, raw/decoded/true bits, true nearest and reconstructed phase, and circular/absolute error.
+- **Results.**
+  1. **Independent implementation.** A string-based Algorithm 1–2 decoder written from the pseudocode (`verification/awqpe_strings.py`) agrees with the primary decoder on **262,144/262,144** infinite-shot decodes: 4 partitions × 2 grids × 8 ε.
+  2. **Dense ε sweep.** ε from 0.30 to 0.99 in steps of 0.01, over 13 partitions with n = 8–12 and block widths 2–6. On the generic grid (offset 0.37), the exact per-phase theoretical predicate (`verification/theory.py`) gives **0 false positives and 0 false negatives** over 330,904 observed failures (faithful decoder) and 340,264 (special-chunk ablation). On the offset-0 grid, the only mispredictions are exact (n+1)-bit ties, which are measure-zero and excluded from the predicate by construction.
+  3. **Threshold.** The empirical failure onset lies in (ε*, ε*+0.01] for every partition, where ε*_min = min over boundaries of ε*(k,m). Checked against the ε* computed from the Dirichlet-kernel probabilities, e.g. [4,4]: ε* = 0.7792, onset 0.79; [6,6]: ε* = 0.9394, onset 0.95. [6,6] and [2,4,6] show 0% failures at ε=0.9, as predicted.
+  4. **All plausible readings.** All 216 combinations of the ambiguity readings were tested: flag index, min-mod (3 forms), borrow source, final block, special chunk (3 forms) and ties (3 forms).
+     - At ε=0.9 **every reading keeps a failure floor**: per partition, the best reading for [4,4] still fails 1.56% and for [3,2,3] 4.9%.
+     - **108/216 readings reproduce all six §6 examples: exactly those that read the borrow MSB from the already-corrected lower chunk (our default).** Every "raw" reading breaks at least one example.
+  5. **Failure anatomy at ε=0.9.** In every failure the responsible upper block is unflagged. Errors span 4–455 LSB (median 4–32 LSB by partition).
+  6. The paper's worked examples still reproduce (tests `test_verification.py`, `test_awqpe_baseline.py`).
+- **Interpretation.** The failure floor is a property of Algorithms 1–2 as written in v3 under every reading we could construct. It is fully explained by one mechanism: the excluded case δ̂_k = 0.5 of Lemma 3.2, left unflagged when ε ≥ ε*(k, m).
+- **Next.** Confirm against the published version. The faithful ε=0.9 baseline is kept unchanged. The ε_safe baseline (D-011) is added as a separately labelled condition.

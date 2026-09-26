@@ -1,0 +1,38 @@
+[verify_epsilon_floor] run_dir=C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\verify_epsilon_floor\20260926T210310Z shards: 205 to run, 0 already done
+  10/205 shards done
+  20/205 shards done
+  shard sweep_w6-6_o0.37 FAILED (see failed/sweep_w6-6_o0.37.txt)
+  shard sweep_w6-6_o0.0 FAILED (see failed/sweep_w6-6_o0.0.txt)
+  shard fail_w6-6_o0.37 FAILED (see failed/fail_w6-6_o0.37.txt)
+  shard fail_w6-6_o0.0 FAILED (see failed/fail_w6-6_o0.0.txt)
+  30/205 shards done
+  shard fail_w6-4-2_o0.0 FAILED (see failed/fail_w6-4-2_o0.0.txt)
+  30/205 shards done
+  shard sweep_w2-4-6_o0.37 FAILED (see failed/sweep_w2-4-6_o0.37.txt)
+  30/205 shards done
+  shard fail_w2-4-6_o0.0 FAILED (see failed/fail_w2-4-6_o0.0.txt)
+  30/205 shards done
+  shard sweep_w6-4-2_o0.37 FAILED (see failed/sweep_w6-4-2_o0.37.txt)
+  30/205 shards done
+  shard fail_w6-4-2_o0.37 FAILED (see failed/fail_w6-4-2_o0.37.txt)
+  30/205 shards done
+  shard sweep_w2-4-6_o0.0 FAILED (see failed/sweep_w2-4-6_o0.0.txt)
+  30/205 shards done
+  shard fail_w2-4-6_o0.37 FAILED (see failed/fail_w2-4-6_o0.37.txt)
+  40/205 shards done
+  50/205 shards done
+  60/205 shards done
+  70/205 shards done
+  80/205 shards done
+  90/205 shards done
+  100/205 shards done
+  110/205 shards done
+  120/205 shards done
+  130/205 shards done
+  140/205 shards done
+  150/205 shards done
+  160/205 shards done
+  170/205 shards done
+  180/205 shards done
+  190/205 shards done
+[verify_epsilon_floor] finished: 194 done, 11 failed -> C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\verify_epsilon_floor\20260926T210310Z
