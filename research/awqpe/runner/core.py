@@ -29,6 +29,7 @@ import sys
 import time
 import traceback
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from pathlib import Path
 
 import pandas as pd
@@ -157,6 +158,8 @@ def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manife
     todo = [s for s in shard_specs if manifest["shards"].get(s["shard_id"]) != "done"]
     if args.resume and args.rerun_failed:
         todo = [s for s in todo if manifest["shards"].get(s["shard_id"]) == "failed"]
+    for s in todo:  # shards about to run are pending, whatever their previous status
+        manifest["shards"][s["shard_id"]] = "pending"
     _atomic_write_json(run_dir / "manifest.json", manifest)
 
     module, func = shard_fn.__module__, shard_fn.__name__
@@ -174,23 +177,40 @@ def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manife
 
     heartbeat()
     print(f"[{cfg['experiment_id']}] run_dir={run_dir} shards: {len(todo)} to run, {len(ids) - len(todo)} already done", flush=True)
-    with ProcessPoolExecutor(max_workers=args.max_workers) as pool:
-        futures = {pool.submit(_worker, module, func, cfg, s, str(run_dir / "shards" / f"{s['shard_id']}.parquet")): s["shard_id"] for s in todo}
-        for fut in as_completed(futures):
-            sid = futures[fut]
-            try:
-                _, dt = fut.result()
-                manifest["shards"][sid] = "done"
-                durations.append(dt)
-                done_now += 1
-            except Exception:
-                manifest["shards"][sid] = "failed"
-                (run_dir / "failed" / f"{sid}.txt").write_text(traceback.format_exc(), encoding="utf-8")
-                print(f"  shard {sid} FAILED (see failed/{sid}.txt)", flush=True)
-            _atomic_write_json(run_dir / "manifest.json", manifest)
-            heartbeat()
-            if done_now and done_now % max(1, len(todo) // 20) == 0:
-                print(f"  {done_now}/{len(todo)} shards done", flush=True)
+    workers, total = args.max_workers, len(todo)
+    for attempt in range(3):
+        if not todo:
+            break
+        broken = False
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(_worker, module, func, cfg, s, str(run_dir / "shards" / f"{s['shard_id']}.parquet")): s for s in todo}
+            for fut in as_completed(futures):
+                sid = futures[fut]["shard_id"]
+                try:
+                    _, dt = fut.result()
+                    manifest["shards"][sid] = "done"
+                    durations.append(dt)
+                    done_now += 1
+                except BrokenProcessPool:
+                    broken = True  # a worker died (usually out of memory); resubmit below
+                except Exception:
+                    manifest["shards"][sid] = "failed"
+                    (run_dir / "failed" / f"{sid}.txt").write_text(traceback.format_exc(), encoding="utf-8")
+                    print(f"  shard {sid} FAILED (see failed/{sid}.txt)", flush=True)
+                _atomic_write_json(run_dir / "manifest.json", manifest)
+                heartbeat()
+                if done_now and done_now % max(1, total // 20) == 0:
+                    print(f"  {done_now}/{total} shards done", flush=True)
+        todo = [s for s in todo if manifest["shards"].get(s["shard_id"]) == "pending"]
+        if not broken:
+            break
+        workers = max(1, workers // 2)
+        print(f"  worker pool broke (likely out of memory); retrying {len(todo)} shards with {workers} workers", flush=True)
+    for s in todo:
+        manifest["shards"][s["shard_id"]] = "failed"
+        (run_dir / "failed" / f"{s['shard_id']}.txt").write_text("worker pool broke repeatedly (out of memory?)", encoding="utf-8")
+    _atomic_write_json(run_dir / "manifest.json", manifest)
+    heartbeat()
     states = list(manifest["shards"].values())
     print(f"[{cfg['experiment_id']}] finished: {states.count('done')} done, {states.count('failed')} failed -> {run_dir}", flush=True)
     return run_dir

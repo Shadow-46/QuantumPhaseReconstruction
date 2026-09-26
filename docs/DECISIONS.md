@@ -88,3 +88,25 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 ### D-014 (2026-09-27): Mixture success metrics
 - **Decision.** For non-eigenstate inputs, report P(hit a nonzero eigenphase s/r) and P(output = 0) separately.
 - **Why.** "Hit any eigenphase" is inflated by the trivial s = 0 component, which the min(t1, t2) rule selects under ties.
+
+### D-015 (2026-09-27): Signal definitions fixed a priori
+- **Boundary risk.** Uses a half-width of 0.15 outcome units.
+- **Local posterior grid.** 2^(m+6) points, uniform prior on δ_b.
+- **Global information gain.** eig_phi and eig_cell are the exact mutual information (bits) of one extra shot, taken from the D2 grid posterior (G = 2^(n+4)).
+- **Legacy C_w.** Imported unchanged from the frozen Paper A code.
+- **Status.** None of these were tuned.
+
+### D-016 (2026-09-27): P4 analysis plan, declared before the full P4 results were inspected
+- **Signal orientation ("higher = more need for shots").** This is fixed in advance:
+  - Oriented as-is: ratio, entropy, local_post_sd, chunk_risk, boundary_risk, eig_phi, eig_cell and fisher_phi, i.e. a Fisher-driven allocator gives shots where Fisher information is largest.
+  - Negated: c1, margin, p_chunk_correct and legacy_cw.
+  - global_risk is trial-level; it is used for stopping, not for choosing a block.
+- **Units.** Unit = (trial, block) pair within a decoder and cell (partition, S0, ΔS).
+- **Metrics:**
+  - Spearman ρ between the oriented signal and Δerr = err0 − err1.
+  - AUROC for "fix" (tol0 = False and tol1 = True, τ = 2⁻ⁿ) over all pairs, and within initially failing trials only (the "which block to fix" question).
+  - Greedy one-step policy value: P(tol1) when the batch goes to argmax(signal) in each trial, against a random block (mean over blocks) and the oracle-best block.
+  - Calibration of p_chunk_correct against t1_correct, in 10 bins.
+- **Breakdowns.** By stratum, block position, n and m.
+- **Inference.** Phase-cluster bootstrap CIs (1000 resamples) for the policy-value differences.
+- **Status.** P4 is dev-split characterisation. Its conclusions choose which signals go into P5; they are not final claims.

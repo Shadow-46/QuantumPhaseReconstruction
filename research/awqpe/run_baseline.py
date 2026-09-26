@@ -32,6 +32,7 @@ from research.awqpe.phases import make_phase_table
 from research.awqpe.runner.core import common_arguments, resolve_config, run_sharded
 from research.awqpe.sim.oracle_sim import batch_block_counts
 from research.awqpe.sim.seeds import generator, stable_int
+from research.awqpe.verification.theory import safe_epsilon
 
 
 # "awqpe" is the published algorithm. "awqpe_ablate_special" disables only the
@@ -57,17 +58,31 @@ def _bitmask(bool_matrix: np.ndarray) -> np.ndarray:
     return (bool_matrix.astype(np.int64) * weights).sum(axis=1)
 
 
-def decode_all(counts, widths, epsilons, jitter, refine, noise):
+def resolve_epsilons(epsilons, widths) -> list[tuple[str, float]]:
+    """Config epsilons may be numbers or "safe" (D-011 rule, resolved per partition)."""
+    out = []
+    for e in epsilons:
+        if e == "safe":
+            out.append(("awqpe_eps_safe", safe_epsilon(widths)))
+        else:
+            out.append(("awqpe", float(e)))
+    return out
+
+
+def decode_all(counts, widths, epsilons, jitter, refine, noise, include_ablation: bool = True):
     """Run D1 (AWQPE) for every epsilon and D2 (likelihood) once on shared counts."""
     n = int(sum(widths))
     specs = partition_blocks(widths)
     results = []
-    for eps in epsilons:
+    for label, eps in resolve_epsilons(epsilons, widths):
         for name, rule in DECODER_VARIANTS:
-            r = awqpe_vectorised(counts, widths, float(eps), jitter=jitter, special_chunk_rule=rule)
-            results.append((name, float(eps), r["estimate"], r))
+            if not rule and not include_ablation:
+                continue
+            r = awqpe_vectorised(counts, widths, eps, jitter=jitter, special_chunk_rule=rule)
+            results.append((name if label == "awqpe" else (label if rule else label + "_ablate_special"), eps, r["estimate"], r))
     T = counts[0].shape[0]
-    phi_hat = np.concatenate([likelihood_decode(specs, [c[a:a + 2048] for c in counts], n, refine, noise) for a in range(0, T, 2048)])
+    chunk = max(8, (1 << 23) >> (n + refine))  # (trials x grid) float64 <= 64 MB
+    phi_hat = np.concatenate([likelihood_decode(specs, [c[a:a + chunk] for c in counts], n, refine, noise) for a in range(0, T, chunk)])
     est = np.mod(np.floor(phi_hat * (1 << n) + 0.5), 1 << n).astype(np.int64)
     results.append(("likelihood", np.nan, est, {"phi_hat": phi_hat}))
     return results
@@ -118,7 +133,7 @@ def mc_shard(cfg: dict, spec: dict) -> pd.DataFrame:
     specs = partition_blocks(widths)
     counts = [batch_block_counts(phis, s, shots, rng, noise) for s in specs]
     jitter = [rng.random(c.shape) * 0.5 for c in counts]
-    results = decode_all(counts, widths, cfg["epsilons"], jitter, int(cfg.get("likelihood_refine", 4)), noise)
+    results = decode_all(counts, widths, cfg["epsilons"], jitter, int(cfg.get("likelihood_refine", 4)), noise, bool(cfg.get("include_ablation", True)))
     meta["widths"] = widths_key(widths)
     meta["n"] = n
     meta["shots_per_block"] = shots
@@ -164,10 +179,10 @@ def limit_shard(cfg: dict, spec: dict) -> pd.DataFrame:
     meta["shots_per_block"] = -1  # infinite-shot limit
     meta["grid_offset"] = spec["grid_offset"]
     results = []
-    for eps in cfg["epsilons"]:
+    for label, eps in resolve_epsilons(cfg["epsilons"], widths):
         for name, rule in DECODER_VARIANTS:
-            r = awqpe_vectorised(probs, widths, float(eps), jitter=jitter, special_chunk_rule=rule)
-            results.append((name, float(eps), r["estimate"], r))
+            r = awqpe_vectorised(probs, widths, eps, jitter=jitter, special_chunk_rule=rule)
+            results.append((name if label == "awqpe" else (label if rule else label + "_ablate_special"), eps, r["estimate"], r))
     return _rows(meta, widths, results, true_block_outcomes(grid, widths))
 
 
@@ -180,6 +195,7 @@ def main() -> None:
     ap = common_arguments(__doc__, "p2_baseline_mc.yaml")
     ap.add_argument("--mode", choices=["mc", "limit"], default="mc")
     args = ap.parse_args()
+    # --config overrides the per-mode default config file.
     if args.mode == "limit" and args.config.endswith("p2_baseline_mc.yaml"):
         args.config = args.config.replace("p2_baseline_mc.yaml", "p2_infinite_shot_limit.yaml")
     cfg = resolve_config(args)

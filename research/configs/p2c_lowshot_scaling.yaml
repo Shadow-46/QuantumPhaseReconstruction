@@ -1,0 +1,23 @@
+experiment_id: p2c_lowshot_scaling
+description: >
+  PRELIMINARY (dev split). Uniform-shot baseline in the hard regime: 1-16
+  shots per block, n = 8, 12, 16. Decoders on identical counts: faithful
+  AWQPE eps 0.9, AWQPE eps_safe (D-011, a separate labelled condition), and
+  the likelihood decoder D2 (not AWQPE). This fixes the uniform reference
+  that adaptive allocation must beat within each decoder.
+master_seed: 20260927
+split: dev
+partitions: [[4, 4], [3, 2, 3], [2, 2, 2, 2], [4, 4, 4], [3, 3, 3, 3], [6, 6], [4, 4, 4, 4], [8, 8]]
+phases_per_stratum: 40
+replicates: 50
+shots_per_block: [1, 2, 4, 8, 16]
+epsilons: [0.9, "safe"]
+include_ablation: false
+likelihood_refine: 3
+phase_chunk: 50
+noise: null
+pilot_overrides:
+  partitions: [[3, 2, 3], [4, 4, 4, 4]]
+  phases_per_stratum: 4
+  replicates: 5
+  shots_per_block: [1, 16]

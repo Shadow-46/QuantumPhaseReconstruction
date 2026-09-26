@@ -1,0 +1,22 @@
+experiment_id: p4_information_study
+description: >
+  PRELIMINARY (dev phases). Counterfactual marginal value of one extra batch
+  of dS shots on a single block, against every observable window signal.
+  Eigenstate input, ideal Dirichlet kernel. Decoders kept separate: AWQPE
+  eps 0.9, AWQPE eps_safe (D-011), likelihood D2.
+master_seed: 20260927
+split: dev
+partitions: [[4, 4], [3, 2, 3], [2, 2, 2, 2], [4, 4, 4], [3, 3, 3, 3]]
+phases_per_stratum: 40
+replicates: 30
+S0: [4, 16, 64]
+dS_multipliers: [1, 4]
+likelihood_refine: 4
+legacy_cw: true
+phase_chunk: 40
+pilot_overrides:
+  partitions: [[3, 2, 3], [4, 4, 4]]
+  phases_per_stratum: 4
+  replicates: 5
+  S0: [4]
+  dS_multipliers: [1]
