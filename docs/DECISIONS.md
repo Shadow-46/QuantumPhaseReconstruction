@@ -110,3 +110,12 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 - **Breakdowns.** By stratum, block position, n and m.
 - **Inference.** Phase-cluster bootstrap CIs (1000 resamples) for the policy-value differences.
 - **Status.** P4 is dev-split characterisation. Its conclusions choose which signals go into P5; they are not final claims.
+
+### D-017 (2026-09-27): Signals carried into P5 (chosen from P4 evidence)
+- **Primary adaptive signal:** eig_cell.
+- **Simple comparator:** entropy, representing the interchangeable count/top-two family.
+- **Legacy comparator:** C_w.
+- **Negative control:** Fisher information. Keep it in P5 to test whether one-step harm persists under multi-step allocation, and because P1-F2 predicts it becomes phase-dependent under noise (P9).
+- **Reference arms:** uniform (budget-matched, tuned on dev) and oracle (reference only, `is_oracle=True`).
+- **Decoders stay separate arms:** uniform+D1 vs adaptive+D1, and uniform+D2 vs adaptive+D2.
+- **Deferred.** The unified {shots, overlap, stop} controller is not built until P5 and P6 show which actions pay.

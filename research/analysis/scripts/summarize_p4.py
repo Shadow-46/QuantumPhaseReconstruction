@@ -54,7 +54,7 @@ def main() -> None:
     ap.add_argument("--run", default=None)
     ap.add_argument("--boot", type=int, default=300)
     args = ap.parse_args()
-    run = Path(args.run) if args.run else latest_run("p4_information_study", include_pilot=False)
+    run = Path(args.run).resolve() if args.run else latest_run("p4_information_study", include_pilot=False)
     tag = run.relative_to(REPO_ROOT).as_posix()
     d = load_results(run)
     d["trial"] = d["phase_id"] + "#" + d["replicate_id"].astype(str)

@@ -1,0 +1,63 @@
+{
+  "experiment_id": "p4_information_study",
+  "run_id": "20260926T212501Z_pilot",
+  "created_utc": "2026-09-26T21:25:01.924471+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "6e347d0734d3cb06958c7f641b12311c1cb1321b",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_information_study.py --pilot --max-workers 4",
+  "config": {
+    "experiment_id": "p4_information_study",
+    "description": "PRELIMINARY (dev phases). Counterfactual marginal value of one extra batch of dS shots on a single block, against every observable window signal. Eigenstate input, ideal Dirichlet kernel. Decoders kept separate: AWQPE eps 0.9, AWQPE eps_safe (D-011), likelihood D2.\n",
+    "master_seed": 20260927,
+    "split": "dev",
+    "partitions": [
+      [
+        3,
+        2,
+        3
+      ],
+      [
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 4,
+    "replicates": 5,
+    "S0": [
+      4
+    ],
+    "dS_multipliers": [
+      1
+    ],
+    "likelihood_refine": 4,
+    "legacy_cw": true,
+    "phase_chunk": 40,
+    "is_pilot": true
+  },
+  "config_hash": "5c29ce6415a2d75b",
+  "shards": {
+    "w3-2-3_S4_d4_c0": "done",
+    "w4-4-4_S4_d4_c0": "done"
+  },
+  "status": "PRELIMINARY (dev phases)"
+}

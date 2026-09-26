@@ -48,7 +48,7 @@ def main() -> None:
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
 
-    lim_dir = Path(args.limit_run) if args.limit_run else latest_run("p2a_infinite_shot_limit", include_pilot=False)
+    lim_dir = Path(args.limit_run).resolve() if args.limit_run else latest_run("p2a_infinite_shot_limit", include_pilot=False)
     d = load_results(lim_dir)
     d["fail"] = ~d["exact"]
     t = d.groupby(["widths", "decoder", "epsilon"]).agg(n_phases=("fail", "size"), failures=("fail", "sum")).reset_index()
@@ -56,7 +56,7 @@ def main() -> None:
     t["run"] = lim_dir.relative_to(REPO_ROOT).as_posix()
     t.to_csv(OUT / "p2a_limit_failure.csv", index=False)
 
-    mc_dir = Path(args.mc_run) if args.mc_run else latest_run("p2b_awqpe_baseline_mc", include_pilot=False)
+    mc_dir = Path(args.mc_run).resolve() if args.mc_run else latest_run("p2b_awqpe_baseline_mc", include_pilot=False)
     m = load_results(mc_dir)
     m["tol_lsb"] = m["error"] <= np.ldexp(1.0, -m["n"].to_numpy()) + 1e-15
     m["decoder_label"] = decoder_label(m)

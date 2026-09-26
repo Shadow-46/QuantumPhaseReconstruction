@@ -161,3 +161,49 @@ Append-only. Each entry names its run directory under `research/results/`. Large
 - **Next.**
   - P4 information study on eigenstate inputs, with both D1 conditions and D2.
   - Mixtures return in P9 as a robustness factor.
+
+## P4: Do window signals predict the marginal value of extra shots? (2026-09-27), PRELIMINARY (dev phases, ideal model)
+- **Run.** `p4_information_study/20260926T212553Z` (config `p4_information.yaml`; analysis plan D-016 declared before inspection). Tables: `research/analysis/tables/p4_*.csv`.
+- **Run incidents, no data lost.**
+  - The first attempt lost all 180 shards when an out-of-memory worker death broke the process pool. It was resumed with `--rerun-failed` after two fixes: smaller posterior chunks, and the runner now rebuilds broken pools.
+  - A final Windows file-lock on `progress.json` was repaired by a no-op resume. All 180 shards are complete.
+- **Design.**
+  - Partitions [4,4], [3,2,3], [2,2,2,2] (n=8) and [4,4,4], [3,3,3,3] (n=12).
+  - S0 ∈ {4, 16, 64} shots per block; ΔS ∈ {S0, 4·S0}.
+  - 206 dev phases × 30 replicates. Each block receives its own pre-drawn extra batch (CRN).
+  - Improvement is measured within each decoder: AWQPE ε=0.9, AWQPE ε_safe, and D2.
+- **Headroom.** One batch on the best block (oracle) versus a random block.
+  - At S0=4, the oracle minus random is 5–14 points in every decoder, largest in the S2 boundary stratum (13.8–16.8 points).
+  - At S0 ≥ 16, D2 is already ≥ 99% and has no headroom.
+  - **Only 29–49% of AWQPE@0.9 failures are fixable by one extra batch on any block.** The rest is the ε floor (V1). The figures are 47–79% for ε_safe and 72–100% for D2.
+- **Which signal predicts benefit?** Greedy one-step policy: put ΔS on the block that maximises the signal.
+
+  | Decoder | Signal | Gain vs random block at S0=4, ΔS=4 (pts) |
+  |---|---|---|
+  | D2 | eig_cell | +3.1 to +7.2 (95% phase-cluster CIs exclude 0) |
+  | D2 | count signals (entropy, c1, margin, ratio, chunk/boundary risk, legacy C_w) | +1.9 to +5.0 |
+  | D1 ε_safe | eig_cell | +3.0 to +9.1 |
+  | D1 ε_safe | entropy | +2.1 to +7.5 |
+  | D1 ε=0.9 | eig_cell | +3.0 to +6.6 |
+  | any | Fisher information | −0.4 to −3.2 (CIs exclude 0 for D2) |
+
+  - With ΔS = 16 the gains grow, e.g. ε_safe on [2,2,2,2]: eig_cell +15.4, entropy +12.9.
+  - Mean share of oracle headroom captured across all dS=S0 cells:
+    - D2 + eig_cell: 78%. D2 + eig_phi: 63%.
+    - Best count signal: 49–55% under D2, 26–35% under D1.
+    - Fisher: −18% to −46%, i.e. worse than random.
+  - Within-failing-trial AUROC for "this block's batch fixes the trial":
+    - D2: eig_cell 0.90, eig_phi 0.83.
+    - D1: count signals 0.79–0.86.
+    - Fisher: 0.25–0.38 (anti-predictive).
+- **Mechanism for Fisher.** In the ideal model Fisher is 4^k·const (F-1), so it always chooses the least-significant block. That block has the lowest fix rate (1.1–1.9% at S0=4) against 4–9% for upper blocks.
+- **Legacy C_w.** It performs like the plain top-two ratio or margin; it adds nothing beyond simple count statistics.
+- **Calibration.** Block-local P(chunk correct) is roughly calibrated. It is overconfident by 5–6 points in the 0.65–0.87 range and underconfident below 0.3.
+- **Interpretation (answers G.1 and G.2 for this regime).**
+  1. Window evidence *does* predict where an extra batch helps, well above chance.
+  2. The most useful signal is a decision-focused expected information gain: the mutual information of an extra shot with the n-bit cell, under the global posterior. It is the best signal for every decoder.
+  3. Top-two and count statistics carry about 60% of that value and are interchangeable.
+  4. **Fisher information is not a useful allocation signal here; it is harmful.**
+  5. Benefits live in the low-shot regime (S0 ≈ 4) and at boundary-hard phases.
+  6. For faithful AWQPE@0.9, most failures cannot be fixed by shots at all, so there overlap or a decoder change is required (candidate outcome 4).
+- **Caveats.** One-step, single-batch counterfactuals only; ideal model; dev split. Multi-step allocation under a fixed budget (P5) must show whether these one-step gains accumulate.

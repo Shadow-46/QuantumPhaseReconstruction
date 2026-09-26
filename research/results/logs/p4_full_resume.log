@@ -1,0 +1,37 @@
+[p4_information_study] run_dir=research\results\p4_information_study\20260926T212553Z shards: 180 to run, 0 already done
+  9/180 shards done
+  18/180 shards done
+  27/180 shards done
+  36/180 shards done
+  45/180 shards done
+  54/180 shards done
+  63/180 shards done
+  72/180 shards done
+  81/180 shards done
+  90/180 shards done
+  99/180 shards done
+  108/180 shards done
+  117/180 shards done
+  126/180 shards done
+  135/180 shards done
+  144/180 shards done
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\run_information_study.py", line 148, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\run_information_study.py", line 144, in main
+    run_sharded(args, cfg, shards(cfg), info_shard, extra_manifest={"status": "PRELIMINARY (dev phases)"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\runner\core.py", line 199, in run_sharded
+    print(f"  shard {sid} FAILED (see failed/{sid}.txt)", flush=True)
+    ^^^^^^^
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\runner\core.py", line 171, in heartbeat
+    mean = sum(durations) / len(durations) if durations else None
+    ...<2 lines>...
+        "updated_utc": _dt.datetime.now(_dt.timezone.utc).isoformat(), "total": len(states),
+  File "C:\Users\sanja\Documents\Research\QPR-awqpe\research\awqpe\runner\core.py", line 83, in _atomic_write_json
+    os.replace(tmp, path)
+    ~~~~~~~~~~^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'research\\results\\p4_information_study\\20260926T212553Z\\progress.json.tmp' -> 'research\\results\\p4_information_study\\20260926T212553Z\\progress.json'

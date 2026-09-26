@@ -77,16 +77,28 @@ def environment() -> dict:
     return {"python": sys.version.split()[0], "platform": platform.platform(), "executable": sys.executable, "packages": pkgs}
 
 
+def _replace_with_retry(tmp: Path, path: Path, attempts: int = 20) -> None:
+    """os.replace, retried: on Windows a reader (antivirus, a tail/cat) can briefly lock the target."""
+    for i in range(attempts):
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if i == attempts - 1:
+                raise
+            time.sleep(0.25 * (i + 1))
+
+
 def _atomic_write_json(path: Path, obj) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(obj, indent=2, default=str), encoding="utf-8")
-    os.replace(tmp, path)
+    _replace_with_retry(tmp, path)
 
 
 def _atomic_write_parquet(path: Path, df: pd.DataFrame) -> None:
     tmp = path.with_suffix(".parquet.tmp")
     df.to_parquet(tmp, index=False)
-    os.replace(tmp, path)
+    _replace_with_retry(tmp, path)
 
 
 def common_arguments(description: str, default_config: str) -> argparse.ArgumentParser:

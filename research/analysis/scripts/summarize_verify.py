@@ -25,7 +25,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", default=None)
     args = ap.parse_args()
-    run = Path(args.run) if args.run else latest_run("verify_epsilon_floor", include_pilot=False)
+    run = Path(args.run).resolve() if args.run else latest_run("verify_epsilon_floor", include_pilot=False)
     load = lambda pat: pd.concat([pd.read_parquet(f) for f in glob.glob(str(run / "shards" / pat))], ignore_index=True)
     OUT.mkdir(parents=True, exist_ok=True)
     tag = run.relative_to(REPO_ROOT).as_posix()

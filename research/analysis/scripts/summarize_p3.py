@@ -22,7 +22,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", default=None)
     args = ap.parse_args()
-    run = Path(args.run) if args.run else latest_run("p3_state_sensitivity", include_pilot=False)
+    run = Path(args.run).resolve() if args.run else latest_run("p3_state_sensitivity", include_pilot=False)
     tag = run.relative_to(REPO_ROOT).as_posix()
     d = load_results(run)
     OUT.mkdir(parents=True, exist_ok=True)

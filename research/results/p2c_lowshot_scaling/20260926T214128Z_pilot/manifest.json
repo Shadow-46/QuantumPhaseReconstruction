@@ -1,0 +1,68 @@
+{
+  "experiment_id": "p2c_lowshot_scaling",
+  "run_id": "20260926T214128Z_pilot",
+  "created_utc": "2026-09-26T21:41:28.756707+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "6e347d0734d3cb06958c7f641b12311c1cb1321b",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_baseline.py --mode mc --config research/configs/p2c_lowshot_scaling.yaml --pilot --max-workers 2",
+  "config": {
+    "experiment_id": "p2c_lowshot_scaling",
+    "description": "PRELIMINARY (dev split). Uniform-shot baseline in the hard regime: 1-16 shots per block, n = 8, 12, 16. Decoders on identical counts: faithful AWQPE eps 0.9, AWQPE eps_safe (D-011, a separate labelled condition), and the likelihood decoder D2 (not AWQPE). This fixes the uniform reference that adaptive allocation must beat within each decoder.\n",
+    "master_seed": 20260927,
+    "split": "dev",
+    "partitions": [
+      [
+        3,
+        2,
+        3
+      ],
+      [
+        4,
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 4,
+    "replicates": 5,
+    "shots_per_block": [
+      1,
+      16
+    ],
+    "epsilons": [
+      0.9,
+      "safe"
+    ],
+    "include_ablation": false,
+    "likelihood_refine": 3,
+    "phase_chunk": 50,
+    "noise": null,
+    "is_pilot": true
+  },
+  "config_hash": "b45392ec539644f6",
+  "shards": {
+    "w3-2-3_s1_c0": "done",
+    "w3-2-3_s16_c0": "done",
+    "w4-4-4-4_s1_c0": "done",
+    "w4-4-4-4_s16_c0": "done"
+  }
+}
