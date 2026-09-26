@@ -22,6 +22,7 @@ from research.awqpe.blocks.geometry import BlockSpec
 from research.awqpe.model.noise import NoiseSpec, noisy_block_probabilities
 
 LOG_FLOOR = 1e-300
+MAX_TABLE_ELEMENTS = 1 << 24  # above this (G x 2^w) the sparse observed-outcome path is used
 
 
 @lru_cache(maxsize=128)
@@ -36,6 +37,27 @@ def _log_table(G: int, offset: int, width: int, noise: NoiseSpec | None) -> np.n
     return np.ascontiguousarray(logp[idx])
 
 
+def _sparse_loglik(G: int, spec: BlockSpec, counts: np.ndarray, noise: NoiseSpec | None) -> np.ndarray:
+    """Same log-likelihood as the dense table, evaluated only at observed outcomes.
+
+    For wide blocks (2^w large) with few shots most outcomes have zero count;
+    this path bounds memory by the number of distinct observed outcomes.
+    Ideal kernel only (noise channels mix outcomes, so they need the dense path).
+    """
+    if noise is not None and not noise.is_ideal:
+        raise NotImplementedError("sparse likelihood path supports the ideal kernel only.")
+    from research.awqpe.model.kernel import kernel_closed_form
+
+    M = spec.M
+    delta = ((np.arange(G, dtype=np.int64) << spec.offset) % G) / G
+    out = np.zeros((counts.shape[0], G))
+    for y in np.flatnonzero(counts.sum(axis=0)):
+        logk = np.log(np.maximum(kernel_closed_form(delta - y / M, M), LOG_FLOOR))
+        nz = counts[:, y] > 0
+        out[nz] += counts[nz, y][:, None] * logk[None, :]
+    return out
+
+
 class GridPosterior:
     """Running log-likelihood over the phi grid for T independent runs."""
 
@@ -47,7 +69,10 @@ class GridPosterior:
     def add_counts(self, spec: BlockSpec, counts) -> None:
         """Add counts of shape (2^w,) or (T, 2^w) observed on block `spec`."""
         c = np.atleast_2d(np.asarray(counts, dtype=float))
-        self.loglik += c @ _log_table(self.G, spec.offset, spec.width, self.noise).T
+        if self.G * spec.M <= MAX_TABLE_ELEMENTS:
+            self.loglik += c @ _log_table(self.G, spec.offset, spec.width, self.noise).T
+        else:
+            self.loglik += _sparse_loglik(self.G, spec, c, self.noise)
 
     def posterior(self) -> np.ndarray:
         z = self.loglik - self.loglik.max(axis=1, keepdims=True)

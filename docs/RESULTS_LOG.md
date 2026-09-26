@@ -207,3 +207,27 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   5. Benefits live in the low-shot regime (S0 ≈ 4) and at boundary-hard phases.
   6. For faithful AWQPE@0.9, most failures cannot be fixed by shots at all, so there overlap or a decoder change is required (candidate outcome 4).
 - **Caveats.** One-step, single-batch counterfactuals only; ideal model; dev split. Multi-step allocation under a fixed budget (P5) must show whether these one-step gains accumulate.
+
+## P2c: Uniform-shot baseline in the low-shot regime, n = 8/12/16 (2026-09-27), PRELIMINARY (dev split)
+- **Run.** `p2c_lowshot_scaling/20260926T220629Z` (config `p2c_lowshot_scaling.yaml`). Table: `research/analysis/tables/p2c_lowshot_scaling.csv` (phase-cluster bootstrap CIs).
+- **Run incidents.** The [8,8] partition (m=8, 256 outcomes) exceeded memory in the dense likelihood table. A sparse observed-outcome likelihood path was added, equal to the dense one to 2e-11 on finite entries with 100% MAP agreement.
+  - Orphaned workers from the first attempt kept running and starved the re-run. They were stopped, and the runner now takes a per-run lock and clears stale failure files.
+  - The [8,8] rows at 8 and 16 shots per block come from the re-run.
+- **Design.**
+  - Partitions [4,4], [3,2,3], [2,2,2,2], [4,4,4], [3,3,3,3], [6,6], [4,4,4,4] and [8,8].
+  - Shots per block ∈ {1, 2, 4, 8, 16}; 206 dev phases × 50 replicates.
+  - Decoders on identical counts: AWQPE ε=0.9, AWQPE ε_safe, and D2.
+- **Results.** P(|err| ≤ 2⁻ⁿ), all strata:
+  - **At 1 shot per block** every decoder is equal (39–66%). There is no information to exploit, and success is set by the number of blocks.
+  - **With [4,4,4,4] at n=16:**
+
+    | shots/block | AWQPE ε=0.9 | AWQPE ε_safe | D2 |
+    |---|---|---|---|
+    | 4 | 68.4% | 68.4% | 79.7% |
+    | 16 | 81.3% | 86.9% | 99.4% |
+
+  - **AWQPE@0.9 saturates** at 72–90% by 16 shots per block, well below D2.
+  - **ε_safe is not uniformly better.** It helps at ≥ 8 shots but can be *worse* at 4 shots ([2,2,2,2]: 60.1% against 63.6%): with few shots, low ε raises more spurious flags. So the finite-shot ε trade-off is real.
+  - **Success depends mainly on the block structure, not on n.** [2,2,2,2] (n=8), [3,3,3,3] (n=12) and [4,4,4,4] (n=16) behave alike at equal shots per block. Fewer, wider blocks do better at equal shots per block, though they cost more U-queries and deeper circuits.
+  - **Boundary-hard phases (S2) at 16 shots:** AWQPE@0.9 reaches 59–66%, ε_safe 66–92%, D2 98–99%.
+- **Interpretation.** The low-shot regime (2–8 shots per block) is where allocation can matter for every decoder: D2 still has 5–20 points of headroom there, and D1 has more. This regime, at n = 8–16, is the target for P5.

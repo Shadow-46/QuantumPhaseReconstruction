@@ -135,3 +135,16 @@ def test_unitaries_eigenstates_and_paper_a_mixture():
     assert np.allclose(sv, mix, atol=1e-12)
     padded = UN.controlled_mixture_input(0.3, 0.5, [0.1, 0.2, 0.4, 0.6, 0.8])
     assert padded.unitary.shape == (8, 8) and np.isclose(padded.weights.sum(), 1.0)
+
+
+def test_sparse_likelihood_path_matches_dense():
+    import research.awqpe.decode.likelihood as L
+
+    rng = np.random.default_rng(0)
+    spec = BlockSpec(2, 5)
+    c = rng.multinomial(12, np.ones(32) / 32, size=7).astype(float)
+    dense = c @ L._log_table(1 << 10, 2, 5, None).T
+    sparse = L._sparse_loglik(1 << 10, spec, c, None)
+    finite = dense > -600
+    assert np.allclose(dense[finite], sparse[finite], atol=1e-9)
+    assert (sparse[~finite] < -600).all()

@@ -134,6 +134,30 @@ def _worker(module: str, func: str, cfg: dict, spec: dict, shard_path: str) -> t
     return spec["shard_id"], time.time() - t0
 
 
+def _pid_alive(pid: int) -> bool:
+    try:
+        if os.name == "nt":
+            out = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True, timeout=30).stdout
+            return str(pid) in out
+        os.kill(pid, 0)
+        return True
+    except Exception:
+        return False
+
+
+def _acquire_lock(run_dir: Path) -> None:
+    """Refuse to run if another live process owns this run directory (prevents manifest races)."""
+    lock = run_dir / "RUNNING.lock"
+    if lock.exists():
+        try:
+            pid = int(lock.read_text().strip())
+        except ValueError:
+            pid = -1
+        if pid > 0 and pid != os.getpid() and _pid_alive(pid):
+            raise SystemExit(f"run directory is in use by live process {pid}; refusing to resume.")
+    lock.write_text(str(os.getpid()))
+
+
 def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manifest: dict | None = None) -> Path:
     """Execute shard_fn(cfg, spec) -> DataFrame for every spec, with resume."""
     ids = [s["shard_id"] for s in shard_specs]
@@ -164,6 +188,7 @@ def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manife
         }
     (run_dir / "shards").mkdir(exist_ok=True)
     (run_dir / "failed").mkdir(exist_ok=True)
+    _acquire_lock(run_dir)
     for sid in ids:
         if (run_dir / "shards" / f"{sid}.parquet").exists():
             manifest["shards"][sid] = "done"
@@ -201,6 +226,7 @@ def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manife
                 try:
                     _, dt = fut.result()
                     manifest["shards"][sid] = "done"
+                    (run_dir / "failed" / f"{sid}.txt").unlink(missing_ok=True)  # clear a stale earlier failure
                     durations.append(dt)
                     done_now += 1
                 except BrokenProcessPool:
@@ -223,6 +249,7 @@ def run_sharded(args, cfg: dict, shard_specs: list[dict], shard_fn, extra_manife
         (run_dir / "failed" / f"{s['shard_id']}.txt").write_text("worker pool broke repeatedly (out of memory?)", encoding="utf-8")
     _atomic_write_json(run_dir / "manifest.json", manifest)
     heartbeat()
+    (run_dir / "RUNNING.lock").unlink(missing_ok=True)
     states = list(manifest["shards"].values())
     print(f"[{cfg['experiment_id']}] finished: {states.count('done')} done, {states.count('failed')} failed -> {run_dir}", flush=True)
     return run_dir

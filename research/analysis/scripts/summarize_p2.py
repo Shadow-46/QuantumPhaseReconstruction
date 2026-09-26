@@ -45,6 +45,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--limit-run", default=None)
     ap.add_argument("--mc-run", default=None)
+    ap.add_argument("--lowshot-run", default=None)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
 
@@ -74,6 +75,23 @@ def main() -> None:
     out["status"] = "PRELIMINARY (dev split)"
     out.to_csv(OUT / "p2b_mc_success.csv", index=False)
     print(f"wrote {OUT / 'p2a_limit_failure.csv'} and {OUT / 'p2b_mc_success.csv'}")
+
+    try:
+        low_dir = Path(args.lowshot_run).resolve() if args.lowshot_run else latest_run("p2c_lowshot_scaling", include_pilot=False)
+    except FileNotFoundError:
+        return
+    lo = load_results(low_dir)
+    lo["tol_lsb"] = lo["error"] <= np.ldexp(1.0, -lo["n"].to_numpy()) + 1e-15
+    lo["tol_coarse"] = lo["error"] <= np.ldexp(1.0, -(lo["n"].to_numpy() - 2)) + 1e-15
+    rows = []
+    for (w, s, dec), g in lo.groupby(["widths", "shots_per_block", "decoder"]):
+        blo, bhi = cluster_bootstrap(g, "tol_lsb")
+        rows.append({"widths": w, "n": int(g.n.iloc[0]), "shots_per_block": s, "shots_total": int(g.shots_total.iloc[0]),
+                     "u_queries_total": int(g.u_queries_total.iloc[0]), "decoder": dec, "epsilon": float(g.epsilon.iloc[0]),
+                     "trials": len(g), "p_tol_lsb": g.tol_lsb.mean(), "cluster_boot_lo": blo, "cluster_boot_hi": bhi,
+                     "p_tol_n_minus_2": g.tol_coarse.mean(), "p_tol_lsb_S2": g[g.stratum == "S2_boundary"].tol_lsb.mean()})
+    pd.DataFrame(rows).assign(run=low_dir.relative_to(REPO_ROOT).as_posix(), status="PRELIMINARY (dev split)").to_csv(OUT / "p2c_lowshot_scaling.csv", index=False)
+    print(f"wrote {OUT / 'p2c_lowshot_scaling.csv'}")
 
 
 if __name__ == "__main__":
