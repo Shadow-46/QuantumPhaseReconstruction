@@ -1,0 +1,28 @@
+experiment_id: p5_adaptive_shots_dev
+status: PRELIMINARY / DEV
+description: >
+  Phase 5 dev run. Multi-step global shot allocation at a fixed total budget
+  r*S0*B shots: S0 per block up front, the rest in batches of dS chosen one
+  block at a time. Policies share pre-generated per-block outcome streams
+  (common random numbers). Each allocation trajectory is scored under AWQPE
+  eps 0.9, AWQPE eps_safe and D2 separately; the greedy oracle is
+  decoder-specific and is an analysis reference only.
+master_seed: 20260927
+split: dev
+partitions: [[4, 4], [3, 2, 3], [2, 2, 2, 2], [4, 4, 4], [3, 3, 3, 3], [4, 4, 4, 4]]
+phases_per_stratum: 8
+replicates: 5
+S0: [2, 4, 8]
+budget_multipliers: [2, 4]
+dS: [1, "S0"]
+policies: [uniform, eig_cell, entropy, ratio, legacy_cw, fisher, random]
+oracle_decoders: [awqpe, awqpe_eps_safe, likelihood]
+likelihood_refine: {"8": 3, "12": 3, "16": 2}
+phase_chunk: 8
+pilot_overrides:
+  partitions: [[3, 2, 3], [4, 4, 4], [4, 4, 4, 4]]
+  phases_per_stratum: 2
+  replicates: 3
+  S0: [4]
+  budget_multipliers: [2]
+  dS: ["S0", 1]

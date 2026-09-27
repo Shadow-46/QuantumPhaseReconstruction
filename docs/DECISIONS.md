@@ -119,3 +119,38 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 - **Reference arms:** uniform (budget-matched, tuned on dev) and oracle (reference only, `is_oracle=True`).
 - **Decoders stay separate arms:** uniform+D1 vs adaptive+D1, and uniform+D2 vs adaptive+D2.
 - **Deferred.** The unified {shots, overlap, stop} controller is not built until P5 and P6 show which actions pay.
+
+### D-018 (2026-09-27): P5 design and protocol, declared BEFORE the dev run
+- **Budget.** Every trial gets S0 shots per block up front. A further (r−1)·S0·B shots follow in batches of ΔS, one block per decision. The total r·S0·B is identical for every policy.
+  - Uniform is round-robin and ends with exactly r·S0 shots per block.
+  - Every block owns a pre-generated outcome stream (common random numbers), so policies are paired shot for shot.
+- **Factors.**
+  - S0 ∈ {2, 4, 8}, r ∈ {2, 4}, ΔS ∈ {1, S0}.
+  - Partitions [4,4], [3,2,3], [2,2,2,2], [4,4,4], [3,3,3,3] and [4,4,4,4] (n = 8, 12, 16).
+  - Decoder is a crossed factor: every trajectory is scored under AWQPE ε=0.9, AWQPE ε_safe and D2.
+- **ΔS = 4·S0 is dropped.** With r ∈ {2, 4} the extra budget per block is only S0 or 3·S0, so ΔS = 4·S0 allows at most (r−1)·B/4 decisions, often zero or one. That is not a sequential policy.
+- **Policies.** uniform, eig_cell (primary), entropy, ratio, legacy_cw, fisher (negative control) and random.
+  - greedy_oracle[decoder] is a myopic one-step oracle that uses realized counterfactuals. It is an analysis reference, tagged is_oracle.
+- **Fixed constants, not tuned.**
+  - EIG support: posterior tail 1e-6, at most 8192 grid points. The dropped mass is checked on dev.
+  - Likelihood grid refine: 3 for n = 8 and 12, 2 for n = 16.
+  - Tie-breaking uses a seeded random choice.
+- **What dev may decide.** Only:
+  1. feasibility (cells whose runtime is prohibitive may be removed from the test grid, with the reason logged);
+  2. test sample size (phases per stratum and replicates), from dev variance;
+  3. confirmation that EIG support truncation is negligible.
+
+  No policy, signal, threshold or ΔS is chosen from dev accuracy. Both ΔS values stay as factors in test.
+- **Test (held-out split). The primary family is 3 comparisons: eig_cell vs uniform within each decoder.**
+  - Endpoint: final P(|φ̂−φ| ≤ 2⁻ⁿ), with equal weight on every test cell.
+  - Paired difference per phase, averaged over cells and replicates. The CI is a phase-cluster bootstrap (2000 resamples).
+  - The p-value is a two-sided sign-flip permutation test on per-phase mean differences, with Holm correction across the 3 decoders.
+  - TOST margin ±1 percentage point for "no difference".
+- **Secondary** (reported, no multiplicity claims):
+  - every other policy vs uniform;
+  - regimes: stratum, n, partition, S0, r, ΔS and decoder-limited status;
+  - efficiency (adaptive − uniform)/(oracle − uniform);
+  - RMSE, median error and exact-n-bit rate;
+  - U-queries and the shot distribution;
+  - decision analysis: chose-best rate, regret, and the Spearman correlation of signal vs realized gain.
+- **Decoder-limited trials** (the decoder fails even in the infinite-shot limit) are labelled `limit_correct = False` and analysed separately from shot-fixable trials.
