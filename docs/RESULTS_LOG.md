@@ -496,3 +496,47 @@ Append-only. Each entry names its run directory under `research/results/`. Large
     - A phase-cluster paired analysis is the right follow-up if the sign pattern persists.
 - **Interpretation.** The Dirichlet-kernel simulator used in P1-P6 reproduces ideal circuit-level Qiskit sampling. No model mismatch is detectable at this resolution.
 - **Remaining for P10.** Circuit-level noise channels versus the analytic noise laws (pending P9), and the CPU-vs-GPU benchmark.
+
+
+## P6: Adaptive overlap, HELD-OUT TEST (2026-09-28)
+- **Configuration.** Frozen under D-027 (`p6_overlap_test.yaml`, config_hash a5ffa3c9e917e95f, freeze commit aabb27a); run exactly once.
+  - The test split has 40 phases per partition (strata S0-S4, no paper phases) x 5 replicates: 240 phase clusters.
+  - Grid: n = 8/12/16, S0 in {2,4,8}, r in {2,4}.
+  - Four frozen variants.
+- **Run.** `p6_adaptive_overlap_test/20260927T205612Z`: 180/180 shards, 0 failed. Tables: `research/analysis/tables/p6_test_*.csv`.
+  - The analysis ran with `--frozen-selection`, so no re-selection took place.
+  - 0 invalid upper-bracket matches.
+- **Primary family** (B4 = P5 information gain + overlap vs P5 information gain; equal U-queries, upper bracket, where the baseline has 2-10% more U; Holm across the 4):
+
+  | claim | mechanism + decoder | variant | diff (pts) | 95% CI | Holm p |
+  |---|---|---|---|---|---|
+  | A | O-bridge + D2 likelihood | bridge_s1_A2 | **+0.60** | [0.33, 0.86] | 5e-5 |
+  | A | O-ext + D2 likelihood | ext_v1_eig_A2 | **+0.56** | [0.35, 0.79] | < 1e-4 |
+  | B | O-ext + awqpe_ext (eps 0.9, extended decoder) | ext_v1_gated_A2 | **+6.60** | [4.87, 8.53] | < 1e-4 |
+  | B | O-ext + awqpe_eps_safe_ext (extended decoder) | ext_v1_gated_A1 | **+2.47** | [1.51, 3.56] | < 1e-4 |
+
+- **Secondary** (points; order: bridge-D2 / ext-D2 / ext eps 0.9 / ext safe-eps):
+  - equal shots: +1.75 / +1.97 / +7.06 / +3.31;
+  - equal U, lower bracket: +0.68 / +0.61 / +6.67 / +2.72;
+  - overlap-only vs uniform: equal shots +3.32 / +3.43 / +7.03 / +4.08, equal U (upper) +3.32 / +3.43 / +7.06 / +4.08.
+- **Dev versus test.** Test reproduces dev closely: dev primary was +0.75 / +0.51 / +6.86 / +2.73.
+- **Rescue of P5-policy failures** (raw counts):
+
+  | decoder | failure type | diagnostic | failures | shots only | overlap only | both | neither |
+  |---|---|---|---|---|---|---|---|
+  | awqpe_ext | **decoder-limited** | oracle capability | 183 | 14 | **122** | 17 | 30 |
+  | awqpe_ext | decoder-limited | practical | 183 | 8 | 131 | 8 | 36 |
+  | awqpe_ext | shot-fixable class | oracle | 969 | 213 | 303 | 106 | 347 |
+  | awqpe_eps_safe_ext | all | oracle | 675 | 157 | 178 | 103 | 237 |
+  | likelihood (O-ext) | all | oracle | 163 | 11 | 48 | 97 | 7 |
+  | likelihood (O-bridge) | all | oracle | 163 | 5 | 45 | 103 | 10 |
+
+  The n-dependence seen on dev replicates: extended-decoder overlap-only rescues fall from 251 of 534 failures at n = 8 to 31 of 181 at n = 16. The D2 rescue pattern is stable across n.
+- **Interpretation (the three claims, kept separate).**
+  - **A. Information (D2; no change to AWQPE decoding).** Adding overlap blocks gives the likelihood decoder information that extra shots on the existing windows do not. About 45-48 P5 failures are rescued only by overlap, against 5-11 only by shots. The resource-matched gain is small (+0.6 pts at equal or greater baseline quantum work) but significant.
+  - **B. New extended decoder (not faithful AWQPE).** With a trigger gated to the situations the extension can resolve, O-ext + awqpe_ext rescues most decoder-limited failures of faithful AWQPE at eps 0.9: 122-131 of 183, against 14-22 by extra shots. It raises success by 6.6 pts (eps 0.9) and 2.5 pts (safe eps) at conservative equal-U accounting. Ungated triggers were harmful on dev (not taken to test).
+  - **C. Resource allocation.** Under equal U-queries, overlap is preferable to additional shots on the existing windows in every selected configuration. The margin is small for D2 and substantial for the extended decoder.
+- **Limitations.**
+  - Ideal Dirichlet model, eigenstate input, tolerance 2^-n only.
+  - The n = 16 decline of extended-decoder rescue is uncharacterised.
+  - The published AWQPE PDF is still unverified.
