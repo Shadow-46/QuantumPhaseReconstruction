@@ -265,3 +265,54 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   - Raw signal-vs-realized Spearman is small (0.04–0.07) because most (decision, block) pairs have zero realized gain. The conditional chose-best metric was added for test (D-019).
 - **Interpretation (dev only).** The information-gain policy beats uniform for every decoder. The advantage concentrates where theory and P4 predicted: low per-block shots, boundary-hard phases, larger n, and tight budgets. It vanishes for decoder-limited failures. Fisher-driven allocation is strongly harmful. Count-based signals are weak and can hurt under D2.
 - **Next.** Held-out test with the frozen configuration (D-019).
+
+## P5: Multi-step adaptive shot allocation, HELD-OUT TEST (2026-09-27)
+- **Configuration.** Frozen under D-019 (`research/configs/p5_adaptive_test.yaml`, config_hash 55b4a056e37c1ac1, freeze commit 1c29d1d). The grid is the same as dev: 6 partitions (n = 8, 12, 16), S0 ∈ {2, 4, 8}, r ∈ {2, 4}, ΔS ∈ {1, S0}.
+  - 40 held-out phases per partition (disjoint seed domain, no paper phases) × 5 replicates: **240 phase clusters**.
+  - 7 policies plus 3 greedy oracles, with common-random-number streams. Each trajectory is scored under all 3 decoders.
+- **Run.** `p5_adaptive_shots_test/20260927T084715Z`: 360/360 shards, 0 failed, about 2.5 h. No code or parameter changed after the freeze.
+- **Tables.** `research/analysis/tables/p5_test_*.csv`.
+- **Primary family** (eig_cell vs uniform, P(|φ̂−φ| ≤ 2⁻ⁿ), paired per phase, 2000-resample phase-cluster bootstrap, 20,000-draw sign-flip test, Holm across 3 decoders):
+
+  | decoder | diff (pts) | 95% CI | p (Holm) | greedy oracle − uniform | efficiency vs oracle |
+  |---|---|---|---|---|---|
+  | AWQPE ε=0.9 | **+3.06** | [2.47, 3.67] | < 1e-4 | +9.98 | 0.31 |
+  | AWQPE ε_safe | **+4.91** | [4.22, 5.60] | < 1e-4 | +7.42 | 0.66 |
+  | D2 likelihood | **+2.85** | [2.46, 3.26] | < 1e-4 | +2.67 | 1.06 |
+
+  All three primary hypotheses are supported. No p-value reached the resolution of the permutation test (0/20,000). The TOST ±1 pt equivalence does not hold for any primary comparison.
+- **Secondary** (vs uniform, points; order: ε=0.9 / ε_safe / D2):
+  - legacy_cw: +3.06 / +3.37 / +0.81.
+  - ratio: +2.14 / +1.99 / −0.44 (ns under D2).
+  - entropy: +1.23 / +1.10 / −1.22.
+  - random: −0.82 / −0.56 / −1.03.
+  - **Fisher (negative control): −8.78 / −13.67 / −13.78.**
+- **Regimes** (eig_cell − uniform, points; order: ε=0.9 / ε_safe / D2):
+
+  | Regime | Levels |
+  |---|---|
+  | S0 (shots per block up front) | 2: **+5.0 / +8.6 / +6.1**; 4: +3.1 / +4.8 / +2.3; 8: +1.0 / +1.4 / +0.1 |
+  | n | 8: +2.4 / +4.2 / +2.6; 12: +2.9 / +4.9 / +2.8; 16: **+5.2 / +7.3 / +3.7** |
+  | r (budget multiplier) | 2: +4.0 / +6.4 / +4.3; 4: +2.1 / +3.5 / +1.4 |
+  | stratum | S2_boundary: +3.8 / **+8.0** / +4.2; S1_final_half is the smallest: +1.9 / +2.2 / +1.8 |
+
+  - **Decoder-limited AWQPE@0.9 trials** (fail even with infinite shots): only 600 of 14,400 trial pairs from a few phases. Estimates there are unstable (dev +0.2, test +2.3) and are not interpreted beyond "no larger than in shot-fixable trials".
+- **Decision analysis** (does P4's one-step signal survive sequentially?):
+  - On informative decisions (some block's next batch changes the outcome), eig_cell picks the realized-best block 56–61% of the time, against 33–36% for uniform and 29–33% for random. Fisher picks it 10–31% of the time.
+  - Mean error regret per decision (LSB): eig_cell 3.7 (D2) to 14.3 (ε=0.9); uniform 9.2–22.3; Fisher 57–70.
+  - Error reduction per extra shot: eig_cell 8.5–9.6 LSB, the highest of the practical policies; uniform 7.0–8.3; Fisher ≈ 0.
+  - Pooled within-decision rank correlation between signal and realized gain is small everywhere (≤ 0.06), because most (decision, block) pairs have zero realized gain.
+- **Dev versus test.** Test reproduces dev: eig_cell +2.75 / +4.51 / +2.85 on dev against +3.06 / +4.91 / +2.85 on test.
+- **Interpretation.**
+  1. Observable window evidence, used as the expected information gain about the final n-bit answer, allocates a fixed global shot budget measurably better than uniform, for every decoder.
+  2. The effect is concentrated in identifiable regimes: very few shots per block, tight budgets, larger n, and boundary-hard phases. It is near zero once blocks already have about 8 shots each.
+  3. Against the faithful ε=0.9 decoder, adaptive allocation recovers only about 31% of the greedy-oracle headroom, because much of that headroom concerns which failures shots can or cannot fix. With ε_safe it recovers 66%. With D2 it matches or beats the myopic oracle.
+  4. Simple count signals are decoder-dependent: they help under AWQPE and are neutral or harmful under D2. Legacy C_w is as good as eig_cell only under ε=0.9.
+  5. **Fisher-information allocation is consistently and strongly harmful (−9 to −14 points).** It always targets the least-significant block.
+- **Limitations.**
+  - Ideal Dirichlet model, eigenstate input, no noise (P9 pending), no Qiskit circuit-level validation of the allocation (P10).
+  - The primary endpoint is tolerance 2⁻ⁿ only. Other tolerances are for P8.
+  - The oracle is myopic, so "efficiency" above 1 is possible and does not mean optimality.
+  - The EIG signal uses the ideal model's posterior; its robustness to model mismatch under noise is untested.
+  - Absolute gains are modest (about 3–5 points pooled; up to about 8.6 in the best regime).
+- **Next decision (for the user).** Shots help only where uncertainty is shot-fixable. For AWQPE@0.9, most of the remaining oracle headroom lies in outcomes that shots cannot fix. That is the evidence base for P6 (adaptive overlap). P6 is not started, pending review.

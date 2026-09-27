@@ -1,0 +1,28 @@
+[p5_adaptive_shots_dev] run_dir=C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\p5_adaptive_shots_dev\20260927T065400Z shards: 432 to run, 0 already done
+  21/432 shards done
+  42/432 shards done
+  63/432 shards done
+  84/432 shards done
+  105/432 shards done
+  126/432 shards done
+  147/432 shards done
+  168/432 shards done
+  189/432 shards done
+  210/432 shards done
+  231/432 shards done
+  252/432 shards done
+  273/432 shards done
+  294/432 shards done
+  315/432 shards done
+  336/432 shards done
+  357/432 shards done
+  378/432 shards done
+  399/432 shards done
+  shard w4-4-4-4_S8_r4_d1_c1 FAILED (see failed/w4-4-4-4_S8_r4_d1_c1.txt)
+  shard w4-4-4-4_S8_r4_d1_c5 FAILED (see failed/w4-4-4-4_S8_r4_d1_c5.txt)
+  shard w4-4-4-4_S8_r2_d1_c4 FAILED (see failed/w4-4-4-4_S8_r2_d1_c4.txt)
+  shard w4-4-4-4_S8_r2_d1_c3 FAILED (see failed/w4-4-4-4_S8_r2_d1_c3.txt)
+  shard w4-4-4-4_S8_r4_d1_c2 FAILED (see failed/w4-4-4-4_S8_r4_d1_c2.txt)
+  shard w4-4-4-4_S8_r4_d1_c0 FAILED (see failed/w4-4-4-4_S8_r4_d1_c0.txt)
+  420/432 shards done
+[p5_adaptive_shots_dev] finished: 426 done, 6 failed -> C:\Users\sanja\Documents\Research\QPR-awqpe\research\results\p5_adaptive_shots_dev\20260927T065400Z
