@@ -540,3 +540,17 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   - Ideal Dirichlet model, eigenstate input, tolerance 2^-n only.
   - The n = 16 decline of extended-decoder rescue is uncharacterised.
   - The published AWQPE PDF is still unverified.
+
+
+## P8: Phase tolerance, Mode B, DEV (2026-09-28) -- PRELIMINARY / DEV
+Run: `research/results/p8_tolerance_dev/20260927T220813Z` (D-028). Tables: `research/analysis/tables/p8_dev_*.csv`. Kernel model, ideal (noise-free), alpha = 0.05.
+
+- **The stopping rule is calibrated.** Across all stopping arms, trials that stopped with credible mass in (0.95, 0.99] were covered 96.8-97.4% of the time. For (0.99, 0.999] coverage was 99.7-99.8%, and above 0.999 it was 100%. Minimum per-(cell, stratum) coverage was 0.906 (stop_eig, 32 trials); every pooled cell was >= 0.962. There is no systematic under-coverage in the S1/S2 hard strata (stop_eig coverage by stratum: 0.98-1.00).
+- **Stopping vs the dev-calibrated fixed S* (D2, the same full|trunc geometry):**
+  - Savings grow with precision. At tau = 2^-n: 5.2 shots saved on [4,4] (16 -> 10.8), 8.7 on [4,4,4] (24 -> 15.3), and 42.8 on [4,4,4,4] (64 -> 21.2).
+  - At coarse tau the fixed baseline already needs only S0 = 4 per block, and stopping costs slightly more (0.03-1.5 shots), because it sometimes adds a batch.
+  - Caveat: S* is chosen on the same dev data, so the fixed baseline is optimistically tuned here. The held-out test decides.
+- **Stopping + D2 vs fixed faithful AWQPE (eps_safe) at its own S*:** AWQPE needs 4-16x more shots at the same coverage target. For example, [4,4,4,4] at tau = 2^-16 takes 256 shots vs 21.2 (this is decoder plus stopping, not stopping alone).
+- **Allocation (eig vs uniform, both stopping):** a small, consistent saving of 0-5 shots, largest at fine tau (4.6 shots on [4,4,4,4], tau = 2^-16). There is no difference when one block suffices.
+- **tau-matched truncation** saves most of the U-queries (e.g. 262k -> ~60 at tau = 2^-3 on n = 16) and 4-13 shots. At fine tau the prefix equals the full partition.
+- **Interpretation (dev only).** In the ideal model, a posterior-credible stop meets its nominal coverage, and its benefit over a well-tuned fixed budget is concentrated at high precision.

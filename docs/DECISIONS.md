@@ -320,3 +320,13 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - calibration of credible mass vs realised coverage.
 - **Mode A** (tolerance success vs budget) is a re-analysis of the frozen P5 test run at several tau. No new data; it is labelled as a re-analysis.
 - **Pipeline.** Pilot, then the dev grid (`research/configs/p8_tolerance_dev.yaml`), then a freeze record with the S* table and test config hash, then one test run.
+
+
+### D-029 (2026-09-28): P8 FROZEN for the held-out test
+- **Dev run.** `p8_tolerance_dev/20260927T220813Z`: 25/25 shards, 0 failed, 40 phase clusters x 4 replicates per partition.
+- **Frozen S* table.** `research/configs/p8_frozen_sstar.csv` (sha256 79838c7bc0465356): the smallest fixed S per block with pooled dev coverage >= 0.95, per (partition, tau, full|trunc, decoder). Nothing else was tuned. alpha, S0, cap, the grids and the stopping rule are unchanged from D-028.
+- **Test config.** `research/configs/p8_tolerance_test.yaml`: the D-028 design on the test split, 12 phases per stratum (S0-S4), 4 replicates. config_hash 248abb85674d7dd9.
+- **Primary family.** 9 cells, Holm, as declared in D-028.
+  - Where dev already shows the stopping arm spending more shots than the fixed S* baseline (coarse tau, where S* = S0 = 4), the cell stays in the family. It was declared before the data; it is not dropped.
+  - `summarize_p8 --tag test` refuses to run without the frozen S* table.
+- **Test is run exactly once.**
