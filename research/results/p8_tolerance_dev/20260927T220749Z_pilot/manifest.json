@@ -1,0 +1,96 @@
+{
+  "experiment_id": "p8_tolerance_dev",
+  "run_id": "20260927T220749Z_pilot",
+  "created_utc": "2026-09-27T22:07:49.684369+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "abda9b9ad90dfa7dd54936ce8769af82855808d4",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_tolerance.py --pilot --max-workers 4",
+  "config": {
+    "experiment_id": "p8_tolerance_dev",
+    "status": "PRELIMINARY / DEV",
+    "description": "Phase 8 Mode B dev run (D-028). For each declared tolerance tau and alpha = 0.05: fixed-S baselines (D2 and faithful AWQPE at eps_safe), and posterior-credible stopping with uniform or information-gain allocation, each on the full partition and on the tau-matched MSB prefix. Dev picks the smallest fixed S reaching coverage 1 - alpha; nothing else is tuned.\n",
+    "master_seed": 20260928,
+    "split": "dev",
+    "strata": [
+      "S0_dyadic",
+      "S1_final_half",
+      "S2_boundary",
+      "S3_near_grid",
+      "S4_uniform"
+    ],
+    "partitions": [
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 1,
+    "replicates": 2,
+    "S0": 4,
+    "cap_per_block": 128,
+    "fixed_S": [
+      4,
+      8,
+      16,
+      32,
+      64,
+      128
+    ],
+    "stop_policies": [
+      "uniform",
+      "eig"
+    ],
+    "alpha": 0.05,
+    "tau_exponents": [
+      3,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16
+    ],
+    "likelihood_refine": {
+      "4": 3,
+      "6": 3,
+      "8": 3,
+      "9": 3,
+      "12": 3,
+      "16": 2
+    },
+    "phase_chunk": 8,
+    "is_pilot": true
+  },
+  "config_hash": "05233a4f646c7dd0",
+  "shards": {
+    "w4-4_c0": "done",
+    "w4-4-4-4_c0": "done"
+  },
+  "status": "PRELIMINARY / DEV"
+}

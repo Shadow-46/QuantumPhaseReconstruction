@@ -1,0 +1,76 @@
+{
+  "experiment_id": "p7_unified_dev",
+  "run_id": "20260927T221944Z_pilot",
+  "created_utc": "2026-09-27T22:19:44.968637+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "bfd96956e24015e6c700fcdf118302e5bebc0d0f",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_unified.py --pilot --max-workers 2",
+  "config": {
+    "experiment_id": "p7_unified_dev",
+    "status": "PRELIMINARY / DEV",
+    "description": "Phase 7 dev run (D-031). Unified controller: information-gain choice among chunk shots and overlap blocks (frozen P6 D2 variants bridge_s1 / ext_v1 with A = 2 overlap batches), with P8 posterior-credible stopping. Ablations: stop_eig (no overlap), stop_uniform. Nothing is tuned.\n",
+    "master_seed": 20260930,
+    "split": "dev",
+    "strata": [
+      "S0_dyadic",
+      "S1_final_half",
+      "S2_boundary",
+      "S3_near_grid",
+      "S4_uniform"
+    ],
+    "partitions": [
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 1,
+    "replicates": 2,
+    "phase_chunk": 8,
+    "S0": 4,
+    "A": 2,
+    "cap_per_block": 128,
+    "alpha": 0.05,
+    "tau_exponents": [
+      "half",
+      "n"
+    ],
+    "likelihood_refine": {
+      "8": 3,
+      "12": 3,
+      "16": 2
+    },
+    "is_pilot": true
+  },
+  "config_hash": "a4ed88020993fe49",
+  "shards": {
+    "w4-4_c0": "done",
+    "w4-4-4-4_c0": "done"
+  },
+  "status": "PRELIMINARY / DEV"
+}

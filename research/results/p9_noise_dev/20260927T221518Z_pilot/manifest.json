@@ -1,0 +1,183 @@
+{
+  "experiment_id": "p9_noise_dev",
+  "run_id": "20260927T221518Z_pilot",
+  "created_utc": "2026-09-27T22:15:18.163897+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "cb703fc85d8e8659aa2687e276c3f4caec1cf223",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_noise.py --pilot --max-workers 8",
+  "config": {
+    "experiment_id": "p9_noise_dev",
+    "status": "PRELIMINARY / DEV",
+    "description": "Phase 9 dev run (D-030). Analytic Dirichlet-level noise channels (not the published paper's noise models, which could not be checked). Fixed-budget decoding (faithful AWQPE eps 0.9 / eps_safe, D2 ideal-likelihood, D2 noise-aware) and P8 credible stopping with the ideal vs noise-aware posterior. Nothing is tuned.\n",
+    "master_seed": 20260929,
+    "split": "dev",
+    "strata": [
+      "S0_dyadic",
+      "S1_final_half",
+      "S2_boundary",
+      "S3_near_grid",
+      "S4_uniform"
+    ],
+    "partitions": [
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 1,
+    "replicates": 2,
+    "phase_chunk": 10,
+    "fixed_S": [
+      16,
+      64,
+      256
+    ],
+    "S0": 4,
+    "cap_per_block": 256,
+    "alpha": 0.05,
+    "stop_tau_exponents": [
+      "half",
+      "n"
+    ],
+    "likelihood_refine": {
+      "8": 3,
+      "12": 3,
+      "16": 2
+    },
+    "noise_settings": [
+      {
+        "id": "ideal",
+        "channel": "none",
+        "spec": {}
+      },
+      {
+        "id": "ro01",
+        "channel": "readout",
+        "spec": {
+          "readout_p01": 0.01,
+          "readout_p10": 0.01
+        }
+      },
+      {
+        "id": "ro03",
+        "channel": "readout",
+        "spec": {
+          "readout_p01": 0.03,
+          "readout_p10": 0.03
+        }
+      },
+      {
+        "id": "ro05",
+        "channel": "readout",
+        "spec": {
+          "readout_p01": 0.05,
+          "readout_p10": 0.05
+        }
+      },
+      {
+        "id": "dp6",
+        "channel": "depolarising",
+        "spec": {
+          "depol_gamma": 1e-06
+        }
+      },
+      {
+        "id": "dp5",
+        "channel": "depolarising",
+        "spec": {
+          "depol_gamma": 1e-05
+        }
+      },
+      {
+        "id": "dp4",
+        "channel": "depolarising",
+        "spec": {
+          "depol_gamma": 0.0001
+        }
+      },
+      {
+        "id": "jt01",
+        "channel": "jitter",
+        "spec": {
+          "jitter_sigma": 0.01
+        }
+      },
+      {
+        "id": "jt02",
+        "channel": "jitter",
+        "spec": {
+          "jitter_sigma": 0.02
+        }
+      },
+      {
+        "id": "jt04",
+        "channel": "jitter",
+        "spec": {
+          "jitter_sigma": 0.04
+        }
+      },
+      {
+        "id": "comb",
+        "channel": "combined",
+        "spec": {
+          "readout_p01": 0.02,
+          "readout_p10": 0.02,
+          "depol_gamma": 1e-05,
+          "jitter_sigma": 0.02
+        }
+      }
+    ],
+    "is_pilot": true
+  },
+  "config_hash": "10041320b11f6217",
+  "shards": {
+    "w4-4_ideal_c0": "done",
+    "w4-4_ro01_c0": "done",
+    "w4-4_ro03_c0": "done",
+    "w4-4_ro05_c0": "done",
+    "w4-4_dp6_c0": "done",
+    "w4-4_dp5_c0": "done",
+    "w4-4_dp4_c0": "done",
+    "w4-4_jt01_c0": "done",
+    "w4-4_jt02_c0": "done",
+    "w4-4_jt04_c0": "done",
+    "w4-4_comb_c0": "done",
+    "w4-4-4-4_ideal_c0": "done",
+    "w4-4-4-4_ro01_c0": "done",
+    "w4-4-4-4_ro03_c0": "done",
+    "w4-4-4-4_ro05_c0": "done",
+    "w4-4-4-4_dp6_c0": "done",
+    "w4-4-4-4_dp5_c0": "done",
+    "w4-4-4-4_dp4_c0": "done",
+    "w4-4-4-4_jt01_c0": "done",
+    "w4-4-4-4_jt02_c0": "done",
+    "w4-4-4-4_jt04_c0": "done",
+    "w4-4-4-4_comb_c0": "done"
+  },
+  "status": "PRELIMINARY / DEV"
+}
