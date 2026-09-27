@@ -598,3 +598,18 @@ Script: `research/analysis/scripts/summarize_p8_modeA.py`. Table: `research/anal
 - **Coarse tolerance does not remove the faithful-decoder gap.** At tau = 2^-3, n = 8, AWQPE@0.9 reaches 95.1% under uniform allocation vs 98.8% for D2.
   - When the faithful decoder fails at low budget, it often fails by more than 1/8 of a turn, not by a last-bit rounding error.
 - **Consistent with the P5 conclusion.** The information-gain allocation helps at every precision tested, and helps most where the precision target is fine.
+
+
+## P9: Noise (analytic channels), DEV (2026-09-28) -- PRELIMINARY / DEV
+Run: `research/results/p9_noise_dev/20260927T221616Z` (D-030). Tables: `research/analysis/tables/p9_dev_*.csv`.
+
+These are the analytic channels of model/noise.py, not the published paper's noise models, which are still unverified.
+
+- **Faithful AWQPE degrades first.** At S = 16 per block, AWQPE eps_safe success at 2^-n falls from 0.91-0.94 (ideal) to 0.54-0.82 under strong jitter (sigma 0.04). Noise-aware D2 stays at 0.93-0.98.
+- **Modelling the noise matters mostly under jitter and heavy depolarisation.** The ideal-likelihood D2 drops to 0.68-0.86 at jt04, against 0.93-0.98 noise-aware. Readout and weak depolarisation cost the misspecified decoder little.
+- **Per-query depolarisation at gamma = 1e-4 destroys n = 16.** The last block sees lambda ~ 1. Every decoder fails (0.15-0.31 at S = 16; 0.19-0.63 at S = 64), as the exponential U-cost of low-order blocks implies.
+- **Stopping coverage under misspecification.**
+  - With the ideal-likelihood posterior, coverage at tau = 2^-n falls to 0.60-0.79 at jt04, 0.15 at dp4 (n = 16) and 0.78 under the combined setting (n = 16).
+  - The noise-aware posterior holds 0.93-0.98 in most settings, but not at dp4 on n = 16 (0.82, 20% of trials capped without stopping).
+  - The overconfident, misspecified stop spends fewer shots, e.g. 34 vs 44 at jt04, n = 16.
+- **Design consequence (D-032).** The primary endpoint moves to S = 16 (S = 64 is at ceiling), and F3 (stopping coverage) is added. The test is run once.

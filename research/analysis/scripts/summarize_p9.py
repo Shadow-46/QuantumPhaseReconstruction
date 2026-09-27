@@ -16,7 +16,7 @@ from research.awqpe.runner.core import REPO_ROOT
 OUT = REPO_ROOT / "research" / "analysis" / "tables"
 KEY = ["widths", "noise_id", "phase_id", "replicate_id"]
 PRIMARY_NOISE = ("ro03", "dp5", "jt02", "comb")
-PRIMARY_ARM = "fixed_S64"
+PRIMARY_ARM = "fixed_S16"  # D-032: S = 64 is at ceiling on dev
 FAMILIES = {"F1_aware_vs_awqpe_safe": ("likelihood_aware", "awqpe_eps_safe"),
             "F2_aware_vs_ideal_model": ("likelihood_aware", "likelihood_ideal")}
 
@@ -52,18 +52,24 @@ def main() -> None:
     pd.DataFrame(rows).assign(status=status).to_csv(OUT / f"{tag}_coverage.csv", index=False)
 
     # primary family: paired success differences at fixed S = 64
-    fx = f[f.arm == PRIMARY_ARM]
+    # F3 (D-032): stopping coverage at tau = 2^-n, noise-aware minus ideal-likelihood posterior
+    n_of = {w: sum(map(int, w.split("-"))) for w in f.widths.unique()}
+    fx = pd.concat([f[f.arm == PRIMARY_ARM].assign(family_arm="fixed", y=lambda x: x.tol),
+                    f[f.arm == f.widths.map(lambda w: f"stop_tau{n_of[w]}")].assign(family_arm="stop", y=lambda x: x.covered)])
+    families = {**{k: (a, b, "fixed") for k, (a, b) in FAMILIES.items()},
+                "F3_stop_coverage_aware_vs_ideal": ("likelihood_aware", "likelihood_ideal", "stop")}
     comps, pvals = [], {}
-    for fam, (a, b) in FAMILIES.items():
-        for (w, nid), g in fx[fx.noise_id.isin(PRIMARY_NOISE)].groupby(["widths", "noise_id"]):
+    for fam, (a, b, kind) in families.items():
+        sub = fx[(fx.family_arm == kind) & fx.noise_id.isin(PRIMARY_NOISE)]
+        for (w, nid), g in sub.groupby(["widths", "noise_id"]):
             A = g[g.decoder == a].set_index(KEY)
             Bf = g[g.decoder == b].set_index(KEY).loc[A.index]
-            d = pd.DataFrame({"cluster": A.cluster, "d": A.tol.astype(float) - Bf.tol.astype(float)}).groupby("cluster").d.mean().to_numpy()
+            d = pd.DataFrame({"cluster": A.cluster, "d": A.y.astype(float) - Bf.y.astype(float)}).groupby("cluster").d.mean().to_numpy()
             lo, hi = boot_ci(d, args.boot)
             p = signflip_p(d, args.perm)
             pvals[(fam, w, nid)] = p
             comps.append({"family": fam, "widths": w, "noise_id": nid, "decoder": a, "ref_decoder": b, "clusters": len(d),
-                          "p_tol": float(A.tol.mean()), "ref_p_tol": float(Bf.tol.mean()),
+                          "p_tol": float(A.y.mean()), "ref_p_tol": float(Bf.y.mean()),
                           "diff_pts": 100 * float(d.mean()), "lo_pts": 100 * lo, "hi_pts": 100 * hi, "p": p})
     comp = pd.DataFrame(comps)
     adj = holm(pvals)

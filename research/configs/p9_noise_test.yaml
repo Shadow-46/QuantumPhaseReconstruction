@@ -1,0 +1,89 @@
+experiment_id: p9_noise_test
+status: HELD-OUT TEST (frozen, D-032)
+description: 'Phase 9 HELD-OUT TEST, run once. Frozen under D-032: the D-030 design
+  on the test split, 12 phases per stratum.'
+master_seed: 20260929
+split: test
+strata:
+- S0_dyadic
+- S1_final_half
+- S2_boundary
+- S3_near_grid
+- S4_uniform
+partitions:
+- - 4
+  - 4
+- - 4
+  - 4
+  - 4
+- - 4
+  - 4
+  - 4
+  - 4
+phases_per_stratum: 12
+replicates: 4
+phase_chunk: 10
+fixed_S:
+- 16
+- 64
+- 256
+S0: 4
+cap_per_block: 256
+alpha: 0.05
+stop_tau_exponents:
+- half
+- n
+likelihood_refine:
+  '8': 3
+  '12': 3
+  '16': 2
+noise_settings:
+- id: ideal
+  channel: none
+  spec: {}
+- id: ro01
+  channel: readout
+  spec:
+    readout_p01: 0.01
+    readout_p10: 0.01
+- id: ro03
+  channel: readout
+  spec:
+    readout_p01: 0.03
+    readout_p10: 0.03
+- id: ro05
+  channel: readout
+  spec:
+    readout_p01: 0.05
+    readout_p10: 0.05
+- id: dp6
+  channel: depolarising
+  spec:
+    depol_gamma: 1.0e-06
+- id: dp5
+  channel: depolarising
+  spec:
+    depol_gamma: 1.0e-05
+- id: dp4
+  channel: depolarising
+  spec:
+    depol_gamma: 0.0001
+- id: jt01
+  channel: jitter
+  spec:
+    jitter_sigma: 0.01
+- id: jt02
+  channel: jitter
+  spec:
+    jitter_sigma: 0.02
+- id: jt04
+  channel: jitter
+  spec:
+    jitter_sigma: 0.04
+- id: comb
+  channel: combined
+  spec:
+    readout_p01: 0.02
+    readout_p10: 0.02
+    depol_gamma: 1.0e-05
+    jitter_sigma: 0.02

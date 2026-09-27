@@ -365,3 +365,13 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - U-queries are co-reported. An overlap block is cheaper than the lower chunk it partly replaces, so U may move in either direction.
 - **Secondary.** unified vs stop_uniform; how often the controller uses overlap (overlap_batches); coverage by stratum.
 - **Dev is exploratory.** The test split uses the identical config, run once.
+
+
+### D-032 (2026-09-28): P9 revisions from dev (before any test data), then FROZEN
+- **Dev run.** `p9_noise_dev/20260927T221616Z`: 99/99 shards, 0 failed.
+- **Primary endpoint moved from fixed S = 64 to S = 16 per block.** At S = 64 the D2 arms are at 100% in nearly every setting on dev (a ceiling), so F1/F2 would have no power. The reason is power, not the direction of any effect. At S = 16 the dev success is below 1 for every decoder in at least some settings.
+- **Added F3.** Stopping-rule coverage at tau = 2^-n, noise-aware minus ideal-likelihood posterior, in the same 12 cells. On dev, the misspecified posterior is the largest noise effect seen.
+- **Settings kept as declared.** The primary settings stay {ro03, dp5, jt02, comb}. They were NOT replaced by the settings with the largest dev effects (jt04, dp4), which are reported as secondary.
+- **Primary family.** 36 cells (F1, F2, F3 x 3 partitions x 4 settings), Holm across all 36.
+- **Test config.** `research/configs/p9_noise_test.yaml`, 12 phases per stratum, 4 replicates, otherwise identical to dev. config_hash bc00d4a31d44329d. The analysis is `summarize_p9.py` with PRIMARY_ARM = fixed_S16.
+- **Test is run exactly once.**
