@@ -715,7 +715,7 @@ Script: `research/analysis/scripts/p6_ext_decline.py`. Table: `research/analysis
 - **Not a final-bit effect.** At n = 16, 86% of shot-fixable failures are higher-order errors (more than 16 LSB). This refutes the "lowest block" guess.
 - **Mechanism: placement, not efficacy.**
   - Each failure was assigned the responsible boundary j* (the boundary whose upper-chunk LSB scale matches the error).
-  - When the controller put overlap at j*, it rescued 97-98% (n = 8), 93-100% (n = 12) and 91% (n = 16) of those failures. When it did not, it rescued at most 29%.
+  - When the controller put overlap at j*, it rescued 93-98% (n = 8), 93-100% (n = 12) and 91% (n = 16) of those failures. When it did not, it rescued at most 29%.
   - Placement at j* falls steeply with the number of chunks below the boundary:
     - boundary 0: 32% (n = 8), 8% (n = 12), 0% (n = 16);
     - boundary 1: 64%, 45%, 0%;
