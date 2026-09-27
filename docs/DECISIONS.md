@@ -295,3 +295,28 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 - **Test primary family.** The 4 (mechanism, decoder, variant) triples above, comparison B4 vs B2m_upper (equal U, conservative), Holm across all 4. `summarize_p6.py --tag test --frozen-selection` refuses to re-select.
 - **Secondary.** Equal-shot and lower-bracket comparisons, overlap-only vs uniform, the rescue table and strata. No multiplicity claims.
 - **Test is run exactly once.** No parameter may change after test data exist.
+
+
+### D-028 (2026-09-28): Phase 8 phase-tolerance design, declared before any P8 data
+- **Question (Mode B).** For a declared tolerance tau and alpha = 0.05, what resources give realised coverage P(|phi_hat - phi|_circle <= tau) >= 1 - alpha? Do posterior-credible stopping and information-guided allocation reduce them relative to a fair fixed-budget baseline?
+- **Tolerance grid.** tau = 2^-j, j in {3, 4, 6, 8, 10, 12, 14, 16}, with j <= n.
+- **tau-matched truncation.** tau_bits(tau) = ceil(log2 1/tau) - 1, because rounding to K bits has error <= 2^-(K+1). The "_trunc" arms use the shortest MSB-first block prefix with at least tau_bits(tau) bits. Every arm is run on both the full partition and the prefix, so the saving from stopping is kept separate from the trivial saving of measuring fewer (and U-expensive) low-order bits.
+- **Arms.** All arms share per-block common-random-number streams.
+  - fixed_S (S in {4, 8, 16, 32, 64, 128} per block), decoded by D2 (grid MAP) and by D1 = faithful AWQPE at eps_safe. A one-block prefix uses eps 0.9, where eps is inert.
+  - stop_uniform: S0 = 4 per block, then round-robin batches of 4.
+  - stop_eig: S0 = 4, then batches of 4 to the block maximising the frozen P5 information-gain signal. The cell resolution is set to tau_bits(tau) rather than n. This is the only change, and it is declared here.
+  - The cap is 128 shots per block. Trials that reach the cap without stopping are kept (stopped = False) and scored.
+- **Stopping rule** (`stopping/rules.py`, inside the leakage firewall). Stop when the uniform-prior grid posterior mass within tau of the MAP is >= 1 - alpha. alpha is fixed at 0.05 and is not tuned.
+- **Dev calibration (the only tuned quantity).** For each (partition, tau, full|trunc, decoder), S* = the smallest fixed S whose dev coverage (pooled over strata S0-S4, equal weight) is >= 0.95. This fixed-S* arm is the "tau-matched fixed" baseline. If no S in the grid reaches coverage, the cell has no baseline and is reported as such.
+- **Test primary family** (Holm, predeclared). Partitions [4,4], [4,4,4], [4,4,4,4]; tau in {2^-3, 2^-(n/2), 2^-n}. That gives 9 cells, each comparing stop_eig_trunc (or stop_eig where the prefix is the full partition) against fixed_S*_trunc with D2.
+  - Endpoint: the paired difference in mean total shots per trial, with a phase-cluster bootstrap CI and a sign-flip permutation p.
+  - A cell counts as a positive result only if (i) the difference favours stopping after Holm and (ii) stop_eig realised test coverage is >= 0.95 at the point estimate. Coverage is also reported with its cluster CI.
+  - U-queries are co-reported for every comparison.
+- **Secondary (no multiplicity claims):**
+  - stop_eig vs stop_uniform (allocation effect);
+  - full vs trunc (truncation effect);
+  - D1 fixed S* vs D2 fixed S*;
+  - coverage per stratum, including under-coverage in S1/S2;
+  - calibration of credible mass vs realised coverage.
+- **Mode A** (tolerance success vs budget) is a re-analysis of the frozen P5 test run at several tau. No new data; it is labelled as a re-analysis.
+- **Pipeline.** Pilot, then the dev grid (`research/configs/p8_tolerance_dev.yaml`), then a freeze record with the S* table and test config hash, then one test run.
