@@ -369,3 +369,67 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   5. **The D1 overlap results depend on the non-paper `awqpe_ext` decoder** (D-020). They are overlap-plus-decoder results and must be labelled as such. Bridge has no D1 counterpart.
   6. **v=2 and A=2 add cost without clear benefit** over v=1 and A=1 in this pilot (dev decision).
 - **Assessment.** Worth taking to the full dev grid for D2 (both mechanisms) and for awqpe_ext with the lowerhalf trigger. Pending user review; no full grid started.
+
+## P6 pilot addendum (2026-09-27)
+- **Relabel.** The P6 pilot above is a **stress test / pilot on ambiguity-enriched strata**. It is not used to select variants (D-024).
+- **Accounting.** Its equal-U comparisons used the overshooting `uq` baselines, which gave the baseline about 17% more U-queries. They are superseded for all future runs by the bracketed matching of D-022.
+- **Superseded assessment.** The pilot assessment above ("worth taking … awqpe_ext with the lowerhalf trigger") is superseded by P6D-1: on the predeclared strata the extended-decoder combination is net negative with the current triggers.
+
+## P6 decoder-extension validation, `awqpe_ext` (2026-09-27): VALIDATION, not a performance result
+- `research/tests/test_awqpe_ext_validation.py`: 22/22 pass (D-023 A–E).
+- The decisive case is D: every recorded ε=0.9 infinite-shot failure phase for [3,2,3], [2,2,2,2], [4,4] and [3,3,3,3] is repaired, and every already-correct phase is bit-identical.
+
+## P6D-1: Safe-ε mechanism diagnostic (2026-09-27), DIAGNOSTIC / DEV (no tuning)
+- **Run.** `p6_safe_eps_diagnostic/20260927T155247Z` (config `p6_safe_eps_diagnostic.yaml`). Tables: `research/analysis/tables/p6diag_*.csv`.
+- **Setup.**
+  - Predeclared strata S0–S5; partitions [4,4], [3,2,3], [2,2,2,2], [4,4,4], [3,3,3,3]; S0 ∈ {2, 4}; r = 2.
+  - 46 phases × 4 replicates per cell.
+  - O-ext variants: v1-eig, v1-lowerhalf, v2-eig, all with A = 1.
+  - One attempt failed on a parquet dtype mismatch (mixed bool/float `tol`). It was fixed and re-run with `--rerun-failed`, and a parquet round-trip was added to the tests.
+- **Hypothesis tested.** "Safe ε already resolves many boundary ambiguities, so overlap actions displace more useful shot allocation."
+- **Where overlap actions land** (boundary state at action time, under safe ε):
+
+  | state | share of actions |
+  |---|---|
+  | rule-inapplicable (lower part not 10…0; the extended decoder cannot use the block at all) | 69–83% |
+  | resolved by the Algorithm-1 flag | 8–15% |
+  | genuinely ambiguous (unflagged) | 9–16% |
+
+  Under ε=0.9 the ambiguous share is 10–18% and the resolved share 5–14%.
+- **Immediate gain by state** (B4, safe-ε extended decoder):
+  - ambiguous: +17 to +20 LSB mean error reduction, 45–50% of actions improve the estimate;
+  - resolved-by-flag: +6 to +11 LSB, 30–38% improve;
+  - rule-inapplicable: exactly 0.
+- **Rescue of P5-policy (B2) failures by ONE practical overlap batch vs ONE extra eig shot batch, by acted state:**
+
+  | decoder | acted state | failures | overlap rescues | extra shots rescue |
+  |---|---|---|---|---|
+  | safe-ε ext | ambiguous | 275 | **90.5%** | 23.3% |
+  | safe-ε ext | resolved by flag | 66 | 48.5% | 24.2% |
+  | safe-ε ext | rule-inapplicable | 355 | **0%** | 31.5% |
+  | ε=0.9 ext | ambiguous | 452 | **85.6%** | 15.7% |
+  | ε=0.9 ext | resolved by flag | 52 | 40.4% | 7.7% |
+  | ε=0.9 ext | rule-inapplicable | 432 | **0%** | 19.4% |
+  | D2 | any state | 41–160 | 73–79% | 15–56% |
+
+- **Net effect on the predeclared strata** (B4 − B2, equal shots; mean over trials; descriptive):
+
+  | decoder | B4 − B2 (pts) | shots displaced per trial | U-queries added per trial |
+  |---|---|---|---|
+  | safe-ε ext | −3.8 to −8.5 | 2.2–2.6 | 1,630–2,130 |
+  | ε=0.9 ext | −0.3 to −5.0 | 2.2–2.6 | 1,630–2,130 |
+  | D2 | +3.2 to +3.3 | 2.2–2.6 | 1,630–2,130 |
+
+  Split by where B4's actions landed (post-treatment grouping, descriptive only):
+  - action on an applicable boundary: +18 to +30 points for the extended D1 decoders;
+  - all actions inapplicable: −13 to −16 points;
+  - D2: +7.6 and +3 respectively.
+- **Interpretation.**
+  - The hypothesis is only partly supported. The dominant mechanism is not "already resolved" boundaries (8–15% of actions). It is **actions on boundaries where the extended decoder's rule does not apply** (69–83%): they displace chunk shots and add quantum work for zero decoding benefit.
+  - The resolved share does matter at the margin. Under safe ε the applicable-boundary gain is smaller than under ε=0.9, because the flag already fixes part of the problem, so the waste outweighs it sooner.
+  - Neither trigger restricts overlap to applicable boundaries. lowerhalf falls back to information gain, and information gain values overlap blocks for the likelihood model, not for the extended D1 decoder.
+  - D2 benefits regardless of state, because it fuses every block.
+- **Consequences** (proposals only; no test-set involvement):
+  1. Report O-ext + extended decoder separately from D2.
+  2. A mechanism-motivated trigger that takes overlap only at rule-applicable boundaries (`lowerhalf_gated`) is a natural dev candidate. It must be evaluated on the full dev grid alongside the existing triggers, not adopted from this diagnostic.
+  3. v = 2 is dropped on mechanism and cost grounds (D-025, pending review).

@@ -1,0 +1,4 @@
+variant,u_added_per_trial,overlap_actions,mean_gain_awqpe_ext,mean_gain_awqpe_eps_safe_ext,mean_gain_likelihood,run,status
+ext_v1_eig_A1,1665.0510869565217,1390,3.622237316641369,3.5880730442615896,38.15474576716384,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+ext_v1_lowerhalf_A1,1627.5445652173912,1392,3.8188837089795125,3.6827144194388834,33.90746029561526,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+ext_v2_eig_A1,2128.633695652174,1625,3.047597169559107,3.0183735765696347,33.34324053677495,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV

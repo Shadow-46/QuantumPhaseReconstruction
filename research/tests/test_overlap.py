@@ -41,14 +41,31 @@ def test_shard_fairness_and_pairing():
             "phases": [{"phase_id": "p0", "stratum": "S2_boundary", "phi": 0.1234, "final_residual": 0.0, "boundary_hardness": 0.0},
                        {"phase_id": "p1", "stratum": "S4_uniform", "phi": 0.6789, "final_residual": 0.0, "boundary_hardness": 0.1}]}
     out = overlap_shard(cfg, spec)
+    import io
+    buf = io.BytesIO()
+    out.to_parquet(buf, index=False)  # the runner writes shards as parquet: schema must be consistent
     f = out[out.row_type == "final"]
     main = f[f.arm.isin(["B1_uniform", "B2_p5_eig", "B3_overlap_alone", "B4_eig_plus_overlap"])]
     assert main.total_shots.nunique() == 1  # equal shots for every shot-budget arm
     for v in ("ext_v1", "bridge_half"):
         g = f[(f.variant == v) & (f.decoder == "likelihood")].set_index(["arm", "trial"])
-        assert (g.loc["B1u_uniform_Umatched_B3"].u_queries.values >= g.loc["B3_overlap_alone"].u_queries.values).all()
-        assert (g.loc["B2u_p5_eig_Umatched_B4"].u_queries.values >= g.loc["B4_eig_plus_overlap"].u_queries.values).all()
+        for tag, ovl in (("B1m", "B3_overlap_alone"), ("B2m", "B4_eig_plus_overlap")):
+            target = g.loc[ovl].u_queries.values
+            lo, hi = g.loc[f"{tag}_lower_{ovl}"], g.loc[f"{tag}_upper_{ovl}"]
+            assert (lo.u_queries.values <= target).all()
+            ok = hi.match_valid.values.astype(bool)
+            assert (hi.u_queries.values[ok] >= target[ok]).all()
+            assert np.allclose(lo.u_diff_vs_target.values, lo.u_queries.values - target)
         assert (g.loc["B3_overlap_alone"].n_overlap_actions <= (1 if v == "ext_v1" else 2)).all()
+    # the matching path reproduces B1/B2 exactly at the nominal budget (same streams, same decisions)
+    from research.awqpe.run_adaptive_overlap import Ctx, baseline_path, run_arm
+
+    phis = np.array([0.1234, 0.1234, 0.6789, 0.6789])
+    ctx = Ctx(cfg, [3, 2, 3], 2, 2, 6, cfg["variants"][0], phis, 99, 2 + 6 * 7 * 2)
+    for pol, arm in (("uniform", "B1"), ("eig", "B2")):
+        final, shots, u, _, _ = run_arm(ctx, [(pol, "chunks", 6)], 1, seed=99, arm=arm)
+        U, S, P = baseline_path(ctx, pol, u.astype(float) * 1.5, 99, arm)
+        assert np.array_equal(U[6], u) and np.allclose(P["likelihood"][6], final["likelihood"])
     # chunk streams identical across variants -> the no-overlap baselines are identical
     b = f[(f.arm == "B2_p5_eig") & (f.decoder == "likelihood")].pivot(index="trial", columns="variant", values="error")
     assert np.array_equal(b["ext_v1"].values, b["bridge_half"].values)

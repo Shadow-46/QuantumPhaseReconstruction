@@ -1,0 +1,26 @@
+experiment_id: p6_safe_eps_diagnostic
+status: DIAGNOSTIC / DEV
+description: >
+  Mechanism diagnostic (dev split only, no tuning): why is O-ext +
+  information-gain shots harmful under the safe-epsilon extended decoder while
+  O-ext alone helps? Records, at every overlap action, the targeted
+  boundary's ambiguity state under eps 0.9 and eps_safe (Algorithm-1 flag of
+  the upper chunk; decoded lower part equal to 10..0), plus immediate gains,
+  shots/U displaced, and rescue outcomes. Predeclared P5 strata.
+master_seed: 20260927
+split: dev
+strata: [S0_dyadic, S1_final_half, S2_boundary, S3_near_grid, S4_uniform, S5_paper]
+partitions: [[4, 4], [3, 2, 3], [2, 2, 2, 2], [4, 4, 4], [3, 3, 3, 3]]
+phases_per_stratum: 8
+replicates: 4
+S0: [2, 4]
+budget_multipliers: [2]
+dS: ["S0"]
+likelihood_refine: {"8": 3, "12": 3}
+stream_multiplier: 6
+phase_chunk: 12
+rescue_oracle_decoders: [awqpe_eps_safe_ext, awqpe_ext]
+variants:
+  - {label: ext_v1_eig_A1, mechanism: ext, v: 1, A_max: 1, trigger: eig}
+  - {label: ext_v1_lowerhalf_A1, mechanism: ext, v: 1, A_max: 1, trigger: lowerhalf}
+  - {label: ext_v2_eig_A1, mechanism: ext, v: 2, A_max: 1, trigger: eig}

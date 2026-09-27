@@ -207,3 +207,38 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - ext: v ∈ {1, 2}, trigger ∈ {eig, lowerhalf}, A ∈ {1, 2}.
   - bridge: shift ∈ {half, 1}, A ∈ {1, 2}.
 - **Status.** The pilot is exploratory. Its results choose the variants for the full dev run; they are not claims.
+
+### D-022 (2026-09-27): Corrected equal-U-query matching (supersedes the `uq` baselines of the P6 pilot)
+- **Problem.** The pilot's B1u/B2u stopped at the first batch reaching the overlap arm's U cost. Because least-significant-block batches are expensive, they overshot by about 17% on average, which favoured the baselines. The pilot results stay as recorded and are labelled preliminary.
+- **Procedure** (`baseline_path` / `match_to_target` in `run_adaptive_overlap.py`):
+  1. For each shard, run the baseline chunk-only policy (uniform for B1, P5 eig for B2) on the same CRN streams. Use the same decision rule and tie-breaking seed as the nominal B1/B2 arms. Decode after every batch and record cumulative U-queries, until every trial's U reaches the largest target.
+     - Decisions never depend on the target, so one path serves every comparison.
+     - At the nominal budget the path reproduces B1/B2 exactly (tested).
+  2. For each trial and overlap arm (target = that arm's realised U-queries), take the baseline state at the **last path point with U ≤ target (lower)** and at the **first point with U ≥ target (upper)**.
+     - Both are recorded as rows, with `u_queries`, `u_target` and `u_diff_vs_target`.
+     - The upper bracket is invalid (NaN, `match_valid = False`) if the path cap is reached; this is reported.
+  3. **Primary equal-U comparison, conservative for the claim being made:**
+     - a superiority claim for overlap is tested against the **upper** bracket (baseline with ≥ the same quantum work);
+     - an inferiority claim is tested against the **lower** bracket;
+     - both brackets and the U differences are always reported.
+- **No truth** enters the path, the matching or the decisions.
+
+### D-023 (2026-09-27): The `awqpe_ext` decoder extension, validated deterministically
+- **Validation suite.** `research/tests/test_awqpe_ext_validation.py`, 22 cases:
+  - (A) no overlap block, or blocks with no shots → bit-identical to faithful AWQPE;
+  - (B) overlap present but trigger false → identical;
+  - (C) trigger true → only bits at or above the least-significant triggered boundary can change;
+  - (D) infinite shots → every recorded ε=0.9 failure phase (V1 failure records) is repaired, and every already-correct phase is untouched;
+  - (E) no evaluator, simulator-truth or oracle import in the decoder or trigger code, and no phase argument in the decoder signature.
+- **Status.** This validates the decoder extension, not P6 performance.
+- **Terminology (binding).** `awqpe_ext` is a NEW EXPERIMENTAL DECODER EXTENSION.
+  - Results using it are "adaptive overlap + extended decoder", never "overlap improves AWQPE".
+  - O-bridge stays D2-only; no D1 stitching rule is invented.
+
+### D-024 (2026-09-27): P6 pilot relabelled as a stress test
+- **Relabel.** The P6 pilot (`p6_adaptive_overlap_pilot/20260927T152618Z`) used ambiguity-enriched strata only. It is a stress test and pilot; it is not used to select P6 variants.
+- **Evidence.** The safe-ε diagnostic on the predeclared strata (P6D-1) shows that its positive `awqpe_ext` B4 − B2 does not carry over.
+
+### D-025 (2026-09-27): Dropping O-ext v = 2 (mechanism and cost, not pilot accuracy); proposed, pending review
+- **Theory.** v = 1 already removes the infinite-shot floor, with 0 failures on every partition (D-023 D). In the danger band, 2^v·δ rounds without carry for any v ≥ 1, so v > 1 adds no resolving power for the targeted situation.
+- **Cost.** An O-ext block's U per shot is 2^k(2^(m+v) − 1), about 2× for v = 2. On dev (P6D-1), v = 2 added about 28% more U-queries per trial than v = 1 (2129 against 1665) with no larger immediate gain.

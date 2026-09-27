@@ -1,0 +1,10 @@
+acted_state,p5_failures,rescued_by_overlap,rescued_by_extra_shots,decoder,epsilon_state,run,status
+ambiguous_unflagged,275,0.9054545454545454,0.23272727272727273,awqpe_eps_safe_ext,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+resolved_by_flag,66,0.48484848484848486,0.24242424242424243,awqpe_eps_safe_ext,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+rule_inapplicable,355,0.0,0.3154929577464789,awqpe_eps_safe_ext,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+ambiguous_unflagged,452,0.8561946902654868,0.1570796460176991,awqpe_ext,09,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+resolved_by_flag,52,0.40384615384615385,0.07692307692307693,awqpe_ext,09,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+rule_inapplicable,432,0.0,0.19444444444444445,awqpe_ext,09,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+ambiguous_unflagged,81,0.7654320987654321,0.38271604938271603,likelihood,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+resolved_by_flag,41,0.7317073170731707,0.14634146341463414,likelihood,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV
+rule_inapplicable,160,0.7875,0.55625,likelihood,safe,research/results/p6_safe_eps_diagnostic/20260927T155247Z,DIAGNOSTIC / DEV

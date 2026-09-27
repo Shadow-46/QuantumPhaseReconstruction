@@ -95,6 +95,77 @@ def lowerhalf_candidates(ctx, counts) -> np.ndarray:
     return lowerhalf_mask(counts[:ctx.B], ctx.widths, ctx.jit[:ctx.B], ctx.cands)
 
 
+def boundary_states(ctx, chunk_counts, eps):
+    """Per internal boundary j (T, B-1): Algorithm-1 ambiguity flag of the upper chunk j, and whether the
+    corrected lower part (chunks j+1..B) is exactly 10..0 -- both from observed counts only."""
+    r = awqpe_vectorised(chunk_counts, ctx.widths, eps, jitter=ctx.jit[:ctx.B])
+    corr, w = r["corrected"], ctx.widths
+    B = ctx.B
+    lh = np.zeros((ctx.T, B - 1), dtype=bool)
+    for j in range(B - 1):
+        m = corr[:, j + 1] == (1 << (w[j + 1] - 1))
+        for k in range(j + 2, B):
+            m &= corr[:, k] == 0
+        lh[:, j] = m
+    return r["flags"][:, : B - 1], lh
+
+
+def baseline_path(ctx, policy, targets, seed, arm, cap_factor=6):
+    """Chunk-only allocation (uniform or P5 eig), decoded after EVERY batch, run until every trial's
+    cumulative U-queries reach max(targets) (or a cap). Decisions never depend on the target, so one
+    path serves every U-matched comparison (docs/DECISIONS.md D-022).
+
+    Returns U (K+1, T), shots (K+1, T) and {decoder: phi_hat (K+1, T)}; row k is the state after k batches.
+    """
+    T, B, dS = ctx.T, ctx.B, ctx.dS
+    shots = np.zeros((T, ctx.Btot), dtype=np.int64)
+    shots[:, :B] = ctx.S0
+    counts = [batch_counts(ctx.streams[b], np.zeros(T, dtype=np.int64), ctx.S0, ctx.specs[b].M) if b < B
+              else np.zeros((T, ctx.specs[b].M), dtype=np.int64) for b in range(ctx.Btot)]
+    gp = GridPosterior(ctx.n, T, ctx.refine)
+    for b in range(B):
+        gp.add_counts(ctx.specs[b], counts[b])
+    u = shots @ ctx.u
+    prng = generator(seed, stable_int(arm), 11)
+    U, S, P = [u.copy()], [shots.sum(axis=1)], {d: [v] for d, v in ctx.decode(counts, shots, gp.loglik).items()}
+    goal = float(np.max(targets))
+    for step in range(cap_factor * (ctx.steps + 2)):
+        if (u >= goal).all():
+            break
+        E = np.zeros((T, ctx.Btot), dtype=bool)
+        E[:, :B] = shots[:, :B] + dS <= ctx.L
+        if policy == "uniform":
+            chosen = np.full(T, step % B)
+        else:
+            st = AllocationState(ctx.specs, ctx.n, counts, shots, gp.loglik, ctx.G, 0, prng, step)
+            sig, _ = eig_cell_support(st)
+            sig = np.where(E, sig, -np.inf)
+            chosen = np.argmax(sig + prng.random(sig.shape) * 1e-12, axis=1)
+        for b in np.unique(chosen):
+            m = (chosen == b) & E[:, b]
+            d = batch_counts(ctx.streams[b], np.minimum(shots[:, b], ctx.L - dS), dS, ctx.specs[b].M)
+            d[~m] = 0
+            counts[b] += d
+            shots[m, b] += dS
+            gp.add_counts(ctx.specs[b], d)
+            u[m] += dS * ctx.u[b]
+        U.append(u.copy())
+        S.append(shots.sum(axis=1))
+        for d, v in ctx.decode(counts, shots, gp.loglik).items():
+            P[d].append(v)
+    return np.array(U), np.array(S), {d: np.array(v) for d, v in P.items()}
+
+
+def match_to_target(U, target):
+    """Per trial: index of the last path point with U <= target (lower) and the first with U >= target (upper; -1 if none)."""
+    K1, T = U.shape
+    le = U <= target[None, :]
+    lower = np.where(le.any(axis=0), K1 - 1 - np.argmax(le[::-1], axis=0), 0)
+    ge = U >= target[None, :]
+    upper = np.where(ge.any(axis=0), np.argmax(ge, axis=0), -1)
+    return lower, upper
+
+
 def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, arm=""):
     T, B, Btot, dS = ctx.T, ctx.B, ctx.Btot, ctx.dS
     shots = np.zeros((T, Btot), dtype=np.int64)
@@ -163,6 +234,7 @@ def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, 
             if not ok.any():
                 break
             before = ctx.decode(counts, shots, gp.loglik) if record_actions and (chosen[ok] >= B).any() else None
+            pre_counts = [c.copy() for c in counts[:B]] if before is not None else None
             for b in np.unique(chosen[ok]):
                 m = ok & (chosen == b)
                 d = batch_counts(ctx.streams[b], np.minimum(shots[:, b], ctx.L - dS), dS, ctx.specs[b].M)
@@ -178,7 +250,13 @@ def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, 
             if before is not None:
                 after = ctx.decode(counts, shots, gp.loglik)
                 ov = ok & (chosen >= B)
-                rec = {"trial": np.flatnonzero(ov), "step": step, "boundary": np.array([ctx.cands[c - B][0] for c in chosen[ov]]) + 1}
+                bnd = np.array([ctx.cands[c - B][0] for c in chosen[ov]], dtype=np.int64)
+                rec = {"trial": np.flatnonzero(ov), "step": step, "boundary": bnd + 1}
+                # ambiguity state of the targeted boundary at action time (pre-batch counts), per epsilon
+                for tag, eps in (("09", 0.9), ("safe", ctx.eps["awqpe_eps_safe"])):
+                    fl, lh = boundary_states(ctx, pre_counts, eps)
+                    rec[f"flag{tag}"] = fl[np.flatnonzero(ov), bnd]
+                    rec[f"lowerhalf{tag}"] = lh[np.flatnonzero(ov), bnd]
                 for dec in ctx.decoders:
                     e0, _ = ctx.score(before[dec])
                     e1, _ = ctx.score(after[dec])
@@ -218,10 +296,23 @@ def overlap_shard(cfg: dict, spec: dict) -> pd.DataFrame:
             "B3_overlap_alone": run_arm(ctx, [(trig, "cands", A), ("uniform", "chunks", steps - A)], A, seed=seed, record_actions=True, arm="B3"),
             "B4_eig_plus_overlap": run_arm(ctx, [(trig, "all", steps)], A, seed=seed, record_actions=True, arm="B4"),
         }
-        results["B1u_uniform_Umatched_B3"] = run_arm(ctx, [("uniform", "chunks", "uq")], A, uq_target=results["B3_overlap_alone"][2], seed=seed, arm="B1u")
-        results["B2u_p5_eig_Umatched_B4"] = run_arm(ctx, [("eig", "chunks", "uq")], A, uq_target=results["B4_eig_plus_overlap"][2], seed=seed, arm="B2u")
+        # Equal-U-query baselines (D-022): bracket each overlap arm's per-trial U cost on the baseline's own
+        # path (same streams, same decisions as B1/B2, decoded after every batch).
+        matched = {}
+        for base_pol, base_arm, ovl_arm, tag in (("uniform", "B1", "B3_overlap_alone", "B1m"), ("eig", "B2", "B4_eig_plus_overlap", "B2m")):
+            target = results[ovl_arm][2].astype(float)
+            U, S, P = baseline_path(ctx, base_pol, target, seed, base_arm)
+            lo, hi = match_to_target(U, target)
+            cols = np.arange(len(phis))
+            for side, idx in (("lower", lo), ("upper", hi)):
+                valid = idx >= 0
+                k = np.where(valid, idx, 0)
+                matched[f"{tag}_{side}_{ovl_arm}"] = {
+                    "phi": {d: np.where(valid, P[d][k, cols], np.nan) for d in P},
+                    "u": np.where(valid, U[k, cols], np.nan), "shots": np.where(valid, S[k, cols], np.nan),
+                    "u_target": target, "valid": valid}
         results["R_eig_shots"] = run_arm(ctx, [("eig", "chunks", steps), ("eig", "chunks", A)], A, seed=seed, arm="R1")
-        results["R_trigger_overlap"] = run_arm(ctx, [("eig", "chunks", steps), (trig, "cands", A)], A, seed=seed, arm="R2")
+        results["R_trigger_overlap"] = run_arm(ctx, [("eig", "chunks", steps), (trig, "cands", A)], A, seed=seed, record_actions=True, arm="R2")
         for dec in cfg["rescue_oracle_decoders"]:
             if dec in ctx.decoders:
                 results[f"R_oracle_shots[{dec}]"] = run_arm(ctx, [("eig", "chunks", steps), (f"oracle:{dec}", "chunks", A)], A, seed=seed, arm="R3" + dec)
@@ -240,7 +331,19 @@ def overlap_shard(cfg: dict, spec: dict) -> pd.DataFrame:
                                           "n_overlap_actions": n_ovl, "overlap_boundary_mask": mask, "limit_correct": limit_ok[dec]}))
             if len(actions):
                 acts.append(actions.assign(arm=name, variant=vlabel))
+        for name, mres in matched.items():
+            for dec in ctx.decoders:
+                err, tol = ctx.score(np.nan_to_num(mres["phi"][dec]))
+                rows.append(pd.DataFrame({"trial": np.arange(len(phis)), "arm": name, "variant": vlabel, "mechanism": variant["mechanism"],
+                                          "decoder": dec, "error": np.where(mres["valid"], err, np.nan),
+                                          "tol": np.where(mres["valid"], tol.astype(float), np.nan),
+                                          "total_shots": mres["shots"], "u_queries": mres["u"], "u_target": mres["u_target"],
+                                          "u_diff_vs_target": mres["u"] - mres["u_target"], "match_valid": mres["valid"],
+                                          "chunk_shots": mres["shots"], "overlap_shots": 0, "n_overlap_actions": 0,
+                                          "overlap_boundary_mask": 0, "limit_correct": limit_ok[dec]}))
     out = pd.concat(rows, ignore_index=True).join(meta, on="trial")
+    out["tol"] = out["tol"].astype(float)  # NaN = no valid U-match (upper bracket beyond the path cap)
+    out["match_valid"] = out["match_valid"].astype("boolean") if "match_valid" in out else pd.NA
     out["row_type"] = "final"
     if acts:
         a = pd.concat(acts, ignore_index=True).join(meta[["phase_id", "stratum", "replicate_id"]], on="trial")
