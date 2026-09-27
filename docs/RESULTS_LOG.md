@@ -586,3 +586,15 @@ Run: `research/results/p8_tolerance_test/20260927T221029Z` (frozen under D-029, 
   - tau-matched truncation: 0.4-12.7 shots and most of the U-queries.
   - Stopping + D2 vs fixed faithful AWQPE at its own S*: up to 235 shots saved (n = 16). This is decoder plus stopping, not stopping alone.
 - **Scope.** Ideal kernel model only; noise is untested (P9). The comparison with AWQPE confounds the decoder with the stopping rule and is reported only as secondary.
+
+
+## P8: Mode A, tolerance success vs budget (2026-09-28), a re-analysis of the frozen P5 HELD-OUT TEST (secondary)
+Script: `research/analysis/scripts/summarize_p8_modeA.py`. Table: `research/analysis/tables/p8_modeA_p5test_tolerance.csv`. No new data; the P5 primary family (tau = 2^-n) is unchanged.
+
+- **eig_cell vs uniform allocation at tau in {2^-3, 2^-(n/2), 2^-n}** (paired, equal cell weight, phase-cluster CI).
+  - Every one of the 27 (n, tau, decoder) combinations is positive with a CI excluding 0.
+  - The gain grows as tau tightens: +0.1 to +1.7 points at 2^-3, +1.3 to +4.2 at 2^-(n/2), and +2.4 to +7.3 at 2^-n.
+  - The largest gains are for faithful AWQPE at eps_safe (n = 16, tau = 2^-16: 82.4% -> 89.6%).
+- **Coarse tolerance does not remove the faithful-decoder gap.** At tau = 2^-3, n = 8, AWQPE@0.9 reaches 95.1% under uniform allocation vs 98.8% for D2.
+  - When the faithful decoder fails at low budget, it often fails by more than 1/8 of a turn, not by a last-bit rounding error.
+- **Consistent with the P5 conclusion.** The information-gain allocation helps at every precision tested, and helps most where the precision target is fine.
