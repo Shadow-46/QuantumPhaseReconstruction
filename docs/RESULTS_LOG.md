@@ -706,3 +706,20 @@ Run: `research/results/p10b_aer_noise/20260927T222838Z` (D-034): 9/9 shards, 6 d
   - The per-query depolarisation results are for a stylised channel. The qualitative conclusions (low-order blocks become exponentially noisier with k; a misspecified posterior under-covers where a noise-aware one does not) rest on features the circuit noise shares.
   - The exact numbers under depolarisation should not be read as circuit-level predictions.
 - **GPU benchmark.** Not run. The circuits here are 3-7 qubits, where CPU Aer is fast. GPU Aer would need installing qiskit-aer-gpu in WSL (Linux-only; Blackwell support uncertain). That software install was deferred rather than done unattended.
+
+
+## P6 follow-up: why extended-decoder overlap rescue declines at n = 16 (2026-09-28) -- post hoc, descriptive, HELD-OUT TEST data
+Script: `research/analysis/scripts/p6_ext_decline.py`. Table: `research/analysis/tables/p6_test_ext_decline.csv`. Variant ext_v1_gated_A2 with awqpe_ext; failures of the P5-eig baseline; practical overlap arm. This analysis is post hoc and enters no primary family.
+
+- **The decline is not in the decoder-limited class.** Overlap rescues 85% / 65% / 69% of decoder-limited failures at n = 8 / 12 / 16. The decoder-limited share of failures is stable (18% / 12% / 19%). The decline is entirely in the shot-fixable class: 56% / 38% / 12%.
+- **Not a final-bit effect.** At n = 16, 86% of shot-fixable failures are higher-order errors (more than 16 LSB). This refutes the "lowest block" guess.
+- **Mechanism: placement, not efficacy.**
+  - Each failure was assigned the responsible boundary j* (the boundary whose upper-chunk LSB scale matches the error).
+  - When the controller put overlap at j*, it rescued 97-98% (n = 8), 93-100% (n = 12) and 91% (n = 16) of those failures. When it did not, it rescued at most 29%.
+  - Placement at j* falls steeply with the number of chunks below the boundary:
+    - boundary 0: 32% (n = 8), 8% (n = 12), 0% (n = 16);
+    - boundary 1: 64%, 45%, 0%;
+    - the last boundary: 94%, 86%, 29%.
+- **Cause.** The gated trigger, like the awqpe_ext substitution rule it guards, fires at boundary j only when ALL lower chunks j+1..B decode to exactly 10...0 (triggers.py). On [4,4,4,4] that is 12 exact bits for boundary 0. Finite-shot failures at upper boundaries almost never present that pattern, so the extended rule cannot act on them.
+- **Implication.** The n = 16 decline is a structural property of an extension that keeps faithful AWQPE's whole-lower-part semantics, not a failure of overlap as information: D2 overlap rescue does not decline with n.
+  - A boundary-local extended rule (for example, checking only chunk j+1) might remove it. That would be a new decoder, needing its own dev/test cycle; none was run.
