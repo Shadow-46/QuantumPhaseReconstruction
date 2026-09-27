@@ -231,3 +231,37 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   - **Success depends mainly on the block structure, not on n.** [2,2,2,2] (n=8), [3,3,3,3] (n=12) and [4,4,4,4] (n=16) behave alike at equal shots per block. Fewer, wider blocks do better at equal shots per block, though they cost more U-queries and deeper circuits.
   - **Boundary-hard phases (S2) at 16 shots:** AWQPE@0.9 reaches 59–66%, ε_safe 66–92%, D2 98–99%.
 - **Interpretation.** The low-shot regime (2–8 shots per block) is where allocation can matter for every decoder: D2 still has 5–20 points of headroom there, and D1 has more. This regime, at n = 8–16, is the target for P5.
+
+## P5: Multi-step adaptive shot allocation, DEV results (2026-09-27), PRELIMINARY / DEV
+- **Hypothesis.** Under a fixed total shot budget, an information-guided sequential allocation raises P(|φ̂−φ| ≤ 2⁻ⁿ) relative to uniform, within each decoder. The effect should be concentrated in shot-fixable ambiguity regimes. Fisher information (negative control) should not help.
+- **Configuration.**
+  - D-018 grid on the dev split: 6 partitions (n = 8, 12, 16); S0 ∈ {2, 4, 8}; r ∈ {2, 4}; ΔS ∈ {1, S0}.
+  - 46 phases × 5 replicates per partition-cell.
+  - 7 policies plus 3 decoder-specific greedy oracles.
+  - Common-random-number streams. Every trajectory is scored under AWQPE ε=0.9, AWQPE ε_safe and D2.
+- **Run.** `p5_adaptive_shots_dev/20260927T0702*`. The analysis used 416/432 shards. The last 16 (n=16, S0=8) finished afterwards; the test analysis uses the full grid.
+- **Results.** Paired difference vs uniform in P(tol), phase-cluster bootstrap 95% CI (276 clusters), in percentage points:
+
+  | policy | AWQPE ε=0.9 | AWQPE ε_safe | D2 |
+  |---|---|---|---|
+  | eig_cell (primary) | **+2.75** [2.26, 3.25] | **+4.51** [3.96, 5.13] | **+2.85** [2.48, 3.24] |
+  | legacy_cw | +2.14 [1.55, 2.67] | +2.46 [1.84, 3.06] | +0.45 [0.06, 0.94] |
+  | ratio | +1.44 | +1.17 | −0.87 |
+  | entropy | +0.60 | +0.21 (ns) | −1.68 |
+  | random | −1.41 | −1.16 | −1.33 |
+  | fisher (negative control) | **−8.26** | **−12.65** | **−13.86** |
+  | greedy oracle (reference) | +9.49 | +7.07 | +2.62 |
+
+- **Efficiency vs the greedy oracle** (eig_cell): 0.29 for ε=0.9, 0.64 for ε_safe, and 1.09 for D2. Above 1 is possible because the oracle is myopic.
+- **Regimes** (eig_cell − uniform, points; order: ε=0.9 / ε_safe / D2):
+  - **Decoder-limited trials** (AWQPE@0.9 fails even with infinite shots): +0.15. Shot allocation cannot fix the decoder floor.
+  - **By S0:** S0=2 gives +4.4 / +7.8 / +5.9; S0=8 gives +1.2 / +1.2 / +0.3.
+  - **By stratum:** S2_boundary gives +4.0 / +7.0 / +4.3, the largest of all strata.
+  - **By n:** n=16 gives +4.4 / +6.2 / +4.2, versus n=8 +2.4 / +4.5 / +2.5.
+  - **By budget:** r=2 gives +3.7 / +6.0 / +4.0; r=4 gives +1.7 / +2.8 / +1.5.
+- **Decision analysis.**
+  - eig_cell has the lowest error regret of the practical policies: 3.2 LSB for D2, against 9.7 for uniform and 58.9 for Fisher.
+  - It has the largest error reduction per extra shot: about 9.0–9.4 LSB per shot, against 7.5–8.2 for uniform and ≈0 for Fisher.
+  - Raw signal-vs-realized Spearman is small (0.04–0.07) because most (decision, block) pairs have zero realized gain. The conditional chose-best metric was added for test (D-019).
+- **Interpretation (dev only).** The information-gain policy beats uniform for every decoder. The advantage concentrates where theory and P4 predicted: low per-block shots, boundary-hard phases, larger n, and tight budgets. It vanishes for decoder-limited failures. Fisher-driven allocation is strongly harmful. Count-based signals are weak and can hurt under D2.
+- **Next.** Held-out test with the frozen configuration (D-019).

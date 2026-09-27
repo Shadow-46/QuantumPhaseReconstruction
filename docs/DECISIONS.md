@@ -154,3 +154,21 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - U-queries and the shot distribution;
   - decision analysis: chose-best rate, regret, and the Spearman correlation of signal vs realized gain.
 - **Decoder-limited trials** (the decoder fails even in the infinite-shot limit) are labelled `limit_correct = False` and analysed separately from shot-fixable trials.
+
+### D-019 (2026-09-27): P5 configuration FROZEN for the held-out test
+- **Test config.** `research/configs/p5_adaptive_test.yaml`
+  - sha256 b4494f0b…331f7d
+  - resolved config_hash 55b4a056e37c1ac1
+- **Code at freeze.**
+  - `allocation/policies.py` sha256 19de6cff…c04b
+  - `run_adaptive_shots.py` sha256 2063f512…2a59f
+  - `summarize_p5.py` sha256 7f5cfbb8…01cc
+  - The commit that contains this entry is the freeze commit.
+- **Identical to dev** (D-018 grid) except `split: test`, the experiment id, the status text, and removal of the pilot overrides. The test split draws phases from a disjoint seed domain and excludes the paper's example phases.
+- **What dev decided (only what D-018 allows):**
+  1. Feasibility: the whole grid ran in about 2 h on dev, so no cell is dropped.
+  2. Sample size: kept at 8 phases per stratum × 5 replicates. Dev phase-cluster 95% CIs on the primary differences were about ±0.5 points, adequate to detect effects of ~1 point.
+  3. EIG support truncation: fixed at tail 1e-6 with at most 8192 points, unchanged.
+- **Not chosen from dev accuracy:** no policy, signal, ΔS or constant. Both ΔS values remain factors.
+- **Analysis addition before test** (descriptive; not part of the primary family): the decision table gains `p_chose_best_when_informative`, the chose-best rate restricted to decisions where some block's next batch changes tolerance success or error. Without it the unconditional rate is dominated by ties.
+- **Primary family unchanged from D-018:** eig_cell vs uniform within each decoder, with Holm across the 3 decoders.
