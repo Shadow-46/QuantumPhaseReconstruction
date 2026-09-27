@@ -1,0 +1,24 @@
+experiment_id: p7_unified_dev
+status: PRELIMINARY / DEV
+description: >
+  Phase 7 dev run (D-031). Unified controller: information-gain choice among chunk shots
+  and overlap blocks (frozen P6 D2 variants bridge_s1 / ext_v1 with A = 2 overlap batches),
+  with P8 posterior-credible stopping. Ablations: stop_eig (no overlap), stop_uniform.
+  Nothing is tuned.
+master_seed: 20260930
+split: dev
+strata: [S0_dyadic, S1_final_half, S2_boundary, S3_near_grid, S4_uniform]
+partitions: [[4, 4], [3, 2, 3], [4, 4, 4], [3, 3, 3, 3], [4, 4, 4, 4]]
+phases_per_stratum: 8
+replicates: 4
+phase_chunk: 8
+S0: 4
+A: 2
+cap_per_block: 128
+alpha: 0.05
+tau_exponents: [half, n]
+likelihood_refine: {"8": 3, "12": 3, "16": 2}
+pilot_overrides:
+  partitions: [[4, 4], [4, 4, 4, 4]]
+  phases_per_stratum: 1
+  replicates: 2

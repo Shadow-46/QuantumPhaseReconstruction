@@ -350,3 +350,18 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - (F1) D2 noise-aware minus faithful AWQPE eps_safe;
   - (F2) D2 noise-aware minus D2 ideal-likelihood (the value of modelling the noise).
 - **Predeclared descriptive audit (no test).** Realised coverage of the stopping arms, ideal vs noise-aware posterior, against 0.95, per setting. A misspecified posterior is expected to be overconfident; this is to be measured, not assumed.
+
+
+### D-031 (2026-09-28): Phase 7 unified controller design, declared before any P7 data
+- **Controller** (`research/awqpe/controller.py`, inside the leakage firewall). Each step either stops or takes one action, per trial.
+  - Action: a batch of S0 = 4 shots on the eligible block (chunk, or overlap candidate) with the largest expected information gain about the tau-resolution cell (P5 signal; cell bits = tau_bits(tau)).
+  - At most A = 2 overlap batches per trial; chunks are capped at 128 shots.
+  - Stop: the P8 credible rule, alpha = 0.05. Decoder: D2.
+  - With no overlap candidates it is bit-identical to the P8 stop_eig arm (tested).
+- **No new tuning.** The overlap mechanisms and A are the P6 D2 selections frozen under D-027 (bridge_s1_A2, ext_v1_eig_A2). tau in {2^-(n/2), 2^-n} (full partitions; overlap acts at internal boundaries).
+- **Arms.** stop_uniform, stop_eig, unified_bridge, unified_ext, all sharing CRN streams.
+- **Test primary family** (Holm over 12 cells). Partitions [4,4], [4,4,4], [4,4,4,4] x tau {2^-(n/2), 2^-n} x mechanism {bridge, ext}. Each cell compares unified_<mechanism> vs stop_eig on mean total shots saved (overlap shots included), with a phase-cluster CI and sign-flip p.
+  - A cell is positive only if shots are saved after Holm and unified coverage is >= 0.95.
+  - U-queries are co-reported. An overlap block is cheaper than the lower chunk it partly replaces, so U may move in either direction.
+- **Secondary.** unified vs stop_uniform; how often the controller uses overlap (overlap_batches); coverage by stratum.
+- **Dev is exploratory.** The test split uses the identical config, run once.
