@@ -554,3 +554,35 @@ Run: `research/results/p8_tolerance_dev/20260927T220813Z` (D-028). Tables: `rese
 - **Allocation (eig vs uniform, both stopping):** a small, consistent saving of 0-5 shots, largest at fine tau (4.6 shots on [4,4,4,4], tau = 2^-16). There is no difference when one block suffices.
 - **tau-matched truncation** saves most of the U-queries (e.g. 262k -> ~60 at tau = 2^-3 on n = 16) and 4-13 shots. At fine tau the prefix equals the full partition.
 - **Interpretation (dev only).** In the ideal model, a posterior-credible stop meets its nominal coverage, and its benefit over a well-tuned fixed budget is concentrated at high precision.
+
+
+## P8: Phase tolerance, Mode B, HELD-OUT TEST (2026-09-28)
+Run: `research/results/p8_tolerance_test/20260927T221029Z` (frozen under D-029, config_hash 248abb85674d7dd9, run once): 40/40 shards, 60 phase clusters x 4 replicates per partition, strata S0-S4. Tables: `research/analysis/tables/p8_test_*.csv`, analysed with the frozen dev S* table. Ideal kernel model, alpha = 0.05.
+
+**Primary family** (stop_eig[_trunc] + D2 vs dev-calibrated fixed S*[_trunc] + D2; shots saved = fixed - stop; phase-cluster CI; Holm over 9 cells):
+
+| partition | tau | stop shots | fixed S* shots | saved [95% CI] | stop cov | fixed cov | Holm p | positive |
+|---|---|---|---|---|---|---|---|---|
+| [4,4] | 2^-3 | 4.10 | 4 (S4, trunc) | -0.10 [-0.18, -0.03] | 1.000 | 1.000 | 0.089 | no |
+| [4,4] | 2^-4 | 4.25 | 4 (S4, trunc) | -0.25 [-0.37, -0.15] | 0.983 | 0.983 | <1e-3 | no (costs more) |
+| [4,4] | 2^-8 | 10.68 | 16 (S8) | +5.32 [4.67, 5.90] | 0.983 | 0.979 | <1e-3 | **yes** |
+| [4,4,4] | 2^-3 | 4.02 | 4 (S4, trunc) | -0.02 [-0.05, 0] | 1.000 | 0.996 | 1.0 | no |
+| [4,4,4] | 2^-6 | 9.62 | 16 (S8, trunc) | +6.38 [5.87, 6.87] | 0.988 | 0.988 | <1e-3 | **yes** |
+| [4,4,4] | 2^-12 | 15.37 | 24 (S8) | +8.63 [7.83, 9.43] | 0.979 | 0.983 | <1e-3 | **yes** |
+| [4,4,4,4] | 2^-3 | 4.05 | 4 (S4, trunc) | -0.05 [-0.12, 0] | 1.000 | 0.996 | 0.50 | no |
+| [4,4,4,4] | 2^-8 | 9.55 | 8 (S4, trunc) | -1.55 [-2.13, -1.03] | 0.988 | **0.921** | <1e-3 | no (fixed under-covers) |
+| [4,4,4,4] | 2^-16 | 21.38 | 64 (S16) | +42.62 [41.35, 43.85] | 0.971 | 0.988 | <1e-3 | **yes** |
+
+- **Positive in 4/9 cells**, all at fine tolerance: a 33-67% shot saving, with U-queries reduced by a similar factor (e.g. 1.05M -> 0.29M on n = 16 at tau = 2^-16).
+- At coarse tau the fixed baseline already runs at the minimum S0 = 4 per block. Stopping cannot go lower and costs 0.02-0.25 extra shots.
+- **Coverage robustness (the main secondary finding).**
+  - All 96 stopping-arm cells reach test coverage >= 0.95 (minimum 0.958).
+  - 2/28 dev-calibrated fixed-S* D2 baselines miss 0.95 on test: [4,4,4,4] trunc, tau 2^-6 and 2^-8, at 0.925 and 0.921. That is where the fixed baseline "wins" on shots.
+  - 4/27 fixed faithful-AWQPE (eps_safe) S* baselines miss 0.95 on test.
+  - The stopping rule adapts its budget to each phase and keeps its nominal coverage; a dev-tuned fixed budget can be marginal out of sample.
+- **Calibration on test.** Trials stopped with credible mass in (0.95, 0.99] were covered 95.7-97.0% of the time; (0.99, 0.999] 99.0-99.5%; above 0.999, 99.9%. The per-(cell, stratum) minimum is 0.917 (24 trials, S2/S3), with no pooled cell below 0.958.
+- **Secondary.**
+  - Allocation (stop_eig vs stop_uniform): 0 to 6.6 shots saved. It is never worse, and the CI excludes 0 in every cell with more than one block in use. The saving is largest at fine tau (4.6-6.6 at tau <= 2^-10 on n >= 12).
+  - tau-matched truncation: 0.4-12.7 shots and most of the U-queries.
+  - Stopping + D2 vs fixed faithful AWQPE at its own S*: up to 235 shots saved (n = 16). This is decoder plus stopping, not stopping alone.
+- **Scope.** Ideal kernel model only; noise is untested (P9). The comparison with AWQPE confounds the decoder with the stopping rule and is reported only as secondary.
