@@ -656,3 +656,37 @@ These are the analytic Dirichlet-level channels, not the published paper's noise
 **Conclusions.**
 1. Under noise, a likelihood decoder that includes the channel beats faithful AWQPE at fixed shots in every tested cell.
 2. The value of modelling the noise shows up mainly in the calibration of stopping decisions, not in point accuracy. An ideal-model posterior becomes overconfident and stops early with under-coverage; the noise-aware posterior keeps nominal coverage by spending more shots.
+
+
+## P7: Unified shots + overlap + stop controller, HELD-OUT TEST (2026-09-28)
+Run: `research/results/p7_unified_test/20260927T222810Z` (frozen under D-033, config_hash c861cebca3de3036, run once): 30/30 shards, 80 phase clusters x 4 replicates per partition. Tables: `research/analysis/tables/p7_test_*.csv`. Ideal kernel model, D2, alpha = 0.05.
+
+**Primary family** (unified_<mechanism> vs stop_eig: the same allocation signal and stopping rule, with overlap as the only difference; shots saved per trial; Holm over 12):
+
+| partition | tau | mechanism | stop_eig shots | unified shots | saved [95% CI] | U change (ref - arm) | coverage | Holm p |
+|---|---|---|---|---|---|---|---|---|
+| [4,4] | 2^-4 | bridge | 8.90 | 8.89 | 0.01 [-0.06, 0.10] | -52 | 0.991 | 1.0 (no) |
+| [4,4] | 2^-4 | ext | 8.90 | 8.78 | 0.13 [0.05, 0.20] | -10 | 0.994 | 0.025 |
+| [4,4] | 2^-8 | bridge | 10.41 | 9.88 | 0.54 [0.29, 0.80] | -133 | 0.988 | <1e-3 |
+| [4,4] | 2^-8 | ext | 10.41 | 9.73 | 0.69 [0.46, 0.94] | -3 | 0.994 | <1e-3 |
+| [4,4,4] | 2^-6 | bridge | 13.29 | 13.00 | 0.29 [0.08, 0.55] | -107 | 0.994 | 0.046 |
+| [4,4,4] | 2^-6 | ext | 13.29 | 12.95 | 0.34 [0.13, 0.60] | -18 | 1.000 | 0.008 |
+| [4,4,4] | 2^-12 | bridge | 15.63 | 14.66 | 0.96 [0.61, 1.36] | -1.6k | 0.984 | <1e-3 |
+| [4,4,4] | 2^-12 | ext | 15.63 | 14.66 | 0.96 [0.64, 1.33] | +144 | 0.988 | <1e-3 |
+| [4,4,4,4] | 2^-8 | bridge | 18.10 | 17.84 | 0.26 [0.08, 0.48] | -1.8k | 0.991 | 0.046 |
+| [4,4,4,4] | 2^-8 | ext | 18.10 | 17.69 | 0.41 [0.21, 0.63] | -102 | 0.991 | <1e-3 |
+| [4,4,4,4] | 2^-16 | bridge | 20.75 | 19.40 | 1.35 [0.93, 1.81] | -12.3k | 0.969 | <1e-3 |
+| [4,4,4,4] | 2^-16 | ext | 20.75 | 19.44 | 1.31 [0.98, 1.71] | +7.3k | 0.972 | <1e-3 |
+
+- **11/12 cells positive** (shots saved after Holm, and coverage >= 0.95). The savings are small: 0.1-6.5% of shots, largest at the finest tolerance.
+- **U-queries.**
+  - Bridge blocks cost more U than the shots they replace in every cell: +0.7% to +12%.
+  - ext is roughly U-neutral (-2.6% to +0.9%). It saves U at the finest tolerances (0.8% at 2^-12 on n = 12, 2.6% at 2^-16 on n = 16).
+  - With U as the cost, the ext variant is the one to prefer.
+- **Overlap use.** Overlap is used in 13-60% of trials, most often at fine tau (about 0.8 batches per trial at 2^-16).
+- **Coverage.** Stratum coverage stays at 0.97-0.995 for all arms. The unified arms are not worse on the S2 boundary stratum (0.990-0.992 vs 0.982 for stop_eig).
+- **The full adaptive stack vs uniform + stop** (secondary):
+  - 0.1-5.6 shots saved, e.g. 24.95 -> 19.40 shots at 2^-16 on n = 16.
+  - Decomposition at 2^-16 on n = 16: allocation (stop_eig vs uniform) gives 4.2 shots; overlap adds 1.3.
+
+**Interpretation.** Composed with information-gain allocation and credible stopping, adaptive overlap still adds a reliable but small improvement. The overlap result is thus positive at every precision level tested, but it is secondary to allocation and stopping in magnitude.

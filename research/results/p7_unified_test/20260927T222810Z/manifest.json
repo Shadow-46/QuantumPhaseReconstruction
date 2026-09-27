@@ -1,0 +1,108 @@
+{
+  "experiment_id": "p7_unified_test",
+  "run_id": "20260927T222810Z",
+  "created_utc": "2026-09-27T22:28:10.128260+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "9f87f2fb7cb9451d12f6d78c1377a5135caf9aed",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_unified.py --config research/configs/p7_unified_test.yaml --max-workers 6",
+  "config": {
+    "experiment_id": "p7_unified_test",
+    "status": "HELD-OUT TEST (frozen, D-033)",
+    "description": "Phase 7 HELD-OUT TEST, run once. Frozen under D-033: the D-031 design on the test split, primary partitions only, 16 phases per stratum.",
+    "master_seed": 20260930,
+    "split": "test",
+    "strata": [
+      "S0_dyadic",
+      "S1_final_half",
+      "S2_boundary",
+      "S3_near_grid",
+      "S4_uniform"
+    ],
+    "partitions": [
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4,
+        4
+      ]
+    ],
+    "phases_per_stratum": 16,
+    "replicates": 4,
+    "phase_chunk": 8,
+    "S0": 4,
+    "A": 2,
+    "cap_per_block": 128,
+    "alpha": 0.05,
+    "tau_exponents": [
+      "half",
+      "n"
+    ],
+    "likelihood_refine": {
+      "8": 3,
+      "12": 3,
+      "16": 2
+    }
+  },
+  "config_hash": "c861cebca3de3036",
+  "shards": {
+    "w4-4_c0": "done",
+    "w4-4_c1": "done",
+    "w4-4_c2": "done",
+    "w4-4_c3": "done",
+    "w4-4_c4": "done",
+    "w4-4_c5": "done",
+    "w4-4_c6": "done",
+    "w4-4_c7": "done",
+    "w4-4_c8": "done",
+    "w4-4_c9": "done",
+    "w4-4-4_c0": "done",
+    "w4-4-4_c1": "done",
+    "w4-4-4_c2": "done",
+    "w4-4-4_c3": "done",
+    "w4-4-4_c4": "done",
+    "w4-4-4_c5": "done",
+    "w4-4-4_c6": "done",
+    "w4-4-4_c7": "done",
+    "w4-4-4_c8": "done",
+    "w4-4-4_c9": "done",
+    "w4-4-4-4_c0": "done",
+    "w4-4-4-4_c1": "done",
+    "w4-4-4-4_c2": "done",
+    "w4-4-4-4_c3": "done",
+    "w4-4-4-4_c4": "done",
+    "w4-4-4-4_c5": "done",
+    "w4-4-4-4_c6": "done",
+    "w4-4-4-4_c7": "done",
+    "w4-4-4-4_c8": "done",
+    "w4-4-4-4_c9": "done"
+  },
+  "status": "HELD-OUT TEST (frozen, D-033)"
+}
