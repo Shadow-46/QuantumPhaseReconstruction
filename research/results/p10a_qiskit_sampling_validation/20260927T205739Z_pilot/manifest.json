@@ -1,0 +1,67 @@
+{
+  "experiment_id": "p10a_qiskit_sampling_validation",
+  "run_id": "20260927T205739Z_pilot",
+  "created_utc": "2026-09-27T20:57:39.725263+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "aabb27ace391e2a3f40d410968c31c3cc2a9b961",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_qiskit_validation.py --pilot --max-workers 2",
+  "config": {
+    "experiment_id": "p10a_qiskit_sampling_validation",
+    "status": "VALIDATION / DEV",
+    "description": "Phase 10a: Qiskit Aer shot sampling of real AWQPE block circuits (phase gate, |1>) vs the Dirichlet-kernel model: per-block goodness of fit and end-to-end decoding equivalence. Ideal circuits, no noise.",
+    "master_seed": 20260927,
+    "phases_per_stratum": 1,
+    "widths": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "offsets": [
+      0,
+      2,
+      5
+    ],
+    "dist_shots": 4096,
+    "e2e_partitions": [
+      [
+        3,
+        2,
+        3
+      ]
+    ],
+    "e2e_phases_per_stratum": 1,
+    "e2e_shots": [
+      4
+    ],
+    "e2e_replicates": 2,
+    "is_pilot": true
+  },
+  "config_hash": "dbb5586037c172e6",
+  "shards": {
+    "dist_c0": "done",
+    "dist_c1": "done",
+    "e2e_w3-2-3_s4_c0": "done",
+    "e2e_w3-2-3_s4_c1": "done"
+  },
+  "status": "VALIDATION / DEV"
+}

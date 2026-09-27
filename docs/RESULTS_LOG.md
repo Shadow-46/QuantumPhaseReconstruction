@@ -477,3 +477,22 @@ Append-only. Each entry names its run directory under `research/results/`. Large
     - Cleanly under D2: about 60 overlap-only rescues against 4-7 shots-only.
   - As a resource-allocation policy the D2 gain is small but consistent under conservative equal-U accounting.
 - **Next.** Held-out test, frozen under D-027, run exactly once.
+
+
+## P10a: Qiskit Aer sampling validation of the Dirichlet-kernel model (2026-09-28), VALIDATION / DEV
+- **Run.** `p10a_qiskit_sampling_validation/20260927T205818Z` (config `p10_qiskit_validation.yaml`): 29/29 shards. Tables: `research/analysis/tables/p10a_*.csv`.
+- **Design.**
+  - Real Qiskit Aer shot sampling of AWQPE block circuits: U = P(2 pi phi) on |1>, the paper's Fig. 1 construction, with transpilation and seeded Aer.
+  - **Part A:** 46 phases x widths {2,3,4,5} x offsets {0,2,5} at 4096 shots.
+  - **Part B:** end-to-end decoding from Aer counts versus kernel-sampled counts. Partitions [3,2,3] and [4,4]; 4, 16 and 64 shots per block; 36 phases x 10 replicates.
+- **Results.**
+  - **Part A, 552 blocks.** 72 blocks are deterministic (grid-aligned phase, one pooled bin); they are excluded from the chi-square test and match exactly. On the remaining 480:
+    - chi-square p-values are uniform (KS p = 0.72), with 6.0% rejecting at 0.05;
+    - mean total-variation distance is 0.0077 (max 0.032), consistent with sampling noise;
+    - the top-1 outcome agrees in 100% of 518 non-tie blocks.
+  - **Part B.** Success rates from Aer and kernel counts agree within sampling error in all 18 decoder x shot cells (max |z| = 2.33, not significant after multiplicity).
+    - The Aer-minus-kernel differences are mostly non-negative (up to +5.8 pts at 4 shots per block).
+    - Cells share phases and replicates, and the eps 0.9 and eps_safe cells coincide at 4 shots, so this is not an independent sign test.
+    - A phase-cluster paired analysis is the right follow-up if the sign pattern persists.
+- **Interpretation.** The Dirichlet-kernel simulator used in P1-P6 reproduces ideal circuit-level Qiskit sampling. No model mismatch is detectable at this resolution.
+- **Remaining for P10.** Circuit-level noise channels versus the analytic noise laws (pending P9), and the CPU-vs-GPU benchmark.

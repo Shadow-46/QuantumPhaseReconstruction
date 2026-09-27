@@ -1,0 +1,39 @@
+experiment_id: p10a_qiskit_sampling_validation
+status: VALIDATION / DEV
+description: 'Phase 10a: Qiskit Aer shot sampling of real AWQPE block circuits (phase
+  gate, |1>) vs the Dirichlet-kernel model: per-block goodness of fit and end-to-end
+  decoding equivalence. Ideal circuits, no noise.'
+master_seed: 20260927
+phases_per_stratum: 8
+widths:
+- 2
+- 3
+- 4
+- 5
+offsets:
+- 0
+- 2
+- 5
+dist_shots: 4096
+e2e_partitions:
+- - 3
+  - 2
+  - 3
+- - 4
+  - 4
+e2e_phases_per_stratum: 6
+e2e_shots:
+- 4
+- 16
+- 64
+e2e_replicates: 10
+pilot_overrides:
+  phases_per_stratum: 1
+  e2e_partitions:
+  - - 3
+    - 2
+    - 3
+  e2e_phases_per_stratum: 1
+  e2e_shots:
+  - 4
+  e2e_replicates: 2
