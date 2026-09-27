@@ -30,3 +30,13 @@ def test_shard_ideal_and_noisy():
     st = noisy[noisy.arm == "stop_tau4"]
     assert (st.shots <= 64).all() and st.tau.eq(2**-4).all()
     assert ideal.equals(noise_shard(cfg, {**base, "noise_id": "ideal", "channel": "none", "noise": {}}))
+
+
+def test_aer_repeated_query_block_is_exact_without_noise():
+    from research.awqpe.run_aer_noise import depol_row
+
+    probs, ideal, lam, fit_tv, raw_tv = depol_row(0.3137, 1, 3, 0.0)
+    np.testing.assert_allclose(probs, ideal, atol=1e-12)
+    assert lam == 0.0 and raw_tv < 1e-12
+    _, _, lam, fit_tv, raw_tv = depol_row(0.3137, 1, 3, 1e-2)
+    assert 0 < lam < 1 and 0 <= fit_tv <= raw_tv

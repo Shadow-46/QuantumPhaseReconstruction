@@ -384,3 +384,14 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - 16 phases per stratum (80 clusters per partition, up from 40 on dev) for power, because dev effects are about 0.5-1.6 shots.
 - **Primary family.** The 12 cells of D-031, Holm. `summarize_p7.py` marks a cell positive only if Holm p < 0.05, shots are saved, and unified coverage is >= 0.95.
 - **Test is run exactly once.**
+
+
+### D-034 (2026-09-28): Phase 10b, Aer circuit-level noise vs the analytic channels (validation, no tuning)
+- **Readout.** Aer ReadoutError, symmetric p in {0.01, 0.05}, 100k shots, blocks (k, m) in {(0,3), (2,4)}. Chi-square GOF vs apply_readout. An exact match is expected.
+- **Jitter.** Aer exact block probabilities averaged over K = 2000 offsets xi ~ N(0, sigma^2), running the block at phi + xi / 2^k, compared bin by bin (Monte Carlo z) with the analytic damping law, sigma in {0.02, 0.04}.
+  - Design note, found while building: pooling shot counts over a finite set of K offsets tests the empirical K-point mixture, not the Gaussian mixture. At 100k shots and K = 500 that rejects the correct law (chi-square p ~ 1e-238), even though the analytic law matches direct Monte Carlo averaging to 8e-4. The exact-probability design removes this artefact.
+- **Depolarisation.** U applied by repetition (q = 2^k (2^m - 1) labelled controlled-phase gates), each followed by a two-qubit depolarising error p_g in {1e-3, 3e-3, 1e-2}; H and the inverse QFT are noiseless; density-matrix exact probabilities; k in 0-3, m in 2-4. Reported:
+  - lambda_hat, the least-squares global-depolarising fit;
+  - the residual TV of that best fit, i.e. how far circuit noise is from the analytic white-noise form;
+  - the scaling of lambda_hat with q, against the analytic per-query law lambda = 1 - exp(-gamma q).
+- **Phases.** 6 dev phases (S4 uniform, S1 final-half).
