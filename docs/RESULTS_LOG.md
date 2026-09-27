@@ -628,3 +628,31 @@ Run: `research/results/p7_unified_dev/20260927T222006Z` (D-031). Tables: `resear
   - ext costs slightly more U at coarse tau and saves 18k (6%) at tau = 2^-16 on n = 16.
 - **Unified vs uniform + stop:** 1.5-5.9 shots saved in every cell. Most of this comes from information-gain allocation; overlap adds a smaller, separate increment.
 - **Interpretation (dev only).** Overlap still adds information once allocation and stopping are adaptive, but its marginal value is small, about the size of one batch at the finest tolerance.
+
+
+## P9: Noise (analytic channels), HELD-OUT TEST (2026-09-28)
+Run: `research/results/p9_noise_test/20260927T222137Z` (frozen under D-032, config_hash bc00d4a31d44329d, run once): 198/198 shards, 60 phase clusters x 4 replicates per partition. Tables: `research/analysis/tables/p9_test_*.csv`.
+
+These are the analytic Dirichlet-level channels, not the published paper's noise models (unverified).
+
+**Primary family** (36 cells, Holm; S = 16 per block; success = error <= 2^-n; settings ro03, dp5, jt02, comb):
+- **F1, noise-aware D2 vs faithful AWQPE eps_safe: 12/12 significant.** +6.7 to +20.4 points, the largest being combined noise on n = 16 (97.9% vs 77.5%). All Holm p <= 0.016.
+- **F2, noise-aware vs ideal-likelihood D2: 2/12 significant.** Both are the combined setting: +5.0 on n = 12 and +10.4 on n = 16. Under a single weak or moderate channel, a decoder that ignores the noise loses little. In one cell (ro03, n = 16) the difference is -1.25 [-2.9, 0].
+- **F3, stopping coverage at tau = 2^-n, noise-aware vs ideal posterior: 5/12 significant.**
+  - comb n = 12: +6.3 (0.958 vs 0.896);
+  - comb n = 16: +22.1 (0.983 vs 0.762);
+  - jt02 n = 12: +6.7;
+  - jt02 n = 16: +7.1;
+  - dp5 n = 16: +5.4.
+  - The misspecified stop falls below 0.95 in 7/12 primary cells. The noise-aware stop falls below 0.95 in none (minimum 0.950).
+
+**Secondary (descriptive).**
+- **Strong jitter (sigma 0.04).**
+  - The misspecified stop covers 0.867 / 0.725 / 0.533 on n = 8 / 12 / 16. The noise-aware stop covers 0.971 / 0.975 / 0.958, at a cost of 22-42% more shots.
+  - Fixed S = 16 success is 0.58-0.79 for AWQPE eps_safe vs 0.94-0.97 for noise-aware D2.
+- **Per-query depolarisation gamma = 1e-4 on n = 16.** The last block is essentially white noise. Every decoder fails (0.13-0.39). The noise-aware stop reaches only 0.829 coverage after 685 shots, because many trials hit the cap; the misspecified stop reaches 0.233 coverage after 50 shots. Exponentially costly low-order blocks set a hard precision ceiling under per-query noise.
+- **Readout (1-5%).** Mild for every decoder. The misspecified stop dips to 0.92-0.96 at 5%.
+
+**Conclusions.**
+1. Under noise, a likelihood decoder that includes the channel beats faithful AWQPE at fixed shots in every tested cell.
+2. The value of modelling the noise shows up mainly in the calibration of stopping decisions, not in point accuracy. An ideal-model posterior becomes overconfident and stops early with under-coverage; the noise-aware posterior keeps nominal coverage by spending more shots.
