@@ -1,0 +1,77 @@
+experiment_id: p6_adaptive_overlap_test
+status: HELD-OUT TEST (frozen, D-027)
+description: 'Phase 6 HELD-OUT TEST, run once. Frozen under D-027: the dev grid of
+  D-026 restricted to the variants selected on dev by the predeclared rule.'
+master_seed: 20260927
+split: test
+strata:
+- S0_dyadic
+- S1_final_half
+- S2_boundary
+- S3_near_grid
+- S4_uniform
+partitions:
+- - 4
+  - 4
+- - 3
+  - 2
+  - 3
+- - 2
+  - 2
+  - 2
+  - 2
+- - 4
+  - 4
+  - 4
+- - 3
+  - 3
+  - 3
+  - 3
+- - 4
+  - 4
+  - 4
+  - 4
+phases_per_stratum: 8
+replicates: 5
+S0:
+- 2
+- 4
+- 8
+budget_multipliers:
+- 2
+- 4
+dS:
+- S0
+likelihood_refine:
+  '8': 3
+  '12': 3
+  '16': 2
+stream_multiplier: 6
+phase_chunk: 8
+rescue_oracle_decoders:
+- awqpe
+- awqpe_eps_safe
+- awqpe_ext
+- awqpe_eps_safe_ext
+- likelihood
+variants:
+- label: ext_v1_eig_A2
+  mechanism: ext
+  v: 1
+  A_max: 2
+  trigger: eig
+- label: ext_v1_gated_A1
+  mechanism: ext
+  v: 1
+  A_max: 1
+  trigger: lowerhalf_gated
+- label: ext_v1_gated_A2
+  mechanism: ext
+  v: 1
+  A_max: 2
+  trigger: lowerhalf_gated
+- label: bridge_s1_A2
+  mechanism: bridge
+  shift: '1'
+  A_max: 2
+  trigger: eig

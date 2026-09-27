@@ -433,3 +433,47 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   1. Report O-ext + extended decoder separately from D2.
   2. A mechanism-motivated trigger that takes overlap only at rule-applicable boundaries (`lowerhalf_gated`) is a natural dev candidate. It must be evaluated on the full dev grid alongside the existing triggers, not adopted from this diagnostic.
   3. v = 2 is dropped on mechanism and cost grounds (D-025, pending review).
+
+
+## P6: Adaptive overlap, full DEV grid (2026-09-28), PRELIMINARY / DEV
+- **Run.** `p6_adaptive_overlap_dev/20260927T174305Z` (config `p6_overlap_dev.yaml`, protocol D-026): 216/216 shards, 0 failed, about 3 h.
+- **Grid.**
+  - n = 8, 12, 16 (6 partitions); strata S0-S5, 46 phases x 5 replicates per partition-cell.
+  - S0 in {2, 4, 8}, r in {2, 4}, batch = S0.
+  - 10 variants: O-ext v1 x {eig, lowerhalf, gated} x A in {1, 2}; O-bridge x {s1, half} x A in {1, 2}.
+- **Tables.** `research/analysis/tables/p6_dev_*.csv`.
+- **Equal-U brackets.** No invalid upper brackets occurred (0 excluded of 8,280 pairs per comparison). Upper-bracket baselines used 2-11% more U-queries than the overlap arm, i.e. the comparison is conservative.
+- **Claim A (D2 likelihood; overlap adds information).** B4 (P5 eig + overlap) vs P5 eig:
+
+  | accounting | gain (pts) |
+  |---|---|
+  | equal shots | +0.6 to +1.7 |
+  | equal U, upper bracket | +0.29 to +0.75 (all CIs above 0) |
+  | equal U, lower bracket | +0.33 to +0.77 |
+
+  Overlap-only vs uniform: +1.2 to +3.7 at equal shots, +1.2 to +3.7 at equal U (upper). Best O-bridge is shift 1, A = 2; best D2 O-ext is the eig trigger with A = 2.
+- **Claim B (O-ext + extended decoder, NOT faithful AWQPE).**
+  - Only the **gated** trigger helps: +6.86 (eps 0.9 extended) and +2.73 (safe-eps extended) at equal U (upper).
+  - The ungated eig and lowerhalf triggers are null or harmful: -8.5 to +1.1. This replicates the P6D-1 mechanism: without gating, most overlap lands where the extended rule cannot act.
+- **Claim C (resource allocation).**
+  - With the likelihood decoder, overlap plus eig beats eig with extra shots at matched or greater quantum work, but only by 0.3-0.75 pts. It is a small efficiency gain.
+  - With the extended decoder and the gated trigger, the gain is several points at matched quantum work.
+- **Rescue classification** (selected variants, P5-policy failures, one or two extra batches, raw counts):
+
+  | decoder | failure type | failures | shots only | overlap only | both | neither |
+  |---|---|---|---|---|---|---|
+  | awqpe_ext | **decoder-limited** | 196 | 9 | **143** | 20 | 24 |
+  | awqpe_ext | shot-fixable class | 1158 | 226 | 350 | 138 | 444 |
+  | awqpe_eps_safe_ext | shot-fixable class | 770 | 188 | 216 | 117 | 249 |
+  | likelihood (O-ext) | all | 167 | 4 | 60 | 101 | 2 |
+  | likelihood (O-bridge) | all | 167 | 7 | 55 | 98 | 7 |
+
+  Oracle capability is shown above; the practical triggers follow the same pattern (for example 154 of 196 decoder-limited failures overlap-only).
+- **By n (unexpected).** O-ext rescue under the extended decoder collapses at n = 16: overlap-only 13 of 237 failures, against 379 of 717 at n = 8. The D2 rescue does not collapse (17 of 40 overlap-only at n = 16). A likely cause is that with four blocks at n = 16 fewer failures sit in the lowerhalf situation the extended rule addresses. This is to be characterised, not assumed.
+- **By stratum.** Boundary-hard phases (S2) hold the largest share of overlap-only rescues for every decoder.
+- **Interpretation (dev).**
+  - Changing window geometry does recover failures that extra shots on existing windows do not.
+    - Most clearly for decoder-limited failures under the extended decoder: 163 of 196 rescued by overlap, against 29 by shots.
+    - Cleanly under D2: about 60 overlap-only rescues against 4-7 shots-only.
+  - As a resource-allocation policy the D2 gain is small but consistent under conservative equal-U accounting.
+- **Next.** Held-out test, frozen under D-027, run exactly once.

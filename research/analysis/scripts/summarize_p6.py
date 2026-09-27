@@ -128,6 +128,7 @@ def main() -> None:
     ap.add_argument("--tag", required=True)
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--perm", type=int, default=20000)
+    ap.add_argument("--frozen-selection", default=None, help="test mode: CSV of frozen selections; disables re-selection")
     args = ap.parse_args()
     run = Path(args.run).resolve()
     tag = run.relative_to(REPO_ROOT).as_posix()
@@ -136,6 +137,8 @@ def main() -> None:
     f = pd.concat([pd.read_parquet(x, filters=[("row_type", "==", "final")]) for x in files], ignore_index=True).dropna(axis=1, how="all")
     a = pd.concat([pd.read_parquet(x, filters=[("row_type", "==", "action")]) for x in files], ignore_index=True).dropna(axis=1, how="all")
     assert_no_legacy_arms(f)
+    if args.tag == "test" and not args.frozen_selection:
+        raise SystemExit("test analysis requires --frozen-selection (no re-selection on held-out data)")
     f["cluster"] = f["widths"] + "|" + f["phase_id"]
     OUT.mkdir(parents=True, exist_ok=True)
     meta = {"run": tag, "status": status}
@@ -159,7 +162,18 @@ def main() -> None:
         for i, p in holm(dict(zip(g.index, g.p_signflip))).items():
             comp.loc[i, "p_holm_across_variants"] = p
     comp.assign(**meta).to_csv(OUT / f"p6_{args.tag}_comparisons.csv", index=False)
-    select_variants(comp).assign(**meta).to_csv(OUT / f"p6_{args.tag}_selection.csv", index=False)
+    if args.frozen_selection:
+        # Held-out test: NO re-selection. Primary family = the frozen (mechanism, decoder, variant) triples,
+        # upper-bracket equal-U comparison, Holm across the whole family (D-027).
+        frozen = pd.read_csv(args.frozen_selection)[["mechanism", "decoder", "selected_variant"]]
+        fam = comp[comp.comparison == PRIMARY_COMPARISON].merge(frozen, left_on=["mechanism", "decoder", "variant"],
+                                                                right_on=["mechanism", "decoder", "selected_variant"])
+        if len(fam) != len(frozen):
+            raise ValueError("frozen selection not fully present in the test run")
+        fam["p_holm_primary_family"] = fam.index.map(holm(dict(zip(fam.index, fam.p_signflip))))
+        fam.assign(**meta).to_csv(OUT / f"p6_{args.tag}_primary_family.csv", index=False)
+    else:
+        select_variants(comp).assign(**meta).to_csv(OUT / f"p6_{args.tag}_selection.csv", index=False)
 
     rescue_table(f).assign(**meta).to_csv(OUT / f"p6_{args.tag}_rescue.csv", index=False)
 

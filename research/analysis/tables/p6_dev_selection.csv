@@ -1,0 +1,5 @@
+mechanism,decoder,selected_variant,diff_p_tol,ci_lo,ci_hi,p_holm_across_variants,mean_u_overlap_arm,tie_broken_by_u,runner_up,runner_up_diff,run,status
+bridge,likelihood,bridge_s1_A2,0.0074879227053140105,0.004951690821256039,0.01002415458937198,0.0,295056.89468599035,False,bridge_half_A2,0.005917874396135265,research/results/p6_adaptive_overlap_dev/20260927T174305Z,PRELIMINARY / DEV
+ext,awqpe_eps_safe_ext,ext_v1_gated_A1,0.027294685990338168,0.018115942028985508,0.03720108695652172,0.0,265486.97439613525,False,ext_v1_gated_A2,0.027173913043478264,research/results/p6_adaptive_overlap_dev/20260927T174305Z,PRELIMINARY / DEV
+ext,awqpe_ext,ext_v1_gated_A2,0.06859903381642511,0.05120169082125604,0.08744263285024154,0.0,265477.07487922703,False,ext_v1_gated_A1,0.06847826086956521,research/results/p6_adaptive_overlap_dev/20260927T174305Z,PRELIMINARY / DEV
+ext,likelihood,ext_v1_eig_A2,0.0050724637681159425,0.0031400966183574882,0.007004830917874397,0.0,304189.14758454106,False,ext_v1_lowerhalf_A1,0.0036231884057971015,research/results/p6_adaptive_overlap_dev/20260927T174305Z,PRELIMINARY / DEV

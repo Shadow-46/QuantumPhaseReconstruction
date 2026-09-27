@@ -281,3 +281,17 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - (A) D2: overlap geometry adds information.
   - (B) O-ext + `awqpe_ext`: a new extended decoder can exploit O-ext.
   - (C) Resource allocation: overlap versus extra shots at equal U-queries.
+
+
+### D-027 (2026-09-28): P6 variants FROZEN for the held-out test (selection by the D-026 rule on dev)
+- **Dev run.** `p6_adaptive_overlap_dev/20260927T174305Z`: 216/216 shards, 0 failed.
+- **Selected** (primary = B4 - B2m_upper at equal U, phase-cluster CI, Holm across variants within mechanism x decoder):
+  - O-bridge, D2 likelihood: **bridge_s1_A2**, +0.75 pts [0.50, 1.00], Holm p < 1e-4 (runner-up bridge_half_A2, +0.59).
+  - O-ext, D2 likelihood: **ext_v1_eig_A2**, +0.51 [0.31, 0.70], Holm p < 1e-4 (runner-up ext_v1_lowerhalf_A1, +0.36).
+  - O-ext + awqpe_ext (eps 0.9, extended decoder): **ext_v1_gated_A2**, +6.86 [5.12, 8.74], Holm p < 1e-4 (runner-up ext_v1_gated_A1, +6.85; A2 also has the lower U).
+  - O-ext + awqpe_eps_safe_ext (extended decoder): **ext_v1_gated_A1**, +2.73 [1.81, 3.72], Holm p < 1e-4 (runner-up ext_v1_gated_A2, +2.72).
+- **Test config.** `research/configs/p6_overlap_test.yaml`: the D-026 grid on the test split, restricted to these four variants. S5 (paper phases) never appears in test. config_hash a5ffa3c9e917e95f, sha256 7f7ed4d6b1f2a292.
+- **Frozen selection file.** `research/configs/p6_frozen_selection.csv`, sha256 7a5e30b2e1b57b20.
+- **Test primary family.** The 4 (mechanism, decoder, variant) triples above, comparison B4 vs B2m_upper (equal U, conservative), Holm across all 4. `summarize_p6.py --tag test --frozen-selection` refuses to re-select.
+- **Secondary.** Equal-shot and lower-bracket comparisons, overlap-only vs uniform, the rescue table and strata. No multiplicity claims.
+- **Test is run exactly once.** No parameter may change after test data exist.
