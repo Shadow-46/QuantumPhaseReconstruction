@@ -395,3 +395,14 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - the residual TV of that best fit, i.e. how far circuit noise is from the analytic white-noise form;
   - the scaling of lambda_hat with q, against the analytic per-query law lambda = 1 - exp(-gamma q).
 - **Phases.** 6 dev phases (S4 uniform, S1 final-half).
+
+
+### D-035 (2026-09-28): Replication of a P10a sign pattern, declared before running
+- **The signal.** A post hoc phase-cluster paired analysis of the P10a end-to-end data (72 clusters) finds Aer-sampled counts decoding slightly better than kernel-sampled counts:
+  - AWQPE@0.9: +2.4 pts, CI [0.7, 4.1], sign-flip p = 0.007;
+  - eps_safe and D2: +1.2 to +1.4, p about 0.055.
+- **Already ruled out.** A high-power check on exactly those blocks (200k Aer shots per block, 180 blocks) finds no distribution mismatch: KS of GOF p-values = 0.22, mean TV 0.001, top-bin difference -0.00004 +/- 0.0008. Both samplers are exact multinomials.
+- **Replication.** `research/configs/p10a_replication.yaml`: the same end-to-end design with a new master seed (20261002), hence new phases and shots.
+- **Criterion.**
+  - Primary: the paired Aer-minus-kernel difference for AWQPE@0.9 (the flagged decoder), phase-cluster sign-flip test, two-sided.
+  - The pattern counts as replicated if p < 0.05 with the same sign. Otherwise it is recorded as a chance finding.
