@@ -644,7 +644,7 @@ These are the analytic Dirichlet-level channels, not the published paper's noise
   - jt02 n = 12: +6.7;
   - jt02 n = 16: +7.1;
   - dp5 n = 16: +5.4.
-  - The misspecified stop falls below 0.95 in 7/12 primary cells. The noise-aware stop falls below 0.95 in none (minimum 0.950).
+  - The misspecified stop falls below 0.95 in 6/12 primary cells. The noise-aware stop falls below 0.95 in none (minimum 0.950).
 
 **Secondary (descriptive).**
 - **Strong jitter (sigma 0.04).**
