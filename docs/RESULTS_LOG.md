@@ -316,3 +316,8 @@ Append-only. Each entry names its run directory under `research/results/`. Large
   - The EIG signal uses the ideal model's posterior; its robustness to model mismatch under noise is untested.
   - Absolute gains are modest (about 3–5 points pooled; up to about 8.6 in the best regime).
 - **Next decision (for the user).** Shots help only where uncertainty is shot-fixable. For AWQPE@0.9, most of the remaining oracle headroom lies in outcomes that shots cannot fix. That is the evidence base for P6 (adaptive overlap). P6 is not started, pending review.
+
+### P5 dev addendum (2026-09-27)
+- The 6 dev shards that failed with out-of-memory errors were re-run and completed (432/432). The failures were caused by running the dev analysis concurrently with the workers.
+- On the full dev grid, eig_cell − uniform is **+2.68 / +4.35 / +2.71** points (ε=0.9 / ε_safe / D2), against +2.75 / +4.51 / +2.85 on 416/432 shards. Fisher is −8.10 / −12.63 / −13.42.
+- `p5_dev_*.csv` now reflects the full grid. The test was frozen before these shards finished, and nothing about the test depended on them (D-019).
