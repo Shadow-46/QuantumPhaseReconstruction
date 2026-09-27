@@ -703,6 +703,6 @@ Run: `research/results/p10b_aer_noise/20260927T222838Z` (D-034): 9/9 shards, 6 d
     - Blocks with the same largest power but different q have lam within 6% of each other; e.g. (k,m) = (3,2), q = 24 and (1,4), q = 30 give 0.0175 vs 0.0179, where the total-q law predicts a 25% difference.
 - **Consequence for P9.**
   - The readout and jitter results transfer directly to circuit-level noise of those types.
-  - The per-query depolarisation results are for a stylised channel. The qualitative conclusions (low-order blocks become exponentially noisier with k; a misspecified posterior over-covers less than a noise-aware one) rest on features the circuit noise shares.
+  - The per-query depolarisation results are for a stylised channel. The qualitative conclusions (low-order blocks become exponentially noisier with k; a misspecified posterior under-covers where a noise-aware one does not) rest on features the circuit noise shares.
   - The exact numbers under depolarisation should not be read as circuit-level predictions.
 - **GPU benchmark.** Not run. The circuits here are 3-7 qubits, where CPU Aer is fast. GPU Aer would need installing qiskit-aer-gpu in WSL (Linux-only; Blackwell support uncertain). That software install was deferred rather than done unattended.
