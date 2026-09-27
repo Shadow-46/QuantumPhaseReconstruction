@@ -330,3 +330,23 @@ Entries are append-only. A decision that changes later gets a new entry that ref
   - Where dev already shows the stopping arm spending more shots than the fixed S* baseline (coarse tau, where S* = S0 = 4), the cell stays in the family. It was declared before the data; it is not dropped.
   - `summarize_p8 --tag test` refuses to run without the frozen S* table.
 - **Test is run exactly once.**
+
+
+### D-030 (2026-09-28): Phase 9 noise design, declared before dev data
+- **The published noise models are unverified.** The published AQT version mentions noise models that arXiv v3 lacks, and the published PDF has not been supplied (docs/refs/ is empty). P9 therefore uses only the analytic channels of `model/noise.py` and makes no claim about the paper's noise results. When the PDF arrives, its noise models are to be diffed and, if needed, added as a separate P9b.
+- **Settings.**
+  - Ideal.
+  - Symmetric readout p in {0.01, 0.03, 0.05}.
+  - Per-query global depolarisation gamma in {1e-6, 1e-5, 1e-4}, with lambda = 1 - exp(-gamma q) and q = 2^k (2^m - 1). This makes low-order blocks exponentially noisier.
+  - Fixed control-phase jitter sigma in {0.01, 0.02, 0.04}.
+  - Combined (readout 0.02, gamma 1e-5, jitter 0.02).
+  - Partitions [4,4], [4,4,4], [4,4,4,4]; strata S0-S4.
+- **Arms.**
+  - fixed S in {16, 64, 256} per block, decoded by AWQPE eps 0.9, AWQPE eps_safe, D2 with the ideal likelihood (misspecified), and D2 noise-aware (true channel in the likelihood).
+  - P8 credible stopping (uniform, S0 = 4, cap 256, alpha 0.05) at tau = 2^-(n/2) and 2^-n, with the ideal vs the noise-aware posterior.
+  - Common random numbers across arms within a setting.
+- **Nothing is tuned.** Dev is exploratory. The test split uses the identical config.
+- **Test primary family** (Holm over 24 cells). Endpoint: success at 2^-n, fixed S = 64, paired per trial and clustered by phase. Cells are the 3 partitions x {ro03, dp5, jt02, comb}, in two families:
+  - (F1) D2 noise-aware minus faithful AWQPE eps_safe;
+  - (F2) D2 noise-aware minus D2 ideal-likelihood (the value of modelling the noise).
+- **Predeclared descriptive audit (no test).** Realised coverage of the stopping arms, ideal vs noise-aware posterior, against 0.95, per setting. A misspecified posterior is expected to be overconfident; this is to be measured, not assumed.
