@@ -690,3 +690,19 @@ Run: `research/results/p7_unified_test/20260927T222810Z` (frozen under D-033, co
   - Decomposition at 2^-16 on n = 16: allocation (stop_eig vs uniform) gives 4.2 shots; overlap adds 1.3.
 
 **Interpretation.** Composed with information-gain allocation and credible stopping, adaptive overlap still adds a reliable but small improvement. The overlap result is thus positive at every precision level tested, but it is secondary to allocation and stopping in magnitude.
+
+
+## P10b: Aer circuit-level noise vs the analytic channels (2026-09-28) -- VALIDATION
+Run: `research/results/p10b_aer_noise/20260927T222838Z` (D-034): 9/9 shards, 6 dev phases.
+
+- **Readout: exact agreement.** 24 GOF tests (100k shots each, p in {0.01, 0.05}, blocks (0,3), (2,4)). Only 1 has p < 0.05 (minimum 0.023), as expected by chance. Max TV is 0.004.
+- **Jitter: agreement.** Aer exact probabilities averaged over 2000 Gaussian offsets vs the analytic Fejer damping: max |z| over all bins is 2.92 (median of the per-test maxima 1.04; 24 tests of 8-16 bins). Max TV is 0.019, which is Monte Carlo error.
+- **Depolarisation: the analytic global-white-noise form is only an approximation of gate-level noise.** The circuits used repeated controlled-U gates, each followed by a two-qubit depolarising error.
+  - **Shape.** The best-fitting global form (1 - lam) p + lam / M leaves 43-46% of the circuit's deviation from the ideal distribution unexplained (mean fit TV / noise TV). Local errors dephase individual controls instead of mixing uniformly over outcomes.
+  - **Scaling.** The fitted lam grows with block cost roughly as the analytic law predicts (lam = 1 - exp(-c q) fits with R^2 0.94-0.96; c / p_g = 0.45-0.48). It is better described by the block's largest power 2^(k+m-1) (R^2 0.96-0.975).
+    - Blocks with the same largest power but different q have lam within 6% of each other; e.g. (k,m) = (3,2), q = 24 and (1,4), q = 30 give 0.0175 vs 0.0179, where the total-q law predicts a 25% difference.
+- **Consequence for P9.**
+  - The readout and jitter results transfer directly to circuit-level noise of those types.
+  - The per-query depolarisation results are for a stylised channel. The qualitative conclusions (low-order blocks become exponentially noisier with k; a misspecified posterior over-covers less than a noise-aware one) rest on features the circuit noise shares.
+  - The exact numbers under depolarisation should not be read as circuit-level predictions.
+- **GPU benchmark.** Not run. The circuits here are 3-7 qubits, where CPU Aer is fast. GPU Aer would need installing qiskit-aer-gpu in WSL (Linux-only; Blackwell support uncertain). That software install was deferred rather than done unattended.

@@ -1,0 +1,117 @@
+{
+  "experiment_id": "p10b_aer_noise",
+  "run_id": "20260927T222759Z_pilot",
+  "created_utc": "2026-09-27T22:27:59.243390+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "9f87f2fb7cb9451d12f6d78c1377a5135caf9aed",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_aer_noise.py --pilot --max-workers 2",
+  "config": {
+    "experiment_id": "p10b_aer_noise",
+    "status": "VALIDATION / DEV",
+    "description": "Phase 10b (D-034): Qiskit Aer circuit-level noise vs the analytic channels. Readout (chi-square GOF), control-phase jitter (exact probabilities averaged over Gaussian offsets, bin-wise Monte Carlo z) and per-query two-qubit depolarising noise on repeated controlled-U gates (density matrix; global-depolarising fit and lambda-vs-q scaling).\n",
+    "master_seed": 20261001,
+    "phases_per_stratum": 1,
+    "rj_blocks": [
+      [
+        0,
+        3
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "readout_p": [
+      0.01,
+      0.05
+    ],
+    "shots": 20000,
+    "jitter_sigma": [
+      0.02,
+      0.04
+    ],
+    "jitter_draws": 200,
+    "depol_blocks": [
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "depol_pg": [
+      0.001,
+      0.003,
+      0.01
+    ],
+    "is_pilot": true
+  },
+  "config_hash": "ea8ff82d7e43f4a5",
+  "shards": {
+    "readout_c0": "done",
+    "jitter_c0": "done",
+    "depol_c0": "done"
+  },
+  "status": "VALIDATION / DEV"
+}
