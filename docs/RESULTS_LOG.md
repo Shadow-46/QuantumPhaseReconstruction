@@ -613,3 +613,18 @@ These are the analytic channels of model/noise.py, not the published paper's noi
   - The noise-aware posterior holds 0.93-0.98 in most settings, but not at dp4 on n = 16 (0.82, 20% of trials capped without stopping).
   - The overconfident, misspecified stop spends fewer shots, e.g. 34 vs 44 at jt04, n = 16.
 - **Design consequence (D-032).** The primary endpoint moves to S = 16 (S = 64 is at ceiling), and F3 (stopping coverage) is added. The test is run once.
+
+
+## P7: Unified shots + overlap + stop controller, DEV (2026-09-28) -- PRELIMINARY / DEV
+Run: `research/results/p7_unified_dev/20260927T222006Z` (D-031). Tables: `research/analysis/tables/p7_dev_*.csv`. Ideal kernel model, D2 decoder, alpha = 0.05.
+
+- **Unified vs information-gain shots + stop (same stopping rule; overlap is the only difference):**
+  - Savings of 0.05 to 1.6 shots (0.5-7.5%), largest at tau = 2^-n on n = 16 (bridge 21.7 -> 20.1, ext 21.7 -> 20.1).
+  - 8/12 primary cells are positive on dev. The exceptions are the coarse-tau bridge cells and ext on [4,4] at tau = 2^-4.
+  - Coverage is unchanged (0.97-1.00).
+- **Overlap use.** The controller spends 0.1-0.95 overlap batches per trial (of at most 2). It uses more at fine tau and on n = 16.
+- **U-queries.**
+  - Bridge blocks cost more U than the shots they displace (e.g. +7.3k on n = 16, i.e. 2.4%).
+  - ext costs slightly more U at coarse tau and saves 18k (6%) at tau = 2^-16 on n = 16.
+- **Unified vs uniform + stop:** 1.5-5.9 shots saved in every cell. Most of this comes from information-gain allocation; overlap adds a smaller, separate increment.
+- **Interpretation (dev only).** Overlap still adds information once allocation and stopping are adaptive, but its marginal value is small, about the size of one batch at the finest tolerance.

@@ -375,3 +375,12 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 - **Primary family.** 36 cells (F1, F2, F3 x 3 partitions x 4 settings), Holm across all 36.
 - **Test config.** `research/configs/p9_noise_test.yaml`, 12 phases per stratum, 4 replicates, otherwise identical to dev. config_hash bc00d4a31d44329d. The analysis is `summarize_p9.py` with PRIMARY_ARM = fixed_S16.
 - **Test is run exactly once.**
+
+
+### D-033 (2026-09-28): P7 FROZEN for the held-out test
+- **Dev run.** `p7_unified_dev/20260927T222006Z`: 25/25 shards, 0 failed. Nothing was tuned on dev; the design is unchanged from D-031.
+- **Test config.** `research/configs/p7_unified_test.yaml`, config_hash c861cebca3de3036.
+  - The primary partitions only ([4,4], [4,4,4], [4,4,4,4]).
+  - 16 phases per stratum (80 clusters per partition, up from 40 on dev) for power, because dev effects are about 0.5-1.6 shots.
+- **Primary family.** The 12 cells of D-031, Holm. `summarize_p7.py` marks a cell positive only if Holm p < 0.05, shots are saved, and unified coverage is >= 0.95.
+- **Test is run exactly once.**

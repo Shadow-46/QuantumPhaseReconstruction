@@ -1,0 +1,21 @@
+arm,stratum,covered,status
+stop_eig,S0_dyadic,0.9875,PRELIMINARY / DEV
+stop_eig,S1_final_half,0.971875,PRELIMINARY / DEV
+stop_eig,S2_boundary,0.9875,PRELIMINARY / DEV
+stop_eig,S3_near_grid,0.990625,PRELIMINARY / DEV
+stop_eig,S4_uniform,0.9875,PRELIMINARY / DEV
+stop_uniform,S0_dyadic,0.984375,PRELIMINARY / DEV
+stop_uniform,S1_final_half,0.975,PRELIMINARY / DEV
+stop_uniform,S2_boundary,0.990625,PRELIMINARY / DEV
+stop_uniform,S3_near_grid,0.99375,PRELIMINARY / DEV
+stop_uniform,S4_uniform,0.984375,PRELIMINARY / DEV
+unified_bridge,S0_dyadic,0.990625,PRELIMINARY / DEV
+unified_bridge,S1_final_half,0.9625,PRELIMINARY / DEV
+unified_bridge,S2_boundary,0.9875,PRELIMINARY / DEV
+unified_bridge,S3_near_grid,1.0,PRELIMINARY / DEV
+unified_bridge,S4_uniform,0.99375,PRELIMINARY / DEV
+unified_ext,S0_dyadic,0.990625,PRELIMINARY / DEV
+unified_ext,S1_final_half,0.96875,PRELIMINARY / DEV
+unified_ext,S2_boundary,0.9875,PRELIMINARY / DEV
+unified_ext,S3_near_grid,0.996875,PRELIMINARY / DEV
+unified_ext,S4_uniform,0.99375,PRELIMINARY / DEV

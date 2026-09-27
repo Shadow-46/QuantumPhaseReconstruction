@@ -1,0 +1,36 @@
+experiment_id: p7_unified_test
+status: HELD-OUT TEST (frozen, D-033)
+description: 'Phase 7 HELD-OUT TEST, run once. Frozen under D-033: the D-031 design
+  on the test split, primary partitions only, 16 phases per stratum.'
+master_seed: 20260930
+split: test
+strata:
+- S0_dyadic
+- S1_final_half
+- S2_boundary
+- S3_near_grid
+- S4_uniform
+partitions:
+- - 4
+  - 4
+- - 4
+  - 4
+  - 4
+- - 4
+  - 4
+  - 4
+  - 4
+phases_per_stratum: 16
+replicates: 4
+phase_chunk: 8
+S0: 4
+A: 2
+cap_per_block: 128
+alpha: 0.05
+tau_exponents:
+- half
+- n
+likelihood_refine:
+  '8': 3
+  '12': 3
+  '16': 2
