@@ -723,3 +723,17 @@ Script: `research/analysis/scripts/p6_ext_decline.py`. Table: `research/analysis
 - **Cause.** The gated trigger, like the awqpe_ext substitution rule it guards, fires at boundary j only when ALL lower chunks j+1..B decode to exactly 10...0 (triggers.py). On [4,4,4,4] that is 12 exact bits for boundary 0. Finite-shot failures at upper boundaries almost never present that pattern, so the extended rule cannot act on them.
 - **Implication.** The n = 16 decline is a structural property of an extension that keeps faithful AWQPE's whole-lower-part semantics, not a failure of overlap as information: D2 overlap rescue does not decline with n.
   - A boundary-local extended rule (for example, checking only chunk j+1) might remove it. That would be a new decoder, needing its own dev/test cycle; none was run.
+
+
+## P10a follow-up: Aer-vs-kernel end-to-end sign pattern, replication (2026-09-28) -- VALIDATION
+Replication run: `research/results/p10a_replication/20260927T223846Z` (D-035, new seed, 26/26 shards).
+
+- **Original post hoc signal** (phase-cluster paired, 72 clusters): Aer counts decoded better than kernel counts for AWQPE@0.9, +2.4 pts, p = 0.007. For eps_safe and D2 the difference was +1.2 to +1.4, p about 0.055.
+- **High-power distribution check on the same blocks** (200k Aer shots per block, 180 blocks): no mismatch. The KS test of GOF p-values gives 0.22, mean TV 0.001, and the top-bin probability difference is -0.00004 +/- 0.0008.
+- **Replication (fresh phases and shots): NOT replicated.** AWQPE@0.9 is -1.9 pts, CI [-3.8, -0.05], p = 0.064, the opposite sign. eps_safe -0.6 (p = 0.47), D2 -0.2 (p = 0.83).
+- **Pooled over both runs** (132 independent phase clusters):
+  - AWQPE@0.9: +0.4 [-1.0, 1.8], p = 0.59;
+  - eps_safe: +0.5 [-0.5, 1.5];
+  - D2: +0.5 [-0.3, 1.4].
+  - There is no evidence of an end-to-end difference between Aer and kernel sampling. The original pattern is recorded as a chance finding.
+- **Caveat.** The two runs differ by more than their individual CIs suggest (about 4.5 pts for AWQPE@0.9). Single-run phase-cluster CIs for this small-sample 4-shot comparison may be optimistic, so they should not be used alone to claim sampler differences.
