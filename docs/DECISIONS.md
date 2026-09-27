@@ -172,3 +172,38 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 - **Not chosen from dev accuracy:** no policy, signal, ΔS or constant. Both ΔS values remain factors.
 - **Analysis addition before test** (descriptive; not part of the primary family): the decision table gains `p_chose_best_when_informative`, the chose-best rate restricted to decisions where some block's next batch changes tolerance success or error. Without it the unconditional rate is dominated by ties.
 - **Primary family unchanged from D-018:** eig_cell vs uniform within each decoder, with Holm across the 3 decoders.
+
+### D-020 (2026-09-27): Phase 6 design; P5 artefacts frozen
+- **P5 frozen.** P5 is frozen at commit 6fd3a1d with config hash 55b4a056e37c1ac1. P6 code, configs and results are new files: `run_adaptive_overlap.py`, `overlap/`, `decode/awqpe_overlap.py`, `configs/p6_*`, `results/p6_*`. P5 files are only imported, never modified.
+- **Unchanged from P5:**
+  - the same phase generator and dev/test split;
+  - the same CRN outcome-stream strategy. Chunk streams are identical across every arm and variant of a shard; overlap blocks get their own streams.
+  - the same three decoders, the same τ = 2⁻ⁿ primary metric, and the same phase-cluster bootstrap with Holm correction;
+  - the same leakage firewall. The overlap triggers live in `overlap/`, which the AST test covers.
+- **Methodological constraint: faithful AWQPE cannot use overlap blocks.** Algorithms 1–2 have no input for extra blocks.
+  - **O-ext under D1:** handled by a separately labelled NON-PAPER decoder, `awqpe_ext`. When Algorithm 2 reaches boundary j and the already-corrected lower part is exactly 10…0 (the observable ε-floor situation, V1), chunk j is set to floor(t1_ext / 2^v); otherwise Algorithm 2 is unchanged.
+    - Unconditional substitution was tried first and **rejected**: the widened reading's own rounding carries into chunk j about 2^−(v+1) of the time, which raised infinite-shot failures to 16–54%.
+    - The conditional rule gives 0% infinite-shot failures on all partitions tested, and is bit-identical to faithful AWQPE when no widened block exists (tests).
+  - **O-bridge:** has no D1 interpretation without new stitching logic, so it is evaluated with D2 only. Faithful D1 ignores the block; those rows are reported as "not usable by D1", not as bridge results.
+- **Arms.**
+  - B1 uniform; B2 P5 information gain (eig).
+  - B3 overlap alone: A overlap batches chosen by the trigger, then uniform chunk shots.
+  - B4 eig + overlap: the trigger chooses among chunks and at most A overlap batches.
+  - B1u and B2u: uniform or eig on chunks with a per-trial U-query budget equal to what B3 or B4 consumed (equal quantum work; any overshoot favours the baseline).
+  - Rescue continuations of B2 by A batches: greedy-oracle shots, greedy-oracle overlap, practical eig shots, practical trigger overlap.
+- **Triggers.**
+  - `eig`: the P5 one-shot cell information.
+  - `lowerhalf`: overlap first at boundaries whose decoded lower part is 10…0, with eig as the fallback.
+- **Cost accounting.** Every row carries total shots, chunk shots, overlap shots and U-queries.
+- **Dev decides** (after the pilot, before the full dev and test runs): trigger, v, bridge shift, A_max and budgets. Nothing is tuned on test.
+
+### D-021 (2026-09-27): P6 pilot configuration
+- **Config.** `research/configs/p6_overlap_pilot.yaml` (dev split only).
+- **Grid.**
+  - Partitions: n=8 ([4,4], [3,2,3], [2,2,2,2]) and n=12 ([4,4,4], [3,3,3,3]).
+  - S0 ∈ {2, 4}, r = 2, ΔS = S0.
+  - Strata S2_boundary, S1_final_half and S4_uniform, 8 phases each × 4 replicates.
+- **Variants (10).**
+  - ext: v ∈ {1, 2}, trigger ∈ {eig, lowerhalf}, A ∈ {1, 2}.
+  - bridge: shift ∈ {half, 1}, A ∈ {1, 2}.
+- **Status.** The pilot is exploratory. Its results choose the variants for the full dev run; they are not claims.
