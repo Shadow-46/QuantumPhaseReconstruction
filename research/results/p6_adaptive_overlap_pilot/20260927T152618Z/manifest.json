@@ -1,0 +1,187 @@
+{
+  "experiment_id": "p6_adaptive_overlap_pilot",
+  "run_id": "20260927T152618Z",
+  "created_utc": "2026-09-27T15:26:18.165359+00:00",
+  "code_version": "0.1.0",
+  "paper_reference": "arXiv:2507.22460v3 (journal-ref doi:10.1002/qute.202500683)",
+  "git": {
+    "commit": "327148b1117409c26186d97d2291f9a2a441a845",
+    "branch": "research/awqpe-unified-adaptive",
+    "dirty": true
+  },
+  "environment": {
+    "python": "3.14.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\.venv-awqpe\\Scripts\\python.exe",
+    "packages": {
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "pandas": "3.0.3",
+      "pyarrow": "25.0.1",
+      "qiskit": "2.4.1",
+      "qiskit-aer": "0.17.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "command": "C:\\Users\\sanja\\Documents\\Research\\QPR-awqpe\\research\\awqpe\\run_adaptive_overlap.py --config research/configs/p6_overlap_pilot.yaml --max-workers 10",
+  "config": {
+    "experiment_id": "p6_adaptive_overlap_pilot",
+    "status": "PILOT / DEV",
+    "description": "Phase 6 pilot (dev split only). Adaptive overlap mechanisms O-ext and O-bridge, evaluated separately, against uniform and the frozen P5 information-gain allocation, at equal total shots and at equal U-query cost, with rescue diagnostics classifying P5-policy failures as shot-fixable / overlap-fixable / both / neither. Targets ambiguity-heavy phases (S2 boundary, S1 final-half) plus a uniform stratum.\n",
+    "master_seed": 20260927,
+    "split": "dev",
+    "strata": [
+      "S2_boundary",
+      "S1_final_half",
+      "S4_uniform"
+    ],
+    "partitions": [
+      [
+        4,
+        4
+      ],
+      [
+        3,
+        2,
+        3
+      ],
+      [
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4
+      ],
+      [
+        3,
+        3,
+        3,
+        3
+      ]
+    ],
+    "phases_per_stratum": 8,
+    "replicates": 4,
+    "S0": [
+      2,
+      4
+    ],
+    "budget_multipliers": [
+      2
+    ],
+    "dS": [
+      "S0"
+    ],
+    "likelihood_refine": {
+      "8": 3,
+      "12": 3
+    },
+    "stream_multiplier": 6,
+    "phase_chunk": 12,
+    "rescue_oracle_decoders": [
+      "awqpe",
+      "awqpe_ext",
+      "awqpe_eps_safe_ext",
+      "likelihood"
+    ],
+    "variants": [
+      {
+        "label": "ext_v1_eig_A1",
+        "mechanism": "ext",
+        "v": 1,
+        "A_max": 1,
+        "trigger": "eig"
+      },
+      {
+        "label": "ext_v1_eig_A2",
+        "mechanism": "ext",
+        "v": 1,
+        "A_max": 2,
+        "trigger": "eig"
+      },
+      {
+        "label": "ext_v1_lowerhalf_A1",
+        "mechanism": "ext",
+        "v": 1,
+        "A_max": 1,
+        "trigger": "lowerhalf"
+      },
+      {
+        "label": "ext_v1_lowerhalf_A2",
+        "mechanism": "ext",
+        "v": 1,
+        "A_max": 2,
+        "trigger": "lowerhalf"
+      },
+      {
+        "label": "ext_v2_eig_A1",
+        "mechanism": "ext",
+        "v": 2,
+        "A_max": 1,
+        "trigger": "eig"
+      },
+      {
+        "label": "ext_v2_lowerhalf_A1",
+        "mechanism": "ext",
+        "v": 2,
+        "A_max": 1,
+        "trigger": "lowerhalf"
+      },
+      {
+        "label": "bridge_half_eig_A1",
+        "mechanism": "bridge",
+        "shift": "half",
+        "A_max": 1,
+        "trigger": "eig"
+      },
+      {
+        "label": "bridge_half_eig_A2",
+        "mechanism": "bridge",
+        "shift": "half",
+        "A_max": 2,
+        "trigger": "eig"
+      },
+      {
+        "label": "bridge_s1_eig_A1",
+        "mechanism": "bridge",
+        "shift": "1",
+        "A_max": 1,
+        "trigger": "eig"
+      },
+      {
+        "label": "bridge_s1_eig_A2",
+        "mechanism": "bridge",
+        "shift": "1",
+        "A_max": 2,
+        "trigger": "eig"
+      }
+    ]
+  },
+  "config_hash": "ce65e70096b06178",
+  "shards": {
+    "w4-4_S2_r2_dS0_c0": "done",
+    "w4-4_S2_r2_dS0_c1": "done",
+    "w4-4_S4_r2_dS0_c0": "done",
+    "w4-4_S4_r2_dS0_c1": "done",
+    "w3-2-3_S2_r2_dS0_c0": "done",
+    "w3-2-3_S2_r2_dS0_c1": "done",
+    "w3-2-3_S4_r2_dS0_c0": "done",
+    "w3-2-3_S4_r2_dS0_c1": "done",
+    "w2-2-2-2_S2_r2_dS0_c0": "done",
+    "w2-2-2-2_S2_r2_dS0_c1": "done",
+    "w2-2-2-2_S4_r2_dS0_c0": "done",
+    "w2-2-2-2_S4_r2_dS0_c1": "done",
+    "w4-4-4_S2_r2_dS0_c0": "done",
+    "w4-4-4_S2_r2_dS0_c1": "done",
+    "w4-4-4_S4_r2_dS0_c0": "done",
+    "w4-4-4_S4_r2_dS0_c1": "done",
+    "w3-3-3-3_S2_r2_dS0_c0": "done",
+    "w3-3-3-3_S2_r2_dS0_c1": "done",
+    "w3-3-3-3_S4_r2_dS0_c0": "done",
+    "w3-3-3-3_S4_r2_dS0_c1": "done"
+  },
+  "status": "PILOT / DEV"
+}

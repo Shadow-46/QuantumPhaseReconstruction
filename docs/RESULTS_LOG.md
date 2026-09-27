@@ -321,3 +321,51 @@ Append-only. Each entry names its run directory under `research/results/`. Large
 - The 6 dev shards that failed with out-of-memory errors were re-run and completed (432/432). The failures were caused by running the dev analysis concurrently with the workers.
 - On the full dev grid, eig_cell − uniform is **+2.68 / +4.35 / +2.71** points (ε=0.9 / ε_safe / D2), against +2.75 / +4.51 / +2.85 on 416/432 shards. Fisher is −8.10 / −12.63 / −13.42.
 - `p5_dev_*.csv` now reflects the full grid. The test was frozen before these shards finished, and nothing about the test depended on them (D-019).
+
+## P6: Adaptive overlap, PILOT (2026-09-27), PILOT / DEV (not a claim)
+- **Run.** `p6_adaptive_overlap_pilot/20260927T152618Z` (config `p6_overlap_pilot.yaml`, design D-020/D-021, commit 327148b). Tables: `research/analysis/tables/p6_pilot_*.csv`.
+- **Grid (dev split).**
+  - Partitions [4,4], [3,2,3], [2,2,2,2] (n=8) and [4,4,4], [3,3,3,3] (n=12).
+  - S0 ∈ {2, 4}, r = 2, ΔS = S0.
+  - Strata S2_boundary, S1_final_half and S4_uniform: 24 phases × 4 replicates per partition-cell, 120 phase clusters.
+  - 10 overlap variants.
+- **Sanity checks.**
+  - Overlap rescues 0 failures under faithful AWQPE, which cannot use overlap blocks (as required).
+  - Every shot-budget arm uses identical total shots.
+  - The no-overlap baselines are identical across variants (CRN).
+- **Rescue classification** (P5-policy B2 failures, one extra batch; greedy-oracle capability; counts):
+
+  | decoder | subset | P5 failures | shots only | overlap only | both | neither |
+  |---|---|---|---|---|---|---|
+  | awqpe_ext (ε=0.9, ext v1) | decoder-limited | 36 | 3 | 21–22 | 5–6 | 6 |
+  | awqpe_ext (ε=0.9, ext v1) | shot-fixable class | 208 | 33–45 | 68–71 | 14–17 | 78–90 |
+  | awqpe_eps_safe_ext | all (none decoder-limited) | 191 | 48–53 | 54–55 | 27–28 | 56–60 |
+  | likelihood D2 (ext or bridge) | all | 77 | 1–8 | 15–26 | 45–59 | 1–9 |
+
+  Practical policies (trigger-chosen overlap vs eig-chosen shots) show the same pattern. For decoder-limited ε=0.9 failures, the lowerhalf-triggered O-ext rescues 24–25 + 3–4 of 36, against 1–2 + 3–4 for extra shots.
+- **Practical arms** (P(tol), ext_v1_lowerhalf_A1 / bridge_s1_A2):
+  - D2: B2 (P5 eig) 92.0%; B4 (eig + overlap, equal shots) 98.0% / 98.5%; B2u (eig, U-matched) 96.5% / 94.9%.
+  - awqpe_ext: B2 74.6%; B4 79.8%; B2u 75.9%.
+- **Paired differences** (points; phase-cluster 95% CI; Holm across the 10 variants within a decoder and comparison):
+  - **D2, B4 − B2u (equal U):** +1.2 to +3.7 for every variant (CIs exclude 0 except ext_v2 at the edge). Bridge s1 A2: +3.65 [2.2, 5.3], Holm p < 1e-4.
+  - **D2, B3 − B1 (overlap alone vs uniform):** +7.5 to +9.7, while B3 uses 23–40% *fewer* U-queries than B1.
+  - **awqpe_ext, B4 − B2:** +0.3 to +5.2 at equal shots, +3.9 at equal U (lowerhalf A1). The CI is [−0.6, 8.3]; the pilot is underpowered here.
+  - **awqpe_eps_safe_ext, B4 − B2:** −4.5 to +1.0 at equal shots and **−4 to −10 at equal U**, i.e. harmful. B3 − B1 is positive (+2.7 to +4.8).
+  - Faithful awqpe / awqpe_eps_safe with overlap arms: lower, because overlap shots are wasted on a decoder that ignores them (expected; not an overlap result).
+- **Overlap actions (B4).**
+  - Most go to the most-significant boundary: roughly 50% at boundary 1, 30% at boundary 2 and 15% at boundary 3.
+  - Immediate effect on the estimate:
+
+    | decoder | improved | worsened |
+    |---|---|---|
+    | D2 | 24–37% | 5–11% |
+    | awqpe_ext | 9–14% | 1–2% |
+
+- **Methodological concerns found.**
+  1. **Equal-U matching overshoots.** B2u stops at the first batch reaching the target, and least-significant-block batches are expensive, so B2u received on average about 17% *more* U-queries than B4. The pilot's equal-U results are therefore conservative for overlap. For dev/test: match to the closest cumulative U and report both the under- and over-matched baselines as a bracket.
+  2. **B4 uses about 8–12% more U than B2 at equal shots**, and B3 uses 25–40% less than B1. Equal-shot comparisons therefore do not imply equal quantum work; both accountings must be reported (they are).
+  3. **The O-ext result under safe-ε is negative** despite positive capability. Hypothesis to check on dev before any test: at safe ε the ambiguity flag already resolves most boundary cases, so overlap batches mostly displace useful chunk shots. This needs a diagnostic, not a tuning fix.
+  4. **Pilot phases are ambiguity-enriched** (no S0/S3 strata). Effect sizes will shrink on the predeclared full stratum set, which the full dev/test must use.
+  5. **The D1 overlap results depend on the non-paper `awqpe_ext` decoder** (D-020). They are overlap-plus-decoder results and must be labelled as such. Bridge has no D1 counterpart.
+  6. **v=2 and A=2 add cost without clear benefit** over v=1 and A=1 in this pilot (dev decision).
+- **Assessment.** Worth taking to the full dev grid for D2 (both mechanisms) and for awqpe_ext with the lowerhalf trigger. Pending user review; no full grid started.
