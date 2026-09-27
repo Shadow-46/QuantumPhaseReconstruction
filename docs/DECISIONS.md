@@ -242,3 +242,42 @@ Entries are append-only. A decision that changes later gets a new entry that ref
 ### D-025 (2026-09-27): Dropping O-ext v = 2 (mechanism and cost, not pilot accuracy); proposed, pending review
 - **Theory.** v = 1 already removes the infinite-shot floor, with 0 failures on every partition (D-023 D). In the danger band, 2^v·δ rounds without carry for any v ≥ 1, so v > 1 adds no resolving power for the targeted situation.
 - **Cost.** An O-ext block's U per shot is 2^k(2^(m+v) − 1), about 2× for v = 2. On dev (P6D-1), v = 2 added about 28% more U-queries per trial than v = 1 (2129 against 1665) with no larger immediate gain.
+- **Approved by the user (2026-09-27).**
+
+### D-026 (2026-09-27): P6 full DEV protocol and selection rule, declared BEFORE the dev run
+- **Grid** (`research/configs/p6_overlap_dev.yaml`):
+  - The P5 partitions [4,4], [3,2,3], [2,2,2,2], [4,4,4], [3,3,3,3] and [4,4,4,4] (n = 8, 12, 16).
+  - All predeclared strata S0–S5, 8 phases per stratum (S5 = the paper's six phases), 5 replicates.
+  - S0 ∈ {2, 4, 8}, r ∈ {2, 4}. The batch size is fixed at ΔS = S0.
+- **Excluded: 1-shot batches (ΔS = 1) and S0 = 1.**
+  - Each overlap action is one batch. With ΔS = 1 an overlap action would be a single shot of the overlap block, and the number of decisions per trial would grow by ×S0, multiplying compute.
+  - S0 = 1 gives zero-information initial windows (P2c: all decoders equal at 1 shot per block).
+  - This is a compute and design decision, not an accuracy-based one.
+- **Arms.**
+  - Uniform (B1), P5 information gain (B2), overlap-only (B3), information gain + overlap (B4).
+  - Lower and upper U-matched B1/B2 baselines (D-022).
+  - Rescue diagnostics: practical extra eig batch and practical trigger-overlap batch, plus greedy-oracle shot and overlap batches for awqpe, awqpe_eps_safe, awqpe_ext, awqpe_eps_safe_ext and likelihood.
+- **Variants.**
+  - O-ext v = 1 with triggers {eig, lowerhalf, lowerhalf_gated} × A ∈ {1, 2}.
+  - O-bridge (D2 only) with shift ∈ {1, half} × A ∈ {1, 2}, eig trigger.
+- **`lowerhalf_gated` (dev candidate, approved).** Overlap candidates are eligible only at boundaries whose current decoded lower part (faithful ε=0.9 chunk decode) is exactly 10…0.
+  - In the overlap-only arm, a batch with no eligible boundary goes to the next uniform chunk, keeping shots equal.
+  - In the rescue diagnostic it takes no action (no fallback), so "overlap rescue" is never contaminated by shots.
+- **Performance-only changes (results bit-identical, tested):**
+  - Chunk-only arms (B1, B2, extra-shot rescues, oracle-shot rescues, U-matching paths) are computed once per shard rather than once per variant. They are identical across variants: same chunk streams, seeds and arm keys. Verified against the frozen 9af6716 runner: 2,628/2,628 final rows and all action rows identical.
+  - The P6 runner uses `allocation/eig_cached.py`, a memoised line-for-line copy of the frozen P5 signal. It is asserted bit-identical to `policies.eig_cell_support`, and the P5 file is untouched.
+- **Analysis** (`summarize_p6.py`, tested):
+  - Equal-U comparisons use only the D-022 brackets.
+  - The **upper bracket is PRIMARY** for positive overlap claims; the lower bracket is a sensitivity analysis.
+  - Invalid upper brackets are excluded and counted.
+  - Legacy `*Umatched*` arms are refused.
+- **Selection rule (fixed now, before any dev result):**
+  - For each (mechanism, decoder) where the decoder can use the mechanism (ext: awqpe_ext, awqpe_eps_safe_ext, likelihood; bridge: likelihood), select the variant with the largest dev difference **B4 − B2m_upper** (equal U, conservative), pooled over all dev cells with equal cell weight via phase clusters.
+  - Report its phase-cluster 95% CI and the Holm-adjusted p (across variants within that mechanism and decoder).
+  - The lower bracket is reported as a sensitivity analysis. Lower mean U breaks ties only.
+  - Faithful decoders are never selected (they cannot use overlap).
+  - A selected variant whose CI includes 0 is still recorded, with the CI. Whether to take it to test is decided at user review.
+- **Claims kept separate:**
+  - (A) D2: overlap geometry adds information.
+  - (B) O-ext + `awqpe_ext`: a new extended decoder can exploit O-ext.
+  - (C) Resource allocation: overlap versus extra shots at equal U-queries.

@@ -38,7 +38,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from research.awqpe.allocation.policies import AllocationState, eig_cell_support
+from research.awqpe.allocation.eig_cached import eig_cell_support  # P6-local memoised, bit-identical copy of the P5 signal
+from research.awqpe.allocation.policies import AllocationState
 from research.awqpe.baseline.awqpe import awqpe_vectorised
 from research.awqpe.blocks.geometry import partition_blocks
 from research.awqpe.decode.awqpe_overlap import awqpe_ext_decode
@@ -195,12 +196,18 @@ def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, 
             E = np.zeros((T, Btot), dtype=bool)
             if eligible in ("chunks", "all"):
                 E[:, :B] = True
-            if eligible in ("cands", "all"):
+            if eligible in ("cands", "cands_fb", "all"):
                 E[:, B:] = (n_ovl < A_max)[:, None]
+            if policy == "lowerhalf_gated":  # D-026: overlap only where the extended rule can apply
+                E[:, B:] &= lowerhalf_candidates(ctx, counts)
+            fallback = np.zeros(T, dtype=bool)
+            if eligible == "cands_fb":  # overlap-alone arm: no eligible overlap -> this batch goes to the uniform chunk
+                fallback = ~E[:, B:].any(axis=1)
+                E[fallback, :B] = True
             E &= shots + dS <= ctx.L
             if policy == "uniform":
                 chosen = uni_ptr % B
-            elif policy in ("eig", "lowerhalf"):
+            elif policy in ("eig", "lowerhalf", "lowerhalf_gated"):
                 st = AllocationState(ctx.specs, ctx.n, counts, shots, gp.loglik, ctx.G, 0, prng, step)
                 sig, _ = eig_cell_support(st)
                 if policy == "lowerhalf":
@@ -209,6 +216,7 @@ def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, 
                     sig = sig + bonus
                 sig = np.where(E, sig, -np.inf)
                 chosen = np.argmax(sig + prng.random(sig.shape) * 1e-12, axis=1)
+                chosen = np.where(fallback, uni_ptr % B, chosen)
             elif policy.startswith("oracle:"):
                 dec = policy.split(":", 1)[1]
                 base = ctx.decode(counts, shots, gp.loglik)
@@ -247,6 +255,8 @@ def run_arm(ctx, segments, A_max, uq_target=None, seed=0, record_actions=False, 
                     n_ovl[m] += 1
             if policy == "uniform":
                 uni_ptr[ok] += 1
+            else:
+                uni_ptr[ok & fallback] += 1
             if before is not None:
                 after = ctx.decode(counts, shots, gp.loglik)
                 ov = ok & (chosen >= B)
@@ -287,21 +297,47 @@ def overlap_shard(cfg: dict, spec: dict) -> pd.DataFrame:
         limit_ok[name] = circular_error(awqpe_vectorised(probs, widths, eps)["estimate"] / 2.0**n, phis) <= 2.0**-n + 1e-15
         limit_ok[name + "_ext"] = limit_ok[name]
     rows, acts = [], []
+    # Pass 1: variant-specific arms (the only ones whose streams/decisions depend on the overlap candidates).
+    variant_ctx, variant_res = {}, {}
     for variant in cfg["variants"]:
         ctx = Ctx(cfg, widths, S0, dS, steps, variant, phis, seed, L)
         A, trig, vlabel = int(variant["A_max"]), variant.get("trigger", "eig"), variant["label"]
-        results = {
-            "B1_uniform": run_arm(ctx, [("uniform", "chunks", steps)], A, seed=seed, arm="B1"),
-            "B2_p5_eig": run_arm(ctx, [("eig", "chunks", steps)], A, seed=seed, arm="B2"),
-            "B3_overlap_alone": run_arm(ctx, [(trig, "cands", A), ("uniform", "chunks", steps - A)], A, seed=seed, record_actions=True, arm="B3"),
+        res = {
+            "B3_overlap_alone": run_arm(ctx, [(trig, "cands_fb", A), ("uniform", "chunks", steps - A)], A, seed=seed, record_actions=True, arm="B3"),
             "B4_eig_plus_overlap": run_arm(ctx, [(trig, "all", steps)], A, seed=seed, record_actions=True, arm="B4"),
+            "R_trigger_overlap": run_arm(ctx, [("eig", "chunks", steps), (trig, "cands", A)], A, seed=seed, record_actions=True, arm="R2"),
         }
-        # Equal-U-query baselines (D-022): bracket each overlap arm's per-trial U cost on the baseline's own
-        # path (same streams, same decisions as B1/B2, decoded after every batch).
+        for dec in cfg["rescue_oracle_decoders"]:
+            if dec in ctx.decoders:
+                res[f"R_oracle_overlap[{dec}]"] = run_arm(ctx, [("eig", "chunks", steps), (f"oracle:{dec}", "cands", A)], A, seed=seed, arm="R4" + dec)
+        variant_ctx[vlabel], variant_res[vlabel] = ctx, res
+    # Pass 2: chunk-only arms are identical for every variant (same chunk streams, seeds and arm keys),
+    # so they are computed once (per A where they depend on A) with a context that carries every decoder.
+    ref = next((variant_ctx[v["label"]] for v in cfg["variants"] if v["mechanism"] == "ext"), variant_ctx[cfg["variants"][0]["label"]])
+    shared = {"B1_uniform": run_arm(ref, [("uniform", "chunks", steps)], 1, seed=seed, arm="B1"),
+              "B2_p5_eig": run_arm(ref, [("eig", "chunks", steps)], 1, seed=seed, arm="B2")}
+    for A in sorted({int(v["A_max"]) for v in cfg["variants"]}):
+        shared[("R_eig_shots", A)] = run_arm(ref, [("eig", "chunks", steps), ("eig", "chunks", A)], A, seed=seed, arm="R1")
+        for dec in cfg["rescue_oracle_decoders"]:
+            if dec in ref.decoders:
+                shared[(f"R_oracle_shots[{dec}]", A)] = run_arm(ref, [("eig", "chunks", steps), (f"oracle:{dec}", "chunks", A)], A, seed=seed, arm="R3" + dec)
+    # Equal-U-query paths (D-022): one decoded path per baseline, long enough for every variant's target.
+    paths = {}
+    for base_pol, base_arm, ovl_arm in (("uniform", "B1", "B3_overlap_alone"), ("eig", "B2", "B4_eig_plus_overlap")):
+        tmax = np.max([variant_res[v][ovl_arm][2] for v in variant_res], axis=0).astype(float)
+        paths[ovl_arm] = baseline_path(ref, base_pol, tmax, seed, base_arm)
+    for variant in cfg["variants"]:
+        vlabel = variant["label"]
+        ctx, A = variant_ctx[vlabel], int(variant["A_max"])
+        results = {"B1_uniform": shared["B1_uniform"], "B2_p5_eig": shared["B2_p5_eig"], "R_eig_shots": shared[("R_eig_shots", A)]}
+        for dec in cfg["rescue_oracle_decoders"]:
+            if dec in ctx.decoders:
+                results[f"R_oracle_shots[{dec}]"] = shared[(f"R_oracle_shots[{dec}]", A)]
+        results.update(variant_res[vlabel])
         matched = {}
-        for base_pol, base_arm, ovl_arm, tag in (("uniform", "B1", "B3_overlap_alone", "B1m"), ("eig", "B2", "B4_eig_plus_overlap", "B2m")):
+        for ovl_arm, tag in (("B3_overlap_alone", "B1m"), ("B4_eig_plus_overlap", "B2m")):
             target = results[ovl_arm][2].astype(float)
-            U, S, P = baseline_path(ctx, base_pol, target, seed, base_arm)
+            U, S, P = paths[ovl_arm]
             lo, hi = match_to_target(U, target)
             cols = np.arange(len(phis))
             for side, idx in (("lower", lo), ("upper", hi)):
@@ -311,12 +347,6 @@ def overlap_shard(cfg: dict, spec: dict) -> pd.DataFrame:
                     "phi": {d: np.where(valid, P[d][k, cols], np.nan) for d in P},
                     "u": np.where(valid, U[k, cols], np.nan), "shots": np.where(valid, S[k, cols], np.nan),
                     "u_target": target, "valid": valid}
-        results["R_eig_shots"] = run_arm(ctx, [("eig", "chunks", steps), ("eig", "chunks", A)], A, seed=seed, arm="R1")
-        results["R_trigger_overlap"] = run_arm(ctx, [("eig", "chunks", steps), (trig, "cands", A)], A, seed=seed, record_actions=True, arm="R2")
-        for dec in cfg["rescue_oracle_decoders"]:
-            if dec in ctx.decoders:
-                results[f"R_oracle_shots[{dec}]"] = run_arm(ctx, [("eig", "chunks", steps), (f"oracle:{dec}", "chunks", A)], A, seed=seed, arm="R3" + dec)
-                results[f"R_oracle_overlap[{dec}]"] = run_arm(ctx, [("eig", "chunks", steps), (f"oracle:{dec}", "cands", A)], A, seed=seed, arm="R4" + dec)
         for name, (final, shots, u_used, n_ovl, actions) in results.items():
             mask = np.zeros(len(phis), dtype=np.int64)
             for i, (j, _, _) in enumerate(ctx.cands):
