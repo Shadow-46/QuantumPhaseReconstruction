@@ -52,3 +52,11 @@ Independent verification (RESULTS_LOG V1) found the following:
 - The theoretical predicate is exact on the generic grid (0 FP/FN).
 - All 216 readings of the ambiguities keep the floor at ε=0.9.
 - The worked examples select the in-place borrow reading.
+
+
+## Update 2026-09-28: free arXiv PDF obtained and checked for noise models
+- **File.** `docs/refs/Shukla_Vedula_2026_AWQPE_arXiv.pdf`, from https://arxiv.org/pdf/2507.22460. sha256 4bb53982c02fc3104c94e38a54d51bfe55771218b32ab5b5f4f5679c37186064.
+  - It is git-ignored, as a third-party PDF under `docs/refs/*.pdf`. The hash identifies it.
+- **Version.** The stamp says v3 (15 Nov 2025): the same version as before and the latest on arXiv. There are no algorithmic changes to check.
+- **Noise.** v3 defines **no** noise model; the only stochastic model is shot sampling of the ideal kernel. The full passage-by-passage comparison with `model/noise.py` and P9 is in `docs/PAPER_NOISE_COMPARISON.md`.
+- **Still open.** The Wiley published version remains unaccessed. Whether it adds noise models is unknown.

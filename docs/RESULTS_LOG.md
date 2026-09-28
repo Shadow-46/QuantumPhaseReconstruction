@@ -737,3 +737,16 @@ Replication run: `research/results/p10a_replication/20260927T223846Z` (D-035, ne
   - D2: +0.5 [-0.3, 1.4].
   - There is no evidence of an end-to-end difference between Aer and kernel sampling. The original pattern is recorded as a chance finding.
 - **Caveat.** The two runs differ by more than their individual CIs suggest (about 4.5 pts for AWQPE@0.9). Single-run phase-cluster CIs for this small-sample 4-shot comparison may be optimistic, so they should not be used alone to claim sampler differences.
+
+
+## Clarification to the P6 n = 16 follow-up (2026-09-28): a conditioning caveat (the earlier entry is unchanged)
+The follow-up above reports 91-100% rescue "when the controller put overlap at j*".
+
+**The rate is conditional.** In the analysed variant (ext_v1_gated_A2 with awqpe_ext), the trigger (`lowerhalf_mask`) and the decoder's substitution rule (`awqpe_ext_decode`) share the same predicate: the corrected lower part equals 10...0. Placement at j* therefore coincides with exactly the situations in which the decoder can use the widened block.
+
+**What the rate does and does not show.**
+- It is a rescue rate *conditional on that predicate*.
+- It does not show that overlap placed at j* by some other rule would be used, or would help, under the current decoder.
+- The "placement, not efficacy" wording should be read with this qualification.
+
+**Consequence.** A boundary-local trigger for D1-type decoding needs a matching boundary-local decoder rule, as set out in docs/BLAO_DESIGN.md. For D2 the caveat does not apply, because the likelihood uses every block.
