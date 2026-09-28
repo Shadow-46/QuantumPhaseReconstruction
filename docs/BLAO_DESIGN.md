@@ -1,196 +1,327 @@
-# Boundary-Local Adaptive Overlap (BLAO): design proposal (FOR REVIEW; nothing implemented)
+# Boundary-Local Adaptive Overlap (BLAO): design proposal, revision 2 (FOR REVIEW; nothing implemented)
 
-- **Status.** DESIGN ONLY. No code, no pilot, no dev or test runs.
-- **Frozen phases.** P5-P10b are frozen and must not be modified. BLAO, if approved, gets its own cycle: deterministic validation, pilot, dev, freeze, then a held-out test on a NEW phase pool (see section 6).
+- **Status.** DESIGN ONLY. No BLAO code, no pilot, no dev or test runs. P5-P10b are frozen and untouched.
+- **Revision history.**
+  - Revision 1 (2026-09-28).
+  - Revision 2 (2026-09-29): the conditional-rescue claim is qualified; BLAO is split into two separate research questions; exact signal definitions; a local-decoder analysis; an n = 16 worked example; falsification criteria; the minimal pilot.
 
-## 0. Motivation, and a correction to how the P6 follow-up should be read
+---
 
-**What the P6 follow-up found** (RESULTS_LOG, "why extended-decoder overlap rescue declines at n = 16"):
-- In the frozen variant `ext_v1_gated_A2` with `awqpe_ext`, overlap is almost never placed at the boundary responsible for the error at upper boundaries: 0% at boundaries 0 and 1 when n = 16.
-- When it is placed there, 91-100% of those failures are rescued.
+## 0. What the P6 follow-up does and does NOT establish
 
-**Correction: that rescue rate is conditional and must not be assumed to transfer.** Both the trigger (`overlap/triggers.py::lowerhalf_mask`) and the decoder's substitution rule (`decode/awqpe_overlap.py::awqpe_ext_decode`) require the same predicate: the already-corrected lower part (chunks j+1..B) equals exactly 10...0.
-- So "placed at j*" in that analysis implies "the decoder's rule could act".
-- The 91-100% is a rescue rate *given that predicate*. It does not show that overlap placed at j* for another reason would be used, or would help, under the current decoder.
-- With `awqpe_ext` unchanged, a boundary-local trigger that fires where the predicate fails would place overlap blocks the decoder ignores.
-- **BLAO therefore has two separable parts:** (i) where to place overlap (a trigger), and (ii) for D1-type decoding, a boundary-local rule for using it (a new decoder).
-- For D2 only (i) is needed, because the likelihood uses every block. D2 overlap rescue did not decline with n in P6.
+**Withdrawn as evidence for BLAO.** Revision 1 cited the P6 follow-up: "overlap placed at the responsible boundary j* rescues 91-100% of failures". That figure is **not evidence that boundary-local placement works.**
+- In the analysed variant (ext_v1_gated_A2 with awqpe_ext), the trigger `lowerhalf_mask` and the decoder rule in `awqpe_ext_decode` require the **same** predicate: the corrected lower chunks j+1..B equal exactly 10...0.
+- Overlap therefore lands at j* only in trials where the decoder is also able to use it.
+- The 91-100% is a rescue rate **conditional on that shared predicate**, a selected subset. It says nothing about overlap placed at j* for any other reason, under either decoder.
+- RESULTS_LOG carries the same qualification.
 
-## 1. Notation (as in the code)
+**What the P6 follow-up does establish.**
+- (i) At n = 16, the frozen trigger essentially never places overlap at upper boundaries.
+- (ii) The shot-fixable failures there are mostly higher-order errors.
 
-**Chunks and boundaries.**
+Neither says a boundary-local method would rescue them. That is what BLAO would test.
+
+## 1. Notation
+
+**Chunks, boundaries and the boundary variable.**
 - Chunks i = 0..B−1 are MSB-first, with widths m_i, offsets k_i = Σ_{l<i} m_l, and M_i = 2^(m_i).
-- Boundary j (j = 0..B−2) lies between chunk j and chunk j+1, with K_j = k_{j+1} bits above it.
+- Boundary j (0 ≤ j ≤ B−2) separates chunk j from chunk j+1. It has K_j = k_{j+1} bits above it.
+- Let x_j = 2^(K_j) φ, p_j = ⌊x_j⌋ mod M_j, and r_j = frac(x_j) ∈ [0,1), the remainder below boundary j.
+- Borrow bit: β_j = 1[r_j ≥ 1/2].
 
-**Block law** (Lemma 3.3 of the paper; `model/kernel.py`).
-- Chunk i's block sees δ_i = frac(2^(k_i) φ) and returns y with probability K_(M_i)(δ_i − y/M_i).
+**Block law** (paper, Lemma 3.3).
+- Chunk i's block sees δ_i = frac(2^(k_i) φ) and returns y with P(y|φ) = K_(M_i)(δ_i − y/M_i).
+- The chunk-(j+1) block sees δ_(j+1) = r_j **exactly**.
+- The chunk-j block sees M_j δ_j = (p_j mod M_j) + r_j, so it straddles p_j and p_j + 1 when r_j ≈ 1/2.
 
-**The boundary variable.**
-- r_j = frac(2^(K_j) φ) is the remainder below boundary j, and note r_j = δ_(j+1).
-- The borrow bit is β_j = 1[r_j ≥ 1/2]. Algorithm 2 decides it from the MSB of the corrected chunk j+1. Chunk j's raw estimate rounds 2^(m_j) δ_j, so it is off by one exactly when r_j ≥ 1/2 and the borrow is not applied.
+**Target.** The best n-bit numerator N* = ⌊2^n φ + 1/2⌋. Its chunk j equals p_j unless the lower part rounds up with a carry.
 
-**Observables at any time.**
-- Counts N_i(y) per chunk block, and N_ov(y) for placed overlap blocks.
-- Top-two outcomes t1_i, t2_i and ratio ρ_i = N_i(t2_i)/N_i(t1_i).
-- D1 raw and corrected chunks and flags (`awqpe_vectorised`, eps 0.9 or eps_safe).
-- The D2 grid log-likelihood ℓ(φ_g), g = 0..G−1.
+**Overlap actions** (unchanged from P6).
+- O-ext_j: chunk j re-measured with width m_j + v, v = 1. It reads round(2^v x_j) mod 2^(m_j+v) in the limit.
+- O-bridge_j: a width-m_j block at offset K_j − s, s = 1.
+- A batch is S0 shots, with at most A overlap batches per trial.
+- The two mechanisms are never mixed within an arm.
 
-**Overlap actions** (unchanged from P6, `overlap/candidates.py`).
-- O-ext at j: chunk j re-measured with width m_j + v, where v = 1.
-- O-bridge at j: a width-m_j block at offset K_j − s, where s = 1.
-- A batch is S0 shots. At most A overlap batches per trial.
+**Observables at decision time t.**
+- Counts N_i(y) of every chunk block, and N_o(y) of every overlap block already measured.
+- The shot ledger.
+- The D2 grid log-likelihood ℓ_t(g) on φ_g = g/G, which is a deterministic function of the counts.
+- Nothing else. In particular, not φ, not j*, and not the stratum label.
 
-## 2. Candidate signals
+---
 
-### BL-1: Local ambiguity
+## 2. Two separate research questions: do not conflate
 
-**Definition.** Using only chunks j and j+1:
-- Upper term: U_j = ρ_j · 1[t1_j, t2_j adjacent mod M_j]. This is the chunk-j block itself being split between two neighbouring values, the signature of r_j near a rounding point of chunk j.
-- Lower term: L_j = ρ_(j+1) · 1[{t1_(j+1), t2_(j+1)} = {M_(j+1)/2 − 1, M_(j+1)/2}]. This is the chunk-(j+1) block split exactly across its MSB flip, i.e. the borrow bit β_j itself undecided.
-- The score is S1_j = max(U_j, L_j).
-- **Bayesian variant, to be decided on dev.** Replace each ratio with the Beta-posterior probability that the second outcome's true probability exceeds 0.5 × the first's. This is less noisy at small counts.
+| | **Track A: BLAO-D2** | **Track B: boundary-local extended decoder ("awqpe_bl")** |
+|---|---|---|
+| Question | Does choosing overlap *geometry* by a boundary-local criterion improve likelihood (D2) reconstruction at equal U-query cost? | Can a D1-type decoder consume an O-ext block at boundary j using only local information, without the whole-lower-part 10...0 predicate? |
+| What changes | Only the trigger (where and when overlap is placed). The decoder (D2) is unchanged and uses every block. | The decoder rule. The trigger is secondary. |
+| Nature | The cleanest test of the core BLAO hypothesis (measurement geometry). | A new decoder research problem, labelled non-paper; never "AWQPE". |
+| Comparators | Frozen P6 D2 variants (bridge_s1_A2, ext_v1_eig_A2), which already place overlap by *global* information gain at any boundary, plus the P5 eig-shots baseline. | awqpe_ext + lowerhalf_gated (frozen), and faithful AWQPE eps_safe with P5 eig shots. |
+| Mechanisms | O-ext and O-bridge. | O-ext only (no D1 stitching rule for bridge blocks, as in P6). |
+| Claims | Its own primary family. | Its own primary family, and only if its deterministic validation (§4.4) passes. |
 
-**Observables.** The counts of blocks j and j+1 only. No other chunk, no posterior.
+**Rules against conflation.**
+- A Track-A result says nothing about Track B, and vice versa.
+- A Track-B decoder is never evaluated with a Track-A trigger's success used as evidence, or the reverse.
+- No arm mixes D2 decoding with awqpe_bl.
 
-**Decision rule.** Among boundaries with S1_j > τ1, place overlap at argmax_j S1_j, subject to the budget A. τ1 is a single threshold chosen on dev only.
+---
 
-**Overlap action.** O-ext (v = 1) or O-bridge (s = 1) at j. The mechanism is fixed per arm and never mixed.
+## 3. Track A: BLAO-D2, exact signal definitions
 
-**Decoder requirements.**
-- D2: none.
-- D1-type: the new boundary-local rule of section 3 is required; `awqpe_ext` would ignore these blocks.
+**Common protocol.**
+- The decision process is P6's B4-style arm: information-gain shots on chunks, plus at most A overlap batches.
+- At each step where an overlap batch is budget-eligible, compute a score s_j for each internal boundary j = 0..B−2 from the observables at time t.
+- Candidate set: C_t = { j : s_j > τ }. If C_t is empty, the step is a chunk-shot step chosen by the frozen P5 eig_cell signal. Otherwise overlap is placed at j_t = argmax_(j∈C_t) s_j, with ties broken by seeded jitter.
+- Every signal has exactly one scalar constant, chosen on dev only.
 
-**Cost.** O(Σ_i M_i) per trial per step (top-two by partial sort). Negligible.
+### BL-1: Local ambiguity (counts only)
 
-**Firewall.** It is a function of counts only. It lives in `overlap/`, so it falls under the AST leakage test.
+For block i, let t1_i and t2_i be its two most frequent outcomes (seeded jitter for ties), and ρ_i = N_i(t2_i) / N_i(t1_i) ∈ [0,1].
 
-**Difference from lowerhalf_gated.**
-- lowerhalf_gated needs every lower chunk j+1..B to decode to exactly 10...0: a global and very restrictive condition, which at boundary 0 of [4,4,4,4] means 12 exact bits.
-- BL-1 looks only at the two chunks adjacent to the boundary.
-- It also reacts to statistical ambiguity (split counts) rather than to one exact decoded value.
+  U_j = ρ_j · 1[ t2_j ≡ t1_j ± 1 (mod M_j) ]
+    (the chunk-j block split between neighbouring values, i.e. r_j near 1/2)
 
-### BL-2: Adjacent-window consistency
+  L_j = ρ_(j+1) · 1[ {t1_(j+1), t2_(j+1)} = {M_(j+1)/2 − 1, M_(j+1)/2} ]
+    (the chunk-(j+1) block split across its MSB flip, i.e. β_j itself undecided)
 
-**Definition.** Both neighbouring blocks carry information about the same bit β_j:
-- The upper block, through the sub-bin shape of its peak: the relative counts at t1_j and its neighbours locate 2^(m_j) δ_j within the bin, and hence r_j at coarse resolution.
-- The lower block, directly, through the MSB of 2^(m_(j+1)) δ_(j+1).
+  s_j^(BL1) = max(U_j, L_j),  τ = τ1.
 
-Each window gets its own local 1-D posterior with a flat prior:
-- **Upper.** On u ∈ [−1/2, 1/2), where 2^(m_j) δ_j = t1_j + u, with likelihood Π_y K_(M_j)((t1_j + u − y)/M_j)^(N_j(y)). Here P_up = P(β_j = 1 | upper) = P(u < 0 | upper). Rounding up from below means the remainder is above 1/2.
-- **Lower.** On δ_(j+1) ∈ [0, 1) with its own kernel likelihood, giving P_low = P(δ_(j+1) ≥ 1/2 | lower).
+- **Observable.** The counts of blocks j and j+1 only.
+- **Boundary selection.** The largest local split ratio.
+- **Why it is not a hard-coded predicate.** It is a continuous statistic of two blocks' counts with one threshold. It does not require any exact decoded value of any chunk.
 
-The score is the probability that the two windows disagree on β_j under independence:
+### BL-2: Adjacent-window consistency (counts plus the known kernel)
 
-  S2_j = P_up (1 − P_low) + (1 − P_up) P_low.
+Two independent local posteriors on the same bit β_j, each with a flat prior and a 64-point grid per unit:
 
-It is high when either window is uncertain, and highest when both are confident but disagree, which signals an error in one of them.
+- **Upper window (chunk j).** Write M_j δ_j = t1_j + u, with u ∈ [−1/2, 1/2).
+  - L_up(u) = Π_y K_(M_j)((t1_j + u − y)/M_j)^(N_j(y)).
+  - Since r_j = u mod 1, β_j = 1 ⇔ u < 0.
+  - P_up = P(u < 0 | counts of block j).
+- **Lower window (chunk j+1).** On r ∈ [0,1): L_low(r) = Π_y K_(M_(j+1))(r − y/M_(j+1))^(N_(j+1)(y)).
+  - P_low = P(r ≥ 1/2 | counts of block j+1).
 
-**Observables.** The counts of blocks j and j+1, and the kernel (known model). No global posterior.
+  s_j^(BL2) = P_up (1 − P_low) + (1 − P_up) P_low,  τ = τ2.
 
-**Decision rule.** Among boundaries with S2_j > τ2, place overlap at argmax_j S2_j, within A. τ2 is chosen on dev.
+This is the probability that the two windows' independent readings of β_j disagree. It is high when either is uncertain, and highest when both are confident but contradict each other.
 
-**Overlap action.** O-ext or O-bridge at j. O-bridge is the natural action for BL-2, because a bridge block straddles the boundary and measures β_j together with the adjacent bits of both chunks.
+- **Observable.** The counts of blocks j and j+1, and the kernel.
+- **Boundary selection.** The largest disagreement probability.
+- **Known weakness, to be measured in the pilot, not assumed.** The upper window's information about r_j comes only from sub-bin peak shape. It may be weak at small m_j or S0, pushing P_up toward 1/2 and making s^(BL2) ≈ 1/2 almost regardless of P_low.
 
-**Decoder requirements.** As BL-1: none for D2; D1-type needs section 3.
+### BL-3: Boundary-local expected information gain (the D2 posterior)
 
-**Cost.**
-- Two 1-D posteriors on sub-grids of about 64 points per boundary: O(B · (M_j + M_(j+1)) · 64) per trial per step. Negligible.
-- The upper-window posterior uses only the neighbourhood of t1_j (for example ±2 outcomes), to stay cheap and local.
+- Let π_t(g) ∝ exp ℓ_t(g). Label each grid point b_j(g) = 1[frac(2^(K_j) φ_g) ≥ 1/2]; these labels are precomputed once per (G, K_j).
+- For the overlap block O_j at boundary j, with outcome law p_(O_j)(y|g), define the one-shot mutual information with the boundary bit:
 
-**Firewall.** Counts plus the known kernel only; in `overlap/`.
+  I_j = H( Σ_g π_t(g) p_(O_j)(·|g) ) − Σ_(b=0,1) π_t(b_j = b) · H( Σ_(g: b_j(g)=b) π_t(g | b_j = b) p_(O_j)(·|g) ).
 
-**Caveat, to verify in the deterministic validation.** The upper block's sub-bin information about r_j is weak for small m_j and few shots, so P_up may sit near 1/2 almost always. BL-2 could then collapse to a function of P_low alone. The validation must report the distribution of P_up and the fraction of decisions it changes relative to P_low alone.
+- This is computed on the posterior support (tail mass ≤ 10^−6), as in eig_cell_support.
 
-**Difference from lowerhalf_gated.** It uses statistical evidence from both sides of the boundary and never requires exact decoded values of chunks below j+1.
+**Two-stage selection.** Let E_t* = max_i EIG_cell(chunk i), the frozen P5 signal.
+- The score is s_j^(BL3) = I_j / E_t*. Overlap is placed at argmax_j s_j if s_j > κ; otherwise the step is a chunk-shot step.
+- The ratio is compared with a threshold, not merged into one argmax. The two informations have different targets, which makes that comparison explicit and tunable (one constant, κ).
 
-### BL-3: Boundary-local expected information gain
+**Relation to the frozen comparator.** ext_v1_eig_A2 and bridge_s1_A2 score overlap blocks by information about the whole n-bit cell. BL-3 scores each overlap block only for the bit it exists to resolve.
+- **Track A therefore tests a specific hypothesis:** a boundary-local target beats a global-cell target. It is not just "local beats lowerhalf_gated".
 
-**Definition.** Under the current D2 grid posterior π(g) ∝ exp ℓ(g), the target is the local variable β_j(g) = 1[frac(2^(K_j) φ_g) ≥ 1/2]. For the overlap block O_j at boundary j, with outcome Y ~ p(y | φ_g):
+**D2 decoding.** Unchanged. The MAP of the grid posterior over all blocks, with each shot entering the likelihood once.
 
-  BL3_j = I(β_j ; Y) = H(Σ_g π(g) p(·|g)) − Σ_(b∈{0,1}) π(β_j = b) H(Σ_(g: β_j(g)=b) π(g|b) p(·|g)).
+**Firewall (all three).**
+- The signals are functions of counts and the likelihood, implemented under `research/awqpe/overlap/`. The AST leakage test covers that package.
+- A truth-raises oracle test will be added.
+- j* and the strata are analysis-only.
 
-Optionally report it per U-query, BL3_j / q(O_j).
-- **Closest existing signal.** The P5/P6/P7 `eig_cell` policy scores the mutual information of a block with the global n-bit cell (or the tau-cell in P7). That pools evidence about all boundaries into one target.
-- **What BL-3 does instead.** It scores each overlap candidate only for the bit it exists to resolve. The chunk-shot actions keep the global signal, so shots and overlap compete on commensurate terms only through the decision rule below.
+---
 
-**Observables.** The D2 grid log-likelihood and the known kernel.
+## 4. Track B: can a decoder use O-ext information locally?
 
-**Decision rule** (a two-stage choice that keeps allocation unchanged):
-- (a) Choose the best chunk action by the frozen `eig_cell` signal.
-- (b) Take overlap at j* = argmax_j BL3_j instead, if BL3_(j*) > κ · EIG_cell(best chunk) and the overlap budget allows. κ is one scalar chosen on dev.
-- **Rejected alternative.** Folding BL3 into a single argmax with eig_cell was rejected, because the two informations have different targets and are not directly comparable.
+### 4.1 Where the current rule needs global information
 
-**Overlap action.** O-ext or O-bridge at j*.
+- Algorithm 2 decides chunk j's borrow from the MSB of the corrected chunk j+1. It fails when the chunk-j block rounds the "wrong" way while unflagged, or when the lower part is exactly 10...0 (the V1 floor).
+- `awqpe_ext` consults the widened block only when chunks j+1..B are exactly 10...0 (2^−(n−K_j) of phases in the limit).
+- The reason recorded in its docstring: substituting the widened reading unconditionally raised failures to 16-54%, because the widened reading's own rounding can carry.
 
-**Decoder requirements.** For D2, none; BL-3 is the natural D2 trigger. For D1-type, section 3.
+### 4.2 Two lemmas (infinite-shot limit)
 
-**Cost.**
-- For each candidate: a posterior-predictive over M_ov outcomes on the posterior support (K_s points), O(T · K_s · M_ov). This is the same order as eig_cell_support, which was feasible at n = 16 in P6/P7.
-- The β_j labels per grid point are precomputed once per (G, K_j).
+**L1 (widened floor).**
+- With x_j = q + r_j, where q = ⌊x_j⌋, the limit reading of O-ext_j is w = round(2^v x_j) = 2^v q + round(2^v r_j).
+- Hence ⌊w / 2^v⌋ = q exactly when round(2^v r_j) < 2^v, i.e. when
 
-**Firewall.** It uses the posterior only, not truth. It lives in `overlap/`, next to or reusing `allocation/eig_cached.py` machinery.
+  r_j < 1 − 2^−(v+1)  (v = 1: r_j < 3/4),
 
-**Difference from lowerhalf_gated.** It has no structural precondition at all. It places overlap wherever the posterior says a boundary bit is uncertain *and* the overlap block would resolve it.
+  and q + 1 otherwise.
+- No condition on chunks j+2..B enters.
 
-## 3. Decoder requirement for D1-type decoding: "awqpe_bl" (a new, labelled non-paper decoder)
+**L2 (target).**
+- The best n-bit chunk j equals q mod M_j unless the lower n − K_j bits round up with a carry, which requires r_j ≥ 1 − 2^−(n−K_j+1).
+- Since n − K_j ≥ 2 for every internal boundary (all widths are > 1), that threshold is ≥ 7/8 > 3/4.
+- Hence **for r_j < 3/4 the substitution chunk j := ⌊w/2^v⌋ mod M_j is exactly correct**, whatever the lower chunks are.
 
-`awqpe_ext` substitutes the widened reading at boundary j only when the lower part is exactly 10...0. Its docstring records why unconditional substitution is harmful: the widened reading's own rounding can carry into chunk j's bits with probability about 2^−(v+1), which gave 16-54% failures in P6 development. A boundary-local rule must therefore say *when* the widened reading is more trustworthy than Algorithm 2's borrow.
+**Local certificate for r_j < 3/4.**
+- The chunk-(j+1) block measures r_j directly: in the limit it reads y = round(M_(j+1) r_j) mod M_(j+1).
+- Reading y ∈ Y_safe = { ⌈M/4⌉, …, ⌈3M/4⌉ − 1 − μ } (with M = M_(j+1)) implies r_j < (y + 1/2)/M < 3/4.
+- It also excludes the wrap reading y = 0, which could mean r_j ≈ 1.
+- For M = 16 and μ = 1: Y_safe = {4, …, 10}, so r_j < 10.5/16 ≈ 0.656.
+- The lower edge ⌈M/4⌉ restricts substitution to where it matters: r_j away from 0, where the chunk-j block can straddle two values.
 
-**Candidate rule, to be specified exactly and validated before any pilot.** At boundary j, with a widened block for chunk j present:
-- Let w = t1_ext. Its extra bit e = w mod 2^v (v = 1) is an independent reading of β_j, with its own carry risk when r_j is near 1 − 2^−(v+1).
-- Let b = the MSB of the corrected chunk j+1, which is Algorithm 2's reading of β_j.
-- If e and b agree: keep Algorithm 2's result.
-- If they disagree AND the local evidence favours the widened block, substitute chunk j := floor(w / 2^v) mod 2^(m_j). The favouring condition is BL-2's P_low near 1/2, or chunk j+1's split across its MSB (BL-1's L_j above threshold).
-- Otherwise keep Algorithm 2's result.
+### 4.3 The candidate rule (awqpe_bl), stated for review, not implemented
 
-**Required properties** (a deterministic validation suite, like the A-E suite for awqpe_ext):
-1. With no overlap blocks, it equals faithful AWQPE exactly.
-2. When the lower part is 10...0, it equals awqpe_ext exactly, so it strictly generalises the frozen extension.
-3. In the infinite-shot limit, on the V1 failure set, it is never worse than awqpe_ext.
-4. On a generic dense grid in the infinite-shot limit, it introduces no new failures. This is the carry-risk check.
+Algorithm 2 runs LSB to MSB, unchanged, except at boundary j (upper chunk j). **If** an O-ext_j block has shots **and** the raw top outcome of the chunk-(j+1) block lies in Y_safe, **then** set chunk j := ⌊t1(O-ext_j) / 2^v⌋ mod M_j with no further borrow. Otherwise apply Algorithm 2's rule.
+- **Inputs used at boundary j:** the O-ext_j block, the chunk-(j+1) block's raw top outcome, and the already-decoded state that Algorithm 2 carries. Chunks j+2..B are never read.
+- **In the limit it is exact.** Proven for r_j < 3/4 by L1 + L2. Otherwise it reduces to Algorithm 2.
+- **With finite shots it is NOT known to help.** It errs if (a) the O-ext top outcome is off by one bin, or (b) the chunk-(j+1) reading falls inside Y_safe while r_j ≥ 3/4. Event (b) needs an error of more than μ + 1/2 bins.
+- **Both error probabilities are local and computable from the kernel.** The question is whether, on realistic phases, the rescues outnumber the new errors.
+- **Open issue: μ.** μ ∈ {0, 1} is to be fixed by the deterministic validation before any stochastic data. At M_(j+1) = 4 (m = 2), Y_safe = {1, 2} with μ = 0 leaves only a half-bin margin, so the rule may be unsafe for 2-bit chunks. That is a reason to restrict Track B to m ≥ 3, to be decided at validation.
+- **Honest status.** Local decoding is *possible in the infinite-shot limit* (L1 + L2 + certificate). Whether it is *beneficial at finite shots* is exactly what Track B would test.
 
-**Labelling.** It must always be labelled "adaptive overlap + boundary-local extended decoder", never AWQPE.
+### 4.4 Deterministic validation (must pass before any Track-B pilot)
 
-**Scope.** O-bridge stays D2-only, as in P6. No stitching rule is invented for bridge blocks under D1.
+1. With no O-ext blocks: equal to faithful AWQPE, bit for bit.
+2. On every phase where chunks j+1..B are exactly 10...0: equal to awqpe_ext. This case lies inside Y_safe, so awqpe_bl strictly generalises the frozen extension.
+3. Infinite-shot limit on the V1 failure set: never worse than awqpe_ext.
+4. Infinite-shot limit on a dense generic grid: zero new failures (the carry check of L1 and L2).
+5. Locality: permuting or resampling the counts of chunks j+2..B does not change the decision at boundary j (unit test).
+6. Exact computation of the finite-shot error terms (a) and (b) from the kernel for m ∈ {3,4} and S ∈ {4,8,16}, reported before the pilot.
 
-## 4. Summary comparison
+---
 
-| | lowerhalf_gated (frozen P6) | BL-1 | BL-2 | BL-3 |
+## 5. Worked example: n = 16, [4,4,4,4]
+
+**The phase.** Constructed for illustration; it is not from any P6 pool. The numbers come from the existing decoders (awqpe_vectorised, awqpe_ext_decode, lowerhalf_mask, likelihood_decode): 200,000 trials at S = 16 shots per block, eps = 0.9, and 2,000 trials for D2. This is not a pilot.
+
+  2^16 φ = 5·4096 + 2051.3,  φ = 0.343800354…
+  N* = 22531 = 0101 1000 0000 0011  → chunks (5, 8, 0, 3).
+
+**Boundary 0 (upper).** x_0 = 16φ = 5.50081, so q = 5 and r_0 = 0.50081 (just above 1/2).
+
+| Block | Reads | Most likely outcomes (probability) |
+|---|---|---|
+| chunk 0 (k = 0) | 16δ = 5.5008 | 6 (0.408), **5 (0.405)**, 7 (0.046). Split almost exactly between 5 and 6. |
+| chunk 1 (k = 4) | 16δ = 8.0129 | 8 (0.9995). Sharp: β_0 = 1 is locally certain. |
+| chunk 2 (k = 8) | 16δ = 0.206 | 0 (0.868) |
+| chunk 3 (k = 12) | 16δ = 3.300 | 3 (0.738) |
+| O-ext_0 (k = 0, m = 5) | 32φ = 11.0016 | 11 (0.99999). Sharp. |
+
+**Why the frozen rule fails.**
+- The lower part below boundary 0 is 1000 0000 0011, not 1000 0000 0000. Below boundary 1 it is 0000 0011, not 1000 0000. Below boundary 2 it is 0011, not 1000.
+- So lowerhalf_gated fires at **0.0%** of trials at every boundary.
+- Even if an O-ext_0 block were measured, awqpe_ext would ignore it. Its output was identical to faithful AWQPE in 200,000/200,000 trials.
+
+**Faithful AWQPE (eps 0.9) success is 55.8%.** The failure is entirely one case:
+
+| Case | Probability | Algorithm 2 result | Success given the case |
+|---|---|---|---|
+| A: t1 = 6, unflagged | 0.450 | 6 − 1 (borrow, since chunk-1 MSB = 1) = 5 | 0.999 |
+| **B: t1 = 5, unflagged** | **0.440** | **5 − 1 = 4** | **0.000** (error 4096 LSB, a higher-order failure at j* = 0) |
+| C: flagged | 0.109 | min(5,6) = 5, no borrow | 0.994 |
+
+**What a genuinely local decoder needs, and has, here.**
+- (i) β_0 from the adjacent chunk-1 block, which reads 8 with probability 0.9995.
+- (ii) An unambiguous reading of chunk 0's integer part, which O-ext_0 gives: ⌊11/2⌋ = 5 in 100% of simulated trials.
+- The certificate holds: the chunk-1 reading 8 lies in Y_safe = {4..10}, so r_0 < 3/4. By L1 + L2, chunk 0 = 5 is then exact.
+- Chunks 2 and 3 are **not needed**. The frozen rule's requirement that they be 0000 and (at the n-bit level) 0000 is exactly what excludes this phase.
+
+**D2 contrast (Track A context).** D2 decodes this phase correctly in 99.4% of trials with no overlap at all. Its likelihood uses chunk 0's counts at 5 *and* 6 jointly with chunk 1's sharp reading.
+- So this failure is **specific to the faithful decoder** and is a Track-B example.
+- Track A's targets are D2's residual failures: posterior mass split between hypotheses that differ at an upper boundary, for example φ vs φ ± 2^−K_j under low shot counts.
+- There an overlap block measuring the bits around that boundary can discriminate the modes: O-bridge_0, at offset 3, reads frac(8φ), which depends on q's LSB.
+- Whether local targeting does this better than the frozen global-cell eig is the Track-A question.
+
+---
+
+## 6. Falsification criteria (declared before any data)
+
+BLAO, or the affected track, is **rejected** if any of the following holds.
+
+**F1: Pool dependence.** Any result that holds on the already-inspected P6 phases (dev or test) but not on the fresh pools of §7 is void. The P6 phases are never used for BLAO selection, tuning or claims.
+
+**F2: No equal-cost gain (Track A).** On the fresh dev pool, no BL signal beats both frozen P6 D2 variants on success at equal U-queries (upper bracket, D-022 matching, phase-cluster CI including 0).
+- The equal-shot result is reported but cannot rescue the claim.
+
+**F3: No equal-cost gain (Track B).** awqpe_bl (with any trigger) does not beat awqpe_ext + lowerhalf_gated at equal U-queries (upper bracket) on the fresh dev pool.
+- Or it fails any item of §4.4 at validation, which rejects it before any stochastic run.
+
+**F4: Hidden hard-coded predicate.** A trigger's firing decisions are essentially an exact decoded-value predicate. Operationally, on the pilot or dev pool, Cohen's κ ≥ 0.9 between its fire/no-fire decisions (per boundary and step) and either:
+- (a) `lowerhalf_mask`, or
+- (b) "the decoded chunk j+1 equals M/2", or
+- (c) "raw chunk j+1 ∈ Y_safe".
+
+Such a trigger is treated as a decoder-specific predicate, not a boundary-local statistic, and is dropped. (awqpe_bl's own Y_safe certificate is a *decoder* rule derived from L1 + L2, fixed before data. It is not a trigger and is not subject to F4.)
+
+**F5: Fresh-pool failure.** The Track-A dev winner shows no gain on the held-out BLAO test pool, using the same primary comparison: phase-cluster CI including 0, or Holm p ≥ 0.05. The same applies to Track B.
+
+**F6: Placement without payoff.** A trigger raises placement at j* (analysis-only label) without raising success at equal U. This is reported as a negative result. It shows the P6 conditional rescue rate does not transfer.
+
+**F7: Budget dilution.** The overlap budget is exhausted (≥ 95% of trials use all A batches) while success at equal U does not improve. The signal fires indiscriminately.
+
+---
+
+## 7. Minimal pilot (DESIGN ONLY; not implemented, not run)
+
+**Purpose.** Feasibility and instrumentation only: firing rates, placement, runtime, memory, matching validity. **No selection, tuning or claim** is made from pilot data.
+
+**Fresh phase pool.**
+- `make_phase_table` with a new master seed, 20261010, reserved only for BLAO; the split is "dev". This gives a seed domain disjoint from every earlier phase.
+- Before running, an assertion checks that no pilot φ equals any φ in the P6 dev or test phase tables (or the P7-P9 tables) to within 2^−40. The phases are logged.
+- The later BLAO dev and test pools use further new master seeds (20261011 dev, 20261012 test). The P6 test selections and tables are never reused.
+
+**Common settings.** These are the P6 cell settings, not re-tuned:
+- partitions [4,4,4] (n = 12) and [4,4,4,4] (n = 16);
+- strata S1_final_half, S2_boundary, S4_uniform;
+- 4 phases per stratum and 3 replicates, giving 36 trials per partition per arm;
+- S0 = 4, dS = S0, budget multiplier r = 2, A = 2.
+
+**Provisional constants.** τ1 = 0.5, τ2 = 0.25, κ = 1, μ = 1. They are fixed a priori and not tuned on the pilot; dev will select them later on its own pool.
+
+**Arms.**
+
+| Track | Arm | Decoder | Overlap trigger | Mechanism |
 |---|---|---|---|---|
-| Information used | exact corrected values of chunks j+1..B | counts of chunks j, j+1 | counts of chunks j, j+1 plus the kernel | the global D2 posterior |
-| Scope | global (whole lower part) | local | local | local target, global evidence |
-| Fires at upper boundaries for n = 16 | almost never (0% at j* in P6 test) | yes, if split counts | yes, if the windows disagree or are uncertain | yes, if β_j is uncertain and resolvable |
-| Tuned constants | none | τ1 | τ2 | κ |
-| Cost per step | one D1 decode | O(ΣM) | O(B·M·64) | O(T·K_s·M_ov) per candidate |
-| D2 needs a new decoder | no | no | no | no |
-| D1 needs a new decoder | no (awqpe_ext) | yes (awqpe_bl) | yes | yes |
+| (ref) | B2: P5 eig shots, no overlap | D2 / faithful eps_safe | none | none |
+| A | frozen comparator | D2 | ext_v1_eig_A2 (global eig) | O-ext |
+| A | frozen comparator | D2 | bridge_s1_A2 (global eig) | O-bridge |
+| A | BL-1 | D2 | s^(BL1) > τ1 | O-ext and O-bridge (separate arms) |
+| A | BL-2 | D2 | s^(BL2) > τ2 | O-ext and O-bridge (separate arms) |
+| A | BL-3 | D2 | s^(BL3) > κ | O-ext and O-bridge (separate arms) |
+| B | frozen comparator | awqpe_ext | lowerhalf_gated | O-ext |
+| B | awqpe_bl | awqpe_bl | lowerhalf_gated | O-ext (isolates the decoder change) |
+| B | awqpe_bl | awqpe_bl | BL-1 | O-ext |
+| B | awqpe_bl | awqpe_bl | BL-2 | O-ext |
 
-## 5. Hypotheses and how each could fail (not assumed)
+- That is 11 overlap arms plus the reference.
+- Each overlap arm is paired with its equal-U lower and upper brackets (D-022) against B2.
+- Track B arms run only after §4.4 passes.
 
-- **H1 (placement).** BL triggers place overlap at the responsible boundary more often than lowerhalf_gated at n = 12 and 16.
-  - Falsified if the dev placement rate at j* (analysis-only truth label) is not higher.
-- **H2 (D2 value).** With D2, a BL trigger beats the frozen P6 D2 variants at equal U (upper bracket, D-022 matching).
-  - It may well fail. P6 D2 overlap gains were small (+0.56 to +0.60 pts), and BL-3 may be nearly equivalent to the existing `eig` candidate policy.
-- **H3 (D1 value).** awqpe_bl with a BL trigger beats awqpe_ext + lowerhalf_gated at equal U, especially at n = 16.
-  - It fails if the carry risk of section 3 outweighs the gain, or if local signals fire too often and waste the A budget.
-- **Risk: budget dilution.** Local triggers fire more often. Under a fixed A and equal-U accounting they can lose, even with better placement. This is why the equal-U upper bracket stays primary.
+**Pilot outputs (instrumentation, no inference).**
+- Firing rate per boundary j and step.
+- The distribution of the placement boundary.
+- The placement rate at j* (analysis-only label).
+- Overlap batches used, and the fraction of trials exhausting A (for F7).
+- κ-agreement with the predicates of F4.
+- The upper-window P_up distribution (the BL-2 weakness).
+- Equal-U bracket validity rates.
+- Runtime and peak memory per shard.
+- Invariant checks: the leakage test, bit-identity of the frozen comparators with the P6 code paths, and awqpe_bl = awqpe_ext on the 10...0 subset.
 
-## 6. Evaluation protocol sketch (for approval; not started)
+**Gate from pilot to dev.** It passes if all of the following hold:
+- no crashes;
+- the invariants pass;
+- no trigger has a firing rate of 0% or 100% at every boundary;
+- runtime is within budget.
 
-1. **Deterministic validation.** For awqpe_bl: properties 1-4 of section 3. For BL-1/2/3: unit tests on constructed count vectors; the leakage AST test; and a truth-raises oracle test.
-2. **Pilot.** At about 1% scale, report the firing rate per boundary, the placement rate at j*, runtime and memory.
-3. **Dev.** Select one signal and its constant per (mechanism, decoder) by a rule predeclared before dev data.
-   - Primary: B4-style BLAO arm vs B2m_upper at equal U.
-   - Comparators: the frozen P6 variants run on the same dev phases.
-4. **Freeze.** A new D-record with the config hash.
-5. **Held-out test on a NEW phase pool.** The P6 test phases were inspected post hoc (the n = 16 analysis), so they are no longer clean.
-   - BLAO's test must use a fresh seed domain: a new master seed and split tag, e.g. `test_blao`.
-   - It must not reuse or modify the P6 held-out selections or tables.
-   - The frozen P6 variants are re-run on the new pool only as comparators.
+Performance numbers from the pilot are not used for any decision.
 
-## 7. What is explicitly NOT being done now
+**Estimated cost.** 2 partitions × 36 trials × 12 arms, plus brackets, at the P6 per-trial cost: under 10 minutes on the existing CPU runner.
+
+---
+
+## 8. Explicitly not done
 
 - No BLAO or awqpe_bl code.
-- No experiments.
-- No change to P5-P10b artefacts.
+- No pilot, dev or test runs.
+- No change to P5-P10b artefacts or selections.
+- No CUDA or system-level installs.
 - No claim that BLAO works.

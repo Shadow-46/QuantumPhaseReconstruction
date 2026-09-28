@@ -78,3 +78,8 @@ A `pip freeze` of the `.venv` was taken before any change.
 - GPU execution of 3-6-qubit circuits also adds per-call launch and transfer overhead, so a net slowdown is plausible.
 - The GPU timings themselves remain unmeasured until a GPU-enabled Aer exists.
 - **All scientific phases' Monte Carlo work used the NumPy Dirichlet-kernel simulator, not Aer.** Aer GPU therefore cannot speed up P2-P9. It could only affect the P10 validation runs.
+
+## Decision (2026-09-29)
+- **The user declined installing a full CUDA toolkit for this benchmark.** The existing `.venv` stays unchanged, and the GPU arm is closed.
+- **The documented conclusion is final.** It rests on the CPU pilot and its Amdahl bound: the expected end-to-end GPU benefit for this project's Aer workloads is small, at most 1.03-1.34x, because transpilation dominates wall time.
+- **Scratch.** `~/aer_gpu_scratch` can be deleted.
